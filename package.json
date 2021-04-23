@@ -1,0 +1,10 @@
+{
+  "name": "L2-exit-format",
+  "version": "0.0.0",
+  "description": "Standard Exit Format for L2s built on EVM chains",
+  "main": "index.js",
+  "repository": "https://github.com/statechannels/exit-format.git",
+  "author": "geoknee <georgeknee@googlemail.com>",
+  "license": "MIT",
+  "private": true
+}
