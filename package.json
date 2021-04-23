@@ -6,5 +6,8 @@
   "repository": "https://github.com/statechannels/exit-format.git",
   "author": "geoknee <georgeknee@googlemail.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "hardhat": "^2.2.1"
+  }
 }
