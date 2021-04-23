@@ -1,4 +1,4 @@
-![](logo.png)
+<div style="text-align:center"><img src="logo.png" /></div>
 
 Standard Exit Format for L2s built on EVM chains
 
