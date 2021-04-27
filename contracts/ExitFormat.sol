@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.4;
+pragma solidity 0.8.4;
+
 
 library ExitFormat {
     // An Exit is an array of SingleAssetExit (one for each asset)
@@ -24,9 +25,10 @@ library ExitFormat {
     // * a destination address
     // * an amount of asset
     // * custom data (optional field, can be zero bytes). This can be used flexibly by different protocols.
-    struct Allocation{
+    struct Allocation {
         address destination;
         uint256 amount;
         bytes data;
     }
+
 }
