@@ -1,0 +1,35 @@
+[
+  {
+    "asset": 123,
+    "allocation": [
+      {
+        "destination": 3070,
+        "amount": 5,
+        "data": ""
+      }
+    ],
+    "data": ""
+  },
+  {
+    "asset": 456,
+    "allocation": [
+      {
+        "destination": 7646,
+        "amount": 5,
+        "data": ""
+      }
+    ],
+    "data": ""
+  },
+  {
+    "asset": 789,
+    "allocation": [
+      {
+        "destination": 7646,
+        "amount": 12,
+        "data": ""
+      }
+    ],
+    "data": ""
+  }
+]
