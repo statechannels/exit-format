@@ -39,7 +39,7 @@ library ExitFormat {
     function decodeExit(bytes memory _exit_) public pure returns (SingleAssetExit[] memory) {
         return abi.decode(_exit_, (SingleAssetExit[]));
     }
-    function encode(Allocation memory allocation) public pure returns (bytes memory) {
+    function encodeAllocation(Allocation memory allocation) public pure returns (bytes memory) {
         return abi.encode(allocation);
     }
     function decodeAllocation(bytes memory _allocation_) public pure returns (Allocation memory) {
