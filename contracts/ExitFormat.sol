@@ -15,7 +15,9 @@ library ExitFormat {
         Allocation[] allocations;
     }
 
-    // allocations is an array of Allocation
+    // allocations is an ordered array of Allocation. 
+    // The ordering is important, and may express e.g. a priority order for the exit
+    // (which would make a material difference to the final state in the case of running out of gas or funds)
     // Allocations = Allocation[]
 
     // An Allocation specifies
