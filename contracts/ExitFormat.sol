@@ -31,4 +31,18 @@ library ExitFormat {
         bytes data;
     }
 
+
+    // We use underscore parentheses to denote an _encodedVariable_
+    function encodeExit(SingleAssetExit[] memory exit) internal pure returns (bytes memory) {
+        return abi.encode(exit);
+    }
+    function decodeExit(bytes memory _exit_) internal pure returns (SingleAssetExit[] memory) {
+        return abi.decode(_exit_, (SingleAssetExit[]));
+    }
+    function encode(Allocation memory allocation) internal pure returns (bytes memory) {
+        return abi.encode(allocation);
+    }
+    function decodeAllocation(bytes memory _allocation_) internal pure returns (Allocation memory) {
+        return abi.decode(_allocation_, (Allocation));
+    }
 }
