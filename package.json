@@ -7,6 +7,9 @@
   "author": "geoknee <georgeknee@googlemail.com>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "test": "yarn hardhat test"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
