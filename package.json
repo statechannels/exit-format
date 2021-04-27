@@ -8,6 +8,12 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "hardhat": "^2.2.1"
+    "@types/chai": "^4.2.17",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.0.0",
+    "chai": "^4.3.4",
+    "hardhat": "^2.2.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
   }
 }
