@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { encodeExit } from "../ts/coders";
 import { transfer } from "../ts/transfer";
 import { Exit } from "../ts/types";
 
