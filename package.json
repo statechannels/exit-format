@@ -7,7 +7,25 @@
   "author": "geoknee <georgeknee@googlemail.com>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "prepare": "yarn hardhat compile",
+    "test": "yarn hardhat test"
+  },
   "devDependencies": {
-    "hardhat": "^2.2.1"
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@typechain/ethers-v5": "^6.0.5",
+    "@types/chai": "^4.2.17",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.0.0",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.3.0",
+    "ethers": "^5.1.4",
+    "hardhat": "^2.2.1",
+    "hardhat-typechain": "^0.3.5",
+    "ts-generator": "^0.1.1",
+    "ts-node": "^9.1.1",
+    "typechain": "^4.0.3",
+    "typescript": "^4.2.4"
   }
 }
