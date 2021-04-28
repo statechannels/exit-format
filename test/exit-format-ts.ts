@@ -37,3 +37,6 @@ describe("ExitFormat (typescript)", function () {
     );
   });
 });
+
+const x = 0xdeadbeef;
+const y = 0x96f7123e3a80c9813ef50213aded0e4511cb820f;
