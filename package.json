@@ -8,6 +8,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "prepare": "yarn hardhat compile",
     "test": "yarn hardhat test"
   },
   "devDependencies": {
