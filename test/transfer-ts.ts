@@ -68,11 +68,5 @@ describe("transfer (typescript)", function () {
         ],
       },
     ]);
-
-    console.log(
-      encodeExit(initialOutcome),
-      encodeExit(updatedOutcome),
-      encodeExit(exit)
-    );
   });
 });
