@@ -5,10 +5,10 @@
       {
         "destination": 3070,
         "amount": 5,
-        "data": ""
+        "data": 1
       }
     ],
-    "data": ""
+    "data": 2
   },
   {
     "asset": 456,
@@ -16,10 +16,10 @@
       {
         "destination": 7646,
         "amount": 5,
-        "data": ""
+        "data": 3
       }
     ],
-    "data": ""
+    "data": 4
   },
   {
     "asset": 789,
@@ -27,9 +27,14 @@
       {
         "destination": 7646,
         "amount": 12,
-        "data": ""
+        "data": 5
+      },
+      {
+        "destination": 3070,
+        "amount": 3,
+        "data": 6
       }
     ],
-    "data": ""
+    "data": 7
   }
 ]
