@@ -45,4 +45,7 @@ library ExitFormat {
     function decodeAllocation(bytes memory _allocation_) public pure returns (Allocation memory) {
         return abi.decode(_allocation_, (Allocation));
     }
+
+
+    
 }
