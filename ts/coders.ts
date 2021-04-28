@@ -1,4 +1,4 @@
-import { defaultAbiCoder } from "@ethersproject/abi";
+import { defaultAbiCoder, ParamType } from "@ethersproject/abi";
 import { Allocation, Exit } from "./types";
 
 export function encodeAllocations(allocation: Allocation) {
@@ -8,13 +8,26 @@ export function encodeAllocations(allocation: Allocation) {
   );
 }
 
-// export function encodeExit(exit: Exit) {
-//   return defaultAbiCoder.encode(
-//     ["tuple(address asset, bytes data, bytes encodedAllocations)"],
-//     exit.map((singleAssetExit) => ({
-//       asset: singleAssetExit.asset,
-//       data: singleAssetExit.data,
-//       encodedAllocations: encodeAllocations(singleAssetExit.allocations),
-//     }))
-//   );
-// }
+export function encodeExit(exit: Exit) {
+  return defaultAbiCoder.encode(
+    [
+      {
+        type: "tuple[]",
+        components: [
+          { name: "asset", type: "address" },
+          { name: "data", type: "bytes" },
+          {
+            type: "tuple[]",
+            name: "allocations",
+            components: [
+              { name: "destination", type: "address" },
+              { name: "amount", type: "uint256" },
+              { name: "data", type: "bytes" },
+            ],
+          } as ParamType,
+        ],
+      } as ParamType,
+    ],
+    [exit]
+  );
+}

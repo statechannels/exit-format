@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 import { Allocation, Exit } from "../ts/types";
 import { TestConsumer } from "../typechain/TestConsumer";
 
-describe("ExitFormat (solidity code)", function () {
+describe("ExitFormat (solidity)", function () {
   let testConsumer: TestConsumer;
 
   before(async () => {
