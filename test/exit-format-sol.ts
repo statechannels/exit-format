@@ -7,18 +7,8 @@ describe("ExitFormat (solidity)", function () {
   let testConsumer: TestConsumer;
 
   before(async () => {
-    const exitFormat = await (
-      await ethers.getContractFactory("ExitFormat")
-    ).deploy();
-
-    await exitFormat.deployed();
-
     testConsumer = await (
-      await ethers.getContractFactory("TestConsumer", {
-        libraries: {
-          ExitFormat: exitFormat.address,
-        },
-      })
+      await ethers.getContractFactory("TestConsumer")
     ).deploy();
 
     await testConsumer.deployed();

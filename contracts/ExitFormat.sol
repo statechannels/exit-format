@@ -32,7 +32,7 @@ library ExitFormat {
 
     // We use underscore parentheses to denote an _encodedVariable_
     function encodeExit(SingleAssetExit[] memory exit)
-        public
+        internal
         pure
         returns (bytes memory)
     {
@@ -40,7 +40,7 @@ library ExitFormat {
     }
 
     function decodeExit(bytes memory _exit_)
-        public
+        internal
         pure
         returns (SingleAssetExit[] memory)
     {
@@ -48,7 +48,7 @@ library ExitFormat {
     }
 
     function encodeAllocation(Allocation memory allocation)
-        public
+        internal
         pure
         returns (bytes memory)
     {
@@ -56,7 +56,7 @@ library ExitFormat {
     }
 
     function decodeAllocation(bytes memory _allocation_)
-        public
+        internal
         pure
         returns (Allocation memory)
     {
@@ -79,7 +79,7 @@ library ExitFormat {
         uint256[] memory initialHoldings,
         uint48[][] memory exitRequest
     )
-        public
+        internal
         pure
         returns (
             ExitFormat.SingleAssetExit[] memory updatedOutcome,
