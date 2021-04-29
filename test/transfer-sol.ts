@@ -63,7 +63,8 @@ describe("transfer (solidity)", function () {
       indices
     );
 
-    expect(gasEstimate.toNumber()).to.equal(44518);
+    // expect(gasEstimate.toNumber()).to.equal(44518); // if not using an external library call
+    expect(gasEstimate.toNumber()).to.equal(78550); // this is high partly due to the use of an external library call
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
