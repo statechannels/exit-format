@@ -25,12 +25,12 @@ describe("transfer (typescript)", function () {
     ];
 
     const initialHoldings = [BigNumber.from(6)];
-    const indices = [[1]];
+    const exitRequest = [[1]];
 
     const { updatedHoldings, updatedOutcome, exit } = transfer(
       initialOutcome,
       initialHoldings,
-      indices
+      exitRequest
     );
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);

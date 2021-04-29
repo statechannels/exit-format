@@ -40,10 +40,17 @@ contract TestConsumer {
         return a > b ? b : a;
     }
 
+    /**
+     * @notice Extracts an exit from an initial outcome and an exit request
+     * @dev Extracts an exit from an initial outcome and an exit request
+     * @param initialOutcome The initial outcome.
+     * @param initialHoldings The total funds that are available for the exit.
+     * @param exitRequest An array with an entry for each asset: each entry is itself an array containing the exitRequest of the destinations to transfer funds to. Should be in increasing order. An empty array indicates "all".
+     */
     function transfer(
         ExitFormat.SingleAssetExit[] memory initialOutcome,
         uint256[] memory initialHoldings,
-        uint48[][] memory indices
+        uint48[][] memory exitRequest
     )
         public
         pure
@@ -67,14 +74,14 @@ contract TestConsumer {
             uint48 k = 0;
             uint256 surplus = initialHoldings[i];
             ExitFormat.Allocation[] memory exitAllocations =
-                new ExitFormat.Allocation[](indices[i].length);
+                new ExitFormat.Allocation[](exitRequest[i].length);
             for (uint256 j = 0; j < initialAllocations.length; j++) {
                 uint256 affordsForDestination =
                     min(initialAllocations[j].amount, surplus);
 
                 if (
-                    indices[i].length == 0 ||
-                    (k < indices[i].length && indices[i][k] == j)
+                    exitRequest[i].length == 0 ||
+                    (k < exitRequest[i].length && exitRequest[i][k] == j)
                 ) {
                     updatedHoldings[i] -= affordsForDestination;
                     initialAllocations[j].amount -= affordsForDestination;
