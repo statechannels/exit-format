@@ -1,4 +1,5 @@
-import { defaultAbiCoder, ParamType } from "@ethersproject/abi";
+import { AbiCoder, defaultAbiCoder, ParamType } from "@ethersproject/abi";
+import { abort } from "node:process";
 import { Allocation, Exit } from "./types";
 
 export function encodeAllocations(allocation: Allocation) {
@@ -29,5 +30,29 @@ export function encodeExit(exit: Exit) {
       } as ParamType,
     ],
     [exit]
+  );
+}
+
+export function decodeExit(_exit_: any) {
+  return defaultAbiCoder.decode(
+    [
+      {
+        type: "tuple[]",
+        components: [
+          { name: "asset", type: "address" },
+          { name: "data", type: "bytes" },
+          {
+            type: "tuple[]",
+            name: "allocations",
+            components: [
+              { name: "destination", type: "address" },
+              { name: "amount", type: "uint256" },
+              { name: "data", type: "bytes" },
+            ],
+          } as ParamType,
+        ],
+      } as ParamType,
+    ],
+    _exit_
   );
 }
