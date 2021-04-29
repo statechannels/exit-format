@@ -57,6 +57,14 @@ describe("transfer (solidity)", function () {
       exit,
     } = await testConsumer.transfer(initialOutcome, initialHoldings, indices);
 
+    const gasEstimate = await testConsumer.estimateGas.transfer(
+      initialOutcome,
+      initialHoldings,
+      indices
+    );
+
+    expect(gasEstimate.toNumber()).to.equal(44518);
+
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
     expect(rehydrateExit(updatedOutcome)).to.deep.equal([
