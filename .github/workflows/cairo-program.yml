@@ -27,5 +27,5 @@ jobs:
           pip3 install cairo-lang-0.1.0.zip
       - name: compile and run cairo program
         run: |
-          cairo-compile $1 --output $1.json
-          cairo-run --program=$1.json --print_output --layout=small --program_input=$2 --tracer
+          cairo-compile ./cairo/src/StandardOutcome/loadOutcome.cairo --output output.json
+          cairo-run --program=output.json --print_output --layout=small --program_input=./cairo/src/outcomeData.json --tracer
