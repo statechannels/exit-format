@@ -1,8 +1,6 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
 import { Result, RLP } from "ethers/lib/utils";
-import { decodeExit, encodeExit } from "../ts/coders";
-import { transfer } from "../ts/transfer";
 import { Exit } from "../ts/types";
 const { ethers } = require("hardhat");
 import { TestConsumer } from "../typechain/TestConsumer";
@@ -11,18 +9,8 @@ describe("transfer (solidity)", function () {
   let testConsumer: TestConsumer;
 
   before(async () => {
-    const exitFormat = await (
-      await ethers.getContractFactory("ExitFormat")
-    ).deploy();
-
-    await exitFormat.deployed();
-
     testConsumer = await (
-      await ethers.getContractFactory("TestConsumer", {
-        libraries: {
-          ExitFormat: exitFormat.address,
-        },
-      })
+      await ethers.getContractFactory("TestConsumer")
     ).deploy();
 
     await testConsumer.deployed();
@@ -63,7 +51,7 @@ describe("transfer (solidity)", function () {
       indices
     );
 
-    expect(gasEstimate.toNumber()).to.equal(44518);
+    expect(gasEstimate.toNumber()).to.equal(44593);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 

@@ -36,10 +36,6 @@ contract TestConsumer {
         return ExitFormat.decodeAllocation(_allocation_);
     }
 
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a > b ? b : a;
-    }
-
     /**
      * @notice Extracts an exit from an initial outcome and an exit request
      * @dev Extracts an exit from an initial outcome and an exit request
@@ -60,50 +56,7 @@ contract TestConsumer {
             ExitFormat.SingleAssetExit[] memory exit
         )
     {
-        require(initialOutcome.length == initialHoldings.length);
-        exit = new ExitFormat.SingleAssetExit[](initialOutcome.length);
-        for (uint256 i = 0; i < initialOutcome.length; i++) {
-            ExitFormat.Allocation[] memory initialAllocations =
-                initialOutcome[i].allocations;
-
-            updatedOutcome = new ExitFormat.SingleAssetExit[](
-                initialOutcome.length
-            );
-            updatedHoldings = initialHoldings;
-
-            uint48 k = 0;
-            uint256 surplus = initialHoldings[i];
-            ExitFormat.Allocation[] memory exitAllocations =
-                new ExitFormat.Allocation[](exitRequest[i].length);
-            for (uint256 j = 0; j < initialAllocations.length; j++) {
-                uint256 affordsForDestination =
-                    min(initialAllocations[j].amount, surplus);
-
-                if (
-                    exitRequest[i].length == 0 ||
-                    (k < exitRequest[i].length && exitRequest[i][k] == j)
-                ) {
-                    updatedHoldings[i] -= affordsForDestination;
-                    initialAllocations[j].amount -= affordsForDestination;
-                    exitAllocations[k] = ExitFormat.Allocation(
-                        initialAllocations[j].destination,
-                        affordsForDestination,
-                        initialAllocations[j].data
-                    );
-                    ++k;
-                } else {}
-                surplus -= affordsForDestination;
-            }
-            updatedOutcome[i] = ExitFormat.SingleAssetExit(
-                initialOutcome[i].asset,
-                initialOutcome[i].data,
-                initialAllocations
-            );
-            exit[i] = ExitFormat.SingleAssetExit(
-                initialOutcome[i].asset,
-                initialOutcome[i].data,
-                exitAllocations
-            );
-        }
+        return
+            ExitFormat.transfer(initialOutcome, initialHoldings, exitRequest);
     }
 }
