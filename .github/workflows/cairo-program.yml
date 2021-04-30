@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip3 install ecdsa fastecdsa sympy
-          curl https://github.com/starkware-libs/cairo-lang/releases/download/v0.1.0/cairo-lang-0.1.0.zip -o ./cairo-lang-0.1.0.zip
+          curl --location https://github.com/starkware-libs/cairo-lang/releases/download/v0.1.0/cairo-lang-0.1.0.zip -o ./cairo-lang-0.1.0.zip
           pip3 install cairo-lang-0.1.0.zip
       - name: compile and run cairo program
         run: |
