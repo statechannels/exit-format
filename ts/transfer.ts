@@ -1,10 +1,16 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { Exit, SingleAssetExit } from "./types";
 
+/**
+ * Extracts an exit from an initial outcome and an exit request
+ * @param initialOutcome The initial outcome.
+ * @param initialHoldings The total funds that are available for the exit.
+ * @param exitRequest An array with an entry for each asset: each entry is itself an array containing the exitRequest of the destinations to transfer funds to. Should be in increasing order. An empty array indicates "all".
+ */
 export function transfer(
   initialOutcome: Exit,
   initialHoldings: BigNumberish[],
-  indices: number[][]
+  exitRequest: number[][]
 ) {
   if (initialOutcome.length !== initialHoldings.length) throw Error;
   const updatedOutcome: Exit = [];
@@ -20,7 +26,7 @@ export function transfer(
       ...initialOutcome[i],
       allocations: [], // start with an empty array
     };
-    let k = 0; // k is an index for this asset's indices
+    let k = 0; // k is an index for this asset's exitRequest
     for (let j = 0; j < initialAllocations.length; j++) {
       // j indexes allocations for this asset
       const affordsForDestination = min(
@@ -28,8 +34,8 @@ export function transfer(
         surplus
       );
       if (
-        indices[i].length == 0 ||
-        (k < indices[i].length && indices[i][k] === j)
+        exitRequest[i].length == 0 ||
+        (k < exitRequest[i].length && exitRequest[i][k] === j)
       ) {
         updatedHoldings[i] = BigNumber.from(updatedHoldings[i]).sub(
           affordsForDestination
