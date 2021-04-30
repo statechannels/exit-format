@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+        working-directory: ./cairo/src/StandardOutcome
       - uses: actions/checkout@v2
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
@@ -27,5 +28,5 @@ jobs:
           pip3 install cairo-lang-0.1.0.zip
       - name: compile and run cairo program
         run: |
-          cairo-compile ./cairo/src/StandardOutcome/loadOutcome.cairo --output output.json
-          cairo-run --program=output.json --print_output --layout=small --program_input=./cairo/src/outcomeData.json --tracer
+          cairo-compile loadOutcome.cairo --output output.json
+          cairo-run --program=output.json --print_output --layout=small --program_input=outcomeData.json --tracer
