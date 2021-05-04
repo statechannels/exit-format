@@ -1,0 +1,32 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip3 install ecdsa fastecdsa sympy
+          curl --location https://github.com/starkware-libs/cairo-lang/releases/download/v0.1.0/cairo-lang-0.1.0.zip -o ./cairo-lang-0.1.0.zip
+          pip3 install cairo-lang-0.1.0.zip
+      - name: compile and run cairo program
+        run: |
+          cairo-compile loadOutcome.cairo --output output.json
+          cairo-run --program=output.json --print_output --layout=small --program_input=outcomeData.json
+        working-directory: ./cairo/src/StandardOutcome
