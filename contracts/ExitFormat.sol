@@ -27,7 +27,8 @@ library ExitFormat {
     struct Allocation {
         address destination;
         uint256 amount;
-        bytes data;
+        address callTo; // compatible with Vetor WithdrawHelper
+        bytes callData; // compatible with Vetor WithdrawHelper
     }
 
     // We use underscore parentheses to denote an _encodedVariable_
@@ -115,7 +116,8 @@ library ExitFormat {
                     exitAllocations[k] = ExitFormat.Allocation(
                         initialAllocations[j].destination,
                         affordsForDestination,
-                        initialAllocations[j].data
+                        initialAllocations[j].callTo,
+                        initialAllocations[j].callData
                     );
                     ++k;
                 } else {}
