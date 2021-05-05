@@ -153,6 +153,7 @@ library ExitFormat {
     function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
         for (uint256 i = 0; i < exit.length; i++) {
             address asset = exit[i].asset;
+            uint16 tokenType = exit[i].tokenType;
             for (uint256 j = 0; j < exit[i].allocations.length; j++) {
                 address payable destination =
                     exit[i].allocations[j].destination;
@@ -162,7 +163,7 @@ library ExitFormat {
                 if (asset == address(0)) {
                     destination.transfer(amount);
                 } else {
-                    IERC20(asset).transfer(destination, amount);
+                    tokenTransfer(asset, tokenType, destination, amount); // TODO uint16 tokenType should replace bytes data
                 }
                 if (callTo != address(0)) {
                     WithdrawHelper(callTo).execute(callData, amount);
