@@ -169,4 +169,15 @@ library ExitFormat {
             }
         }
     }
+
+    function tokenTransfer(
+        address asset,
+        uint16 tokenType,
+        address destination,
+        uint256 amount
+    ) public returns (bool) {
+        if (tokenType == 20) {
+            return IERC20(asset).transfer(destination, amount);
+        } else return false;
+    }
 }
