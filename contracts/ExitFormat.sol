@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+// Ideally this would be imported from @connect/vector-withdraw-helpers
+// And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
+interface WithdrawHelper {
+    function execute(bytes calldata cD, uint256 actualAmount) external;
+}
+
 library ExitFormat {
     // An Exit is an array of SingleAssetExit (one for each asset)
     // Exit = SingleAssetExit[]
@@ -25,7 +33,7 @@ library ExitFormat {
     // * an amount of asset
     // * custom data (optional field, can be zero bytes). This can be used flexibly by different protocols.
     struct Allocation {
-        address destination;
+        address payable destination;
         uint256 amount;
         address callTo; // compatible with Vetor WithdrawHelper
         bytes callData; // compatible with Vetor WithdrawHelper
@@ -133,6 +141,27 @@ library ExitFormat {
                 initialOutcome[i].data,
                 exitAllocations
             );
+        }
+    }
+
+    function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
+        for (uint256 i = 0; i < exit.length; i++) {
+            address asset = exit[i].asset;
+            for (uint256 j = 0; j < exit[i].allocations.length; j++) {
+                address payable destination =
+                    exit[i].allocations[j].destination;
+                uint256 amount = exit[i].allocations[j].amount;
+                address callTo = exit[i].allocations[j].callTo;
+                bytes memory callData = exit[i].allocations[j].callData;
+                if (asset == address(0)) {
+                    destination.transfer(amount);
+                } else {
+                    IERC20(asset).transfer(destination, amount);
+                }
+                if (callTo != address(0)) {
+                    WithdrawHelper(callTo).execute(callData, amount);
+                }
+            }
         }
     }
 }
