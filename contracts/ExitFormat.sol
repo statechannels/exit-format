@@ -77,7 +77,7 @@ library ExitFormat {
     }
 
     /**
-     * @notice Extracts an exit from an initial outcome and an exit request
+     * @notice Extracts an exit from an initial outcome and an exit request. NITRO SPECIFIC
      * @dev Extracts an exit from an initial outcome and an exit request
      * @param initialOutcome The initial outcome.
      * @param initialHoldings The total funds that are available for the exit.
@@ -161,6 +161,7 @@ library ExitFormat {
                 if (asset == address(0)) {
                     destination.transfer(amount);
                 } else {
+                    // TODO support other token types via the exit[i].data field
                     IERC20(asset).transfer(destination, amount);
                 }
                 if (callTo != address(0)) {
