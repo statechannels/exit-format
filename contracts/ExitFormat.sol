@@ -144,6 +144,11 @@ library ExitFormat {
         }
     }
 
+    /**
+     * @notice Executes an exit by paying out assets and calling external contracts
+     * @dev Executes an exit by paying out assets and calling external contracts
+     * @param exit The exit to be paid out.
+     */
     function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
         for (uint256 i = 0; i < exit.length; i++) {
             address asset = exit[i].asset;
