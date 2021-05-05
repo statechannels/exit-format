@@ -48,7 +48,8 @@ export function transfer(
         singleAssetExit.allocations.push({
           destination: initialAllocations[j].destination,
           amount: affordsForDestination.toHexString(),
-          data: initialAllocations[j].data,
+          callTo: initialAllocations[j].callTo,
+          callData: initialAllocations[j].callData,
         });
         ++k;
       } else {
