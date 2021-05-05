@@ -2,6 +2,7 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
@@ -178,6 +179,9 @@ library ExitFormat {
     ) public returns (bool) {
         if (tokenType == 20) {
             return IERC20(asset).transfer(destination, amount);
+        } else if (tokenType == 721) {
+            IERC721(asset).transferFrom(address(this), destination, amount); // here amount is used for tokenId
+            return true;
         } else return false;
     }
 }
