@@ -35,28 +35,4 @@ contract TestConsumer {
     {
         return ExitFormat.decodeAllocation(_allocation_);
     }
-
-    /**
-     * @notice Extracts an exit from an initial outcome and an exit request
-     * @dev Extracts an exit from an initial outcome and an exit request
-     * @param initialOutcome The initial outcome.
-     * @param initialHoldings The total funds that are available for the exit.
-     * @param exitRequest An array with an entry for each asset: each entry is itself an array containing the exitRequest of the destinations to transfer funds to. Should be in increasing order. An empty array indicates "all".
-     */
-    function transfer(
-        ExitFormat.SingleAssetExit[] memory initialOutcome,
-        uint256[] memory initialHoldings,
-        uint48[][] memory exitRequest
-    )
-        public
-        pure
-        returns (
-            ExitFormat.SingleAssetExit[] memory updatedOutcome,
-            uint256[] memory updatedHoldings,
-            ExitFormat.SingleAssetExit[] memory exit
-        )
-    {
-        return
-            ExitFormat.transfer(initialOutcome, initialHoldings, exitRequest);
-    }
 }

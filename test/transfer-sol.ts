@@ -3,17 +3,15 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Result, RLP } from "ethers/lib/utils";
 import { Exit } from "../ts/types";
 const { ethers } = require("hardhat");
-import { TestConsumer } from "../typechain/TestConsumer";
+import { Nitro } from "../typechain/Nitro";
 
 describe("transfer (solidity)", function () {
-  let testConsumer: TestConsumer;
+  let nitro: Nitro;
 
   before(async () => {
-    testConsumer = await (
-      await ethers.getContractFactory("TestConsumer")
-    ).deploy();
+    nitro = await (await ethers.getContractFactory("Nitro")).deploy();
 
-    await testConsumer.deployed();
+    await nitro.deployed();
   });
 
   it("Can transfer", async function () {
@@ -25,11 +23,13 @@ describe("transfer (solidity)", function () {
           {
             destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: "0x05",
+            callTo: "0x0000000000000000000000000000000000000000",
             data: "0x",
           },
           {
             destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
             amount: "0x05",
+            callTo: "0x0000000000000000000000000000000000000000",
             data: "0x",
           },
         ],
@@ -39,19 +39,19 @@ describe("transfer (solidity)", function () {
     const initialHoldings = [BigNumber.from(6)];
     const indices = [[1]];
 
-    const {
-      updatedHoldings,
-      updatedOutcome,
-      exit,
-    } = await testConsumer.transfer(initialOutcome, initialHoldings, indices);
-
-    const gasEstimate = await testConsumer.estimateGas.transfer(
+    const { updatedHoldings, updatedOutcome, exit } = await nitro.transfer(
       initialOutcome,
       initialHoldings,
       indices
     );
 
-    expect(gasEstimate.toNumber()).to.equal(44593);
+    const gasEstimate = await nitro.estimateGas.transfer(
+      initialOutcome,
+      initialHoldings,
+      indices
+    );
+
+    expect(gasEstimate.toNumber()).to.equal(45704);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
@@ -63,12 +63,14 @@ describe("transfer (solidity)", function () {
           {
             destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: BigNumber.from("0x05"),
-            data: "0x",
+            callTo: "0x0000000000000000000000000000000000000000",
+            callData: "0x",
           },
           {
             destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
             amount: BigNumber.from("0x04"),
-            data: "0x",
+            callTo: "0x0000000000000000000000000000000000000000",
+            callData: "0x",
           },
         ],
       },
@@ -82,7 +84,8 @@ describe("transfer (solidity)", function () {
           {
             destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
             amount: BigNumber.from("0x01"),
-            data: "0x",
+            callTo: "0x0000000000000000000000000000000000000000",
+            callData: "0x",
           },
         ],
       },
@@ -100,7 +103,8 @@ function rehydrateExit(exitResult: Result) {
         object[key] = entry[key].map((allocation) => ({
           destination: allocation[0],
           amount: BigNumber.from(allocation[1]),
-          data: allocation[2],
+          callTo: allocation[2],
+          callData: allocation[3],
         }));
       } else if (Number(key) !== Number(key)) object[key] = entry[key];
     });

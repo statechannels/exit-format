@@ -13,11 +13,13 @@ describe("transfer (typescript)", function () {
           {
             destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: "0x05",
+            callTo: "0x0000000000000000000000000000000000000000",
             data: "0x",
           },
           {
             destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
             amount: "0x05",
+            callTo: "0x0000000000000000000000000000000000000000",
             data: "0x",
           },
         ],
@@ -43,11 +45,13 @@ describe("transfer (typescript)", function () {
           {
             destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: "0x05",
+            callTo: "0x0000000000000000000000000000000000000000",
             data: "0x",
           },
           {
             destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
             amount: "0x04",
+            callTo: "0x0000000000000000000000000000000000000000",
             data: "0x",
           },
         ],
@@ -62,6 +66,7 @@ describe("transfer (typescript)", function () {
           {
             destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
             amount: "0x01",
+            callTo: "0x0000000000000000000000000000000000000000",
             data: "0x",
           },
         ],
