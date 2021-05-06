@@ -6,6 +6,7 @@ const MAGIC_VALUE_DENOTING_A_GUARANTEE =
   "0x0000000000000000000000000000000000000001";
 // this will cause executeExit to revert, which is what we want for a guarantee
 // it should only work with a custom 'claim' operation
+// we avoid the magic value of the zero address, because that is already used by executeExit
 
 const guaranteeOutcome: Exit = [
   {
