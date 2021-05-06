@@ -3,9 +3,7 @@ import { Allocation, Exit } from "./types";
 
 export function encodeAllocations(allocation: Allocation) {
   return defaultAbiCoder.encode(
-    [
-      "tuple(address destination, uint256 amount,address callTo, bytes callData)",
-    ],
+    ["tuple(address destination, uint256 amount,address callTo, bytes data)"],
     [allocation]
   );
 }
@@ -25,7 +23,7 @@ export function encodeExit(exit: Exit) {
               { name: "destination", type: "address" },
               { name: "amount", type: "uint256" },
               { name: "callTo", type: "address" },
-              { name: "callData", type: "bytes" },
+              { name: "data", type: "bytes" },
             ],
           } as ParamType,
         ],

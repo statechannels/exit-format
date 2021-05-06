@@ -19,7 +19,7 @@ describe("ExitFormat (solidity)", function () {
       destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
       amount: "0x01",
       callTo: "0x0000000000000000000000000000000000000000",
-      callData: "0x",
+      data: "0x",
     };
     const encodedAllocation = await testConsumer.encodeAllocation(allocation);
 
@@ -38,7 +38,7 @@ describe("ExitFormat (solidity)", function () {
             destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: "0x01",
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
         ],
       },

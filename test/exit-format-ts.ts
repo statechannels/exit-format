@@ -8,7 +8,7 @@ describe("ExitFormat (typescript)", function () {
       destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
       amount: "0x01",
       callTo: "0x0000000000000000000000000000000000000000",
-      callData: "0x",
+      data: "0x",
     };
     const encodedAllocation = encodeAllocations(allocation);
 
@@ -27,7 +27,7 @@ describe("ExitFormat (typescript)", function () {
             destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: "0x01",
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
         ],
       },
@@ -39,6 +39,3 @@ describe("ExitFormat (typescript)", function () {
     );
   });
 });
-
-const x = 0xdeadbeef;
-const y = 0x96f7123e3a80c9813ef50213aded0e4511cb820f;

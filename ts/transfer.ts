@@ -49,7 +49,7 @@ export function transfer(
           destination: initialAllocations[j].destination,
           amount: affordsForDestination.toHexString(),
           callTo: initialAllocations[j].callTo,
-          callData: initialAllocations[j].callData,
+          data: initialAllocations[j].data,
         });
         ++k;
       } else {

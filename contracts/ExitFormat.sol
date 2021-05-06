@@ -36,7 +36,7 @@ library ExitFormat {
         address payable destination;
         uint256 amount;
         address callTo; // compatible with Vetor WithdrawHelper
-        bytes callData; // compatible with Vetor WithdrawHelper
+        bytes data; // compatible with Vetor WithdrawHelper
     }
 
     // We use underscore parentheses to denote an _encodedVariable_
@@ -72,78 +72,6 @@ library ExitFormat {
         return abi.decode(_allocation_, (Allocation));
     }
 
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a > b ? b : a;
-    }
-
-    /**
-     * @notice Extracts an exit from an initial outcome and an exit request. NITRO SPECIFIC
-     * @dev Extracts an exit from an initial outcome and an exit request
-     * @param initialOutcome The initial outcome.
-     * @param initialHoldings The total funds that are available for the exit.
-     * @param exitRequest An array with an entry for each asset: each entry is itself an array containing the exitRequest of the destinations to transfer funds to. Should be in increasing order. An empty array indicates "all".
-     */
-    function transfer(
-        ExitFormat.SingleAssetExit[] memory initialOutcome,
-        uint256[] memory initialHoldings,
-        uint48[][] memory exitRequest
-    )
-        internal
-        pure
-        returns (
-            ExitFormat.SingleAssetExit[] memory updatedOutcome,
-            uint256[] memory updatedHoldings,
-            ExitFormat.SingleAssetExit[] memory exit
-        )
-    {
-        require(initialOutcome.length == initialHoldings.length);
-        exit = new ExitFormat.SingleAssetExit[](initialOutcome.length);
-        for (uint256 i = 0; i < initialOutcome.length; i++) {
-            ExitFormat.Allocation[] memory initialAllocations =
-                initialOutcome[i].allocations;
-
-            updatedOutcome = new ExitFormat.SingleAssetExit[](
-                initialOutcome.length
-            );
-            updatedHoldings = initialHoldings;
-
-            uint48 k = 0;
-            uint256 surplus = initialHoldings[i];
-            ExitFormat.Allocation[] memory exitAllocations =
-                new ExitFormat.Allocation[](exitRequest[i].length);
-            for (uint256 j = 0; j < initialAllocations.length; j++) {
-                uint256 affordsForDestination =
-                    min(initialAllocations[j].amount, surplus);
-
-                if (
-                    exitRequest[i].length == 0 ||
-                    (k < exitRequest[i].length && exitRequest[i][k] == j)
-                ) {
-                    updatedHoldings[i] -= affordsForDestination;
-                    initialAllocations[j].amount -= affordsForDestination;
-                    exitAllocations[k] = ExitFormat.Allocation(
-                        initialAllocations[j].destination,
-                        affordsForDestination,
-                        initialAllocations[j].callTo,
-                        initialAllocations[j].callData
-                    );
-                    ++k;
-                } else {}
-                surplus -= affordsForDestination;
-            }
-            updatedOutcome[i] = ExitFormat.SingleAssetExit(
-                initialOutcome[i].asset,
-                initialOutcome[i].data,
-                initialAllocations
-            );
-            exit[i] = ExitFormat.SingleAssetExit(
-                initialOutcome[i].asset,
-                initialOutcome[i].data,
-                exitAllocations
-            );
-        }
-    }
-
     /**
      * @notice Executes an exit by paying out assets and calling external contracts
      * @dev Executes an exit by paying out assets and calling external contracts
@@ -157,7 +85,7 @@ library ExitFormat {
                     exit[i].allocations[j].destination;
                 uint256 amount = exit[i].allocations[j].amount;
                 address callTo = exit[i].allocations[j].callTo;
-                bytes memory callData = exit[i].allocations[j].callData;
+                bytes memory data = exit[i].allocations[j].data;
                 if (asset == address(0)) {
                     destination.transfer(amount);
                 } else {
@@ -165,7 +93,7 @@ library ExitFormat {
                     IERC20(asset).transfer(destination, amount);
                 }
                 if (callTo != address(0)) {
-                    WithdrawHelper(callTo).execute(callData, amount);
+                    WithdrawHelper(callTo).execute(data, amount);
                 }
             }
         }
