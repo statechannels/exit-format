@@ -48,6 +48,14 @@ library ExitFormat {
         return abi.encode(exit);
     }
 
+    function decodeGuaranteeData(bytes memory data)
+        internal
+        pure
+        returns (address[] memory)
+    {
+        return abi.decode(data, (address[]));
+    }
+
     function decodeExit(bytes memory _exit_)
         internal
         pure

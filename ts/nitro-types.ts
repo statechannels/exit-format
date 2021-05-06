@@ -17,7 +17,8 @@ export type SingleAssetGuaranteeOutcome = SingleAssetExit & {
 };
 
 export type GuaranteeOutcome = SingleAssetGuaranteeOutcome[];
-
+const A_ADDRESS = "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f";
+const B_ADDRESS = "0x53484E75151D07FfD885159d4CF014B874cd2810";
 const exampleGuaranteeOutcome1: GuaranteeOutcome = [
   {
     asset: constants.AddressZero,
@@ -27,13 +28,13 @@ const exampleGuaranteeOutcome1: GuaranteeOutcome = [
         destination: "0xjointchannel1",
         amount: "0xa",
         callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-        data: encodeGuaranteeData("0xAlice", "0xHarry", "0xvirtualchannel1"),
+        data: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
       },
       {
         destination: "0xjointchannel2",
         amount: "0xa",
         callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-        data: encodeGuaranteeData("0xAlice", "0xHarry", "0xvirtualchannel2"),
+        data: encodeGuaranteeData(A_ADDRESS, B_ADDRESS),
       },
     ],
   },
@@ -41,6 +42,6 @@ const exampleGuaranteeOutcome1: GuaranteeOutcome = [
 
 const exampleGuaranteeOutcome2: Exit = exampleGuaranteeOutcome1; // GuaranteeOutcome is assignable to Exit
 
-function encodeGuaranteeData(...destinations: string[]): BytesLike {
-  return defaultAbiCoder.encode(["address[]"], destinations);
+export function encodeGuaranteeData(...destinations: string[]): BytesLike {
+  return defaultAbiCoder.encode(["address[]"], [destinations]);
 }
