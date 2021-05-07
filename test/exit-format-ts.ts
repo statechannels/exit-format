@@ -1,6 +1,6 @@
 const { expect } = require("chai");
-import { encodeAllocations, encodeExit } from "../ts/coders";
-import { Allocation, Exit } from "../ts/types";
+import { encodeAllocations, encodeExit } from "../src/coders";
+import { Allocation, Exit } from "../src/types";
 
 describe("ExitFormat (typescript)", function () {
   it("Can encode an allocation", async function () {

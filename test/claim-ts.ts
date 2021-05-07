@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { claim } from "../src/claim";
+import { claim } from "../nitro-src/claim";
 import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,

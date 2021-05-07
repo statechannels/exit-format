@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-import { Allocation, Exit } from "../ts/types";
+import { Allocation, Exit } from "../src/types";
 import { TestConsumer } from "../typechain/TestConsumer";
 
 describe("ExitFormat (solidity)", function () {
