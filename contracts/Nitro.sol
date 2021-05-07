@@ -189,7 +189,11 @@ contract Nitro {
             uint256 surplus = initialHoldings[i];
 
             ExitFormat.Allocation[] memory exitAllocations =
-                new ExitFormat.Allocation[](exitRequest[i].length);
+                new ExitFormat.Allocation[](
+                    exitRequest[i].length > 0
+                        ? exitRequest[i].length
+                        : initialAllocations.length
+                );
 
             for (uint256 j = 0; j < initialAllocations.length; j++) {
                 uint256 affordsForDestination =
