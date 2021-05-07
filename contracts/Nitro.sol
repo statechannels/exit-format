@@ -43,6 +43,7 @@ contract Nitro {
         require(initialTargetOutcome.length == initialGuaranteeOutcome.length);
 
         exit = new ExitFormat.SingleAssetExit[](initialTargetOutcome.length);
+        updatedHoldings = initialHoldings;
 
         // Iterate through every asset
         for (
@@ -67,7 +68,6 @@ contract Nitro {
             updatedTargetOutcome = new ExitFormat.SingleAssetExit[](
                 initialTargetOutcome.length
             );
-            updatedHoldings = initialHoldings;
 
             uint256 surplus = initialHoldings[assetIndex];
             uint48 exitRequestIndex = 0;
