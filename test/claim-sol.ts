@@ -95,13 +95,13 @@ describe("claim (solidity)", function () {
             destination: A_ADDRESS,
             amount: BigNumber.from("0x04"),
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
           {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x00"), // TODO: It would be nice if these were stripped out
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
         ],
       },
@@ -116,14 +116,14 @@ describe("claim (solidity)", function () {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
 
           {
             destination: A_ADDRESS,
             amount: BigNumber.from("0x01"),
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
         ],
       },
@@ -163,13 +163,13 @@ describe("claim (solidity)", function () {
             destination: A_ADDRESS,
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
           {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x00"),
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
         ],
       },
@@ -184,7 +184,7 @@ describe("claim (solidity)", function () {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
-            callData: "0x",
+            data: "0x",
           },
         ],
       },
@@ -203,7 +203,7 @@ function rehydrateExit(exitResult: Result) {
           destination: allocation[0],
           amount: BigNumber.from(allocation[1]),
           callTo: allocation[2],
-          callData: allocation[3],
+          data: allocation[3],
         }));
       } else if (Number(key) !== Number(key)) object[key] = entry[key];
     });
