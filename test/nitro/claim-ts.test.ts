@@ -12,11 +12,37 @@ describe("claim (typescript)", function () {
   const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
   const A_ADDRESS = "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f";
   const B_ADDRESS = "0x53484E75151D07FfD885159d4CF014B874cd2810";
-  const TARGET_CHANNEL_ADDRESS = "0x080678731247781ff0d57c649b6d0ad1a0620df0"; // At some point in the full claim operation, the outcome of this channel must be read and checked
-  const ANOTHER_TARGET_CHANNEL_ADDRESS =
-    "0x27592B3827907B54684E4f9da3d988263828893D"; // At some point in the full claim operation, the outcome of this channel must be read and checked
+  const CHANNEL_1 = "0x080678731247781ff0d57c649b6d0ad1a0620df0"; // At some point in the full claim operation, the outcome of this channel must be read and checked
+  const CHANNEL_2 = "0x27592B3827907B54684E4f9da3d988263828893D"; // At some point in the full claim operation, the outcome of this channel must be read and checked
   const I_ADDRESS = "0x7ab853663C531EaA080d84091AD0E0e985c688C7";
 
+  const createGuarantee = (
+    guarantees: ["C1" | "C2", BigNumberish, Array<"A" | "B" | "I">][]
+  ): Exit => {
+    return [
+      {
+        asset: ZERO_ADDRESS,
+        data: "0x",
+        allocations: guarantees.map((g) => {
+          const guaranteeList = g[2].map(
+            (p) =>
+              (p === "A"
+                ? A_ADDRESS
+                : p === "B"
+                ? B_ADDRESS
+                : I_ADDRESS) as string
+          );
+
+          return {
+            destination: g[0] === "C1" ? CHANNEL_1 : CHANNEL_2,
+            amount: BigNumber.from(g[1]).toHexString(),
+            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+            data: encodeGuaranteeData(...guaranteeList),
+          };
+        }),
+      },
+    ];
+  };
   const createOutcome = (
     allocations: ["A" | "B" | "I", BigNumberish][]
   ): Exit => {
@@ -42,27 +68,10 @@ describe("claim (typescript)", function () {
       ["I", "0x0A"],
     ]);
     const initialOutcomeForAnotherChannel = createOutcome([["A", "0x03"]]);
-
-    const guarantee: Exit = [
-      {
-        asset: ZERO_ADDRESS,
-        data: "0x",
-        allocations: [
-          {
-            destination: ANOTHER_TARGET_CHANNEL_ADDRESS,
-            amount: "0x03",
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-            data: encodeGuaranteeData(A_ADDRESS, B_ADDRESS),
-          },
-          {
-            destination: TARGET_CHANNEL_ADDRESS,
-            amount: "0x0A", // This should be the total of the allocations in the target channel
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-            data: encodeGuaranteeData(A_ADDRESS, I_ADDRESS, B_ADDRESS),
-          },
-        ],
-      },
-    ];
+    const guarantee = createGuarantee([
+      ["C2", "0x03", ["A"]],
+      ["C1", "0x0A", ["A", "I", "B"]],
+    ]);
 
     const initialHoldings = [BigNumber.from(6)];
     const exitRequest = [[]];
@@ -76,7 +85,7 @@ describe("claim (typescript)", function () {
     );
 
     const secondClaim = claim(
-      guarantee,
+      firstClaim.updatedGuaranteeOutcome,
       firstClaim.updatedHoldings, // The holdings will be updated by the first claim
       0,
       initialOutcomeForAnotherChannel,
@@ -93,6 +102,13 @@ describe("claim (typescript)", function () {
     expect(firstClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
     expect(firstClaim.updatedHoldings).to.deep.equal([BigNumber.from(3)]);
 
+    expect(firstClaim.updatedGuaranteeOutcome).to.deep.equal(
+      createGuarantee([
+        ["C2", "0x03", ["A"]],
+        ["C1", "0x07", ["A", "I", "B"]],
+      ])
+    );
+
     expect(secondClaim.updatedTargetOutcome).to.deep.equal(
       createOutcome([["A", "0x00"]])
     );
@@ -106,32 +122,17 @@ describe("claim (typescript)", function () {
       ["B", "0x05"],
       ["I", "0x0A"],
     ]);
-
-    const guarantee: Exit = [
-      {
-        asset: ZERO_ADDRESS,
-        data: "0x",
-        allocations: [
-          {
-            destination: TARGET_CHANNEL_ADDRESS,
-            amount: "0x0A", // This should be the total of the allocations in the target channel
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-            data: encodeGuaranteeData(A_ADDRESS, I_ADDRESS, B_ADDRESS),
-          },
-        ],
-      },
-    ];
+    const guarantee = createGuarantee([["C1", "0x06", ["A", "I", "B"]]]);
 
     const initialHoldings = [BigNumber.from(6)];
     const exitRequest = [[]];
 
-    const { updatedHoldings, updatedTargetOutcome, exit } = claim(
-      guarantee,
-      initialHoldings,
-      0,
-      initialOutcome,
-      exitRequest
-    );
+    const {
+      updatedHoldings,
+      updatedTargetOutcome,
+      exit,
+      updatedGuaranteeOutcome,
+    } = claim(guarantee, initialHoldings, 0, initialOutcome, exitRequest);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
@@ -149,6 +150,10 @@ describe("claim (typescript)", function () {
         ["I", "0x01"],
       ])
     );
+
+    expect(updatedGuaranteeOutcome).to.deep.equal(
+      createGuarantee([["C1", "0x00", ["A", "I", "B"]]])
+    );
   });
 
   it("Can claim with an empty exit request", async function () {
@@ -158,31 +163,17 @@ describe("claim (typescript)", function () {
       ["I", "0x0A"],
     ]);
 
-    const guarantee: Exit = [
-      {
-        asset: ZERO_ADDRESS,
-        data: "0x",
-        allocations: [
-          {
-            destination: TARGET_CHANNEL_ADDRESS,
-            amount: "0x0A", // This should be the total of the allocations in the target channel
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-            data: encodeGuaranteeData(A_ADDRESS, I_ADDRESS, B_ADDRESS),
-          },
-        ],
-      },
-    ];
+    const guarantee: Exit = createGuarantee([["C1", "0x06", ["A", "I", "B"]]]);
 
     const initialHoldings = [BigNumber.from(6)];
     const exitRequest = [[2]];
 
-    const { updatedHoldings, updatedTargetOutcome, exit } = claim(
-      guarantee,
-      initialHoldings,
-      0,
-      initialOutcome,
-      exitRequest
-    );
+    const {
+      updatedHoldings,
+      updatedTargetOutcome,
+      exit,
+      updatedGuaranteeOutcome,
+    } = claim(guarantee, initialHoldings, 0, initialOutcome, exitRequest);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
@@ -195,5 +186,8 @@ describe("claim (typescript)", function () {
     );
 
     expect(exit).to.deep.equal(createOutcome([["I", "0x01"]]));
+    expect(updatedGuaranteeOutcome).to.deep.equal(
+      createGuarantee([["C1", "0x00", ["A", "I", "B"]]])
+    );
   });
 });

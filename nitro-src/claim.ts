@@ -14,8 +14,11 @@ export function claim(
 ) {
   if (initialTargetOutcome.length !== initialHoldings.length) throw Error;
   const updatedTargetOutcome: Exit = [];
-  // We want to create a clone of the original
+  // We want to create a clone of the original values to prevent mutation
   const updatedHoldings = initialHoldings.map((h) => BigNumber.from(h));
+  const updatedGuaranteeOutcome: Exit = JSON.parse(
+    JSON.stringify(initialGuaranteeOutcome)
+  );
   const exit: Exit = [];
 
   // Iterate through every asset
@@ -27,7 +30,9 @@ export function claim(
     const guarantees = initialGuaranteeOutcome[assetIndex].allocations;
     const targetAllocations = initialTargetOutcome[assetIndex].allocations;
 
-    const updatedAllocations = [...targetAllocations]; // copy the allocations for mutation
+    const updatedAllocations = targetAllocations.map((a) =>
+      JSON.parse(JSON.stringify(a))
+    ); // copy the allocations for mutation
 
     const singleAssetExit: SingleAssetExit = {
       ...initialTargetOutcome[assetIndex],
@@ -50,7 +55,25 @@ export function claim(
       const { amount } = guarantees[guaranteeIndex];
       surplus = surplus.sub(amount);
     }
-
+    // If there are not enough funds to fund the guarantee we return immediately
+    if (surplus.lte(0)) {
+      return {
+        updatedGuaranteeOutcome,
+        updatedHoldings,
+        updatedTargetOutcome,
+        exit,
+      };
+    } else {
+      // If we do have enough funds we update the guarantee to indicate they have been allocated
+      updatedGuaranteeOutcome[assetIndex].allocations[
+        targetChannelIndex
+      ].amount = BigNumber.from(
+        updatedGuaranteeOutcome[assetIndex].allocations[targetChannelIndex]
+          .amount
+      )
+        .sub(surplus)
+        .toHexString();
+    }
     let exitRequestIndex = 0;
 
     const destinations = decodeGuaranteeData(
@@ -62,13 +85,13 @@ export function claim(
       destinationIndex < destinations.length;
       destinationIndex++
     ) {
-      if (surplus.isZero()) break;
+      if (surplus.lte(0)) break;
       for (
         let targetAllocIndex = 0;
         targetAllocIndex < targetAllocations.length;
         targetAllocIndex++
       ) {
-        if (surplus.isZero()) break;
+        if (surplus.lte(0)) break;
 
         if (
           destinations[destinationIndex] ===
@@ -119,7 +142,12 @@ export function claim(
     });
     exit.push(singleAssetExit);
   }
-  return { updatedHoldings, updatedTargetOutcome, exit };
+  return {
+    updatedHoldings,
+    updatedTargetOutcome,
+    exit,
+    updatedGuaranteeOutcome,
+  };
 }
 
 function min(a: BigNumber, b: BigNumber) {
