@@ -34,7 +34,8 @@ describe("claim (typescript)", function () {
       },
     ];
   };
-  it.only("Can handle an underfunded claim", async function () {
+
+  it("Can handle an underfunded claim", async function () {
     const initialOutcomeForTargetChannel = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
@@ -73,11 +74,10 @@ describe("claim (typescript)", function () {
       initialOutcomeForTargetChannel,
       exitRequest
     );
-    // expect(gasEstimate.toNumber()).to.equal(59090);
 
     const secondClaim = claim(
       guarantee,
-      initialHoldings,
+      firstClaim.updatedHoldings, // The holdings will be updated by the first claim
       0,
       initialOutcomeForAnotherChannel,
       exitRequest
@@ -91,43 +91,21 @@ describe("claim (typescript)", function () {
       ])
     );
     expect(firstClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
-    expect(firstClaim.updatedHoldings).to.deep.equal(BigNumber.from(3));
+    expect(firstClaim.updatedHoldings).to.deep.equal([BigNumber.from(3)]);
 
     expect(secondClaim.updatedTargetOutcome).to.deep.equal(
       createOutcome([["A", "0x00"]])
     );
     expect(secondClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
-    expect(secondClaim.updatedHoldings).to.deep.equal(BigNumber.from(0));
+    expect(secondClaim.updatedHoldings).to.deep.equal([BigNumber.from(0)]);
   });
 
   it("Can claim with no exit requests", async function () {
-    const initialOutcome: Exit = [
-      {
-        asset: ZERO_ADDRESS,
-        data: "0x",
-        allocations: [
-          {
-            destination: A_ADDRESS,
-            amount: "0x05",
-            callTo: ZERO_ADDRESS,
-            data: "0x",
-          },
-
-          {
-            destination: B_ADDRESS,
-            amount: "0x05",
-            callTo: ZERO_ADDRESS,
-            data: "0x",
-          },
-          {
-            destination: I_ADDRESS,
-            amount: "0x0A",
-            callTo: ZERO_ADDRESS,
-            data: "0x",
-          },
-        ],
-      },
-    ];
+    const initialOutcome: Exit = createOutcome([
+      ["A", "0x05"],
+      ["B", "0x05"],
+      ["I", "0x0A"],
+    ]);
 
     const guarantee: Exit = [
       {
@@ -154,80 +132,31 @@ describe("claim (typescript)", function () {
       initialOutcome,
       exitRequest
     );
-    // expect(gasEstimate.toNumber()).to.equal(59090);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
-    expect(updatedTargetOutcome).to.deep.equal([
-      {
-        asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
-        allocations: [
-          {
-            destination: A_ADDRESS,
-            amount: "0x00",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-          {
-            destination: B_ADDRESS,
-            amount: "0x05",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-          {
-            destination: I_ADDRESS,
-            amount: "0x09",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-        ],
-      },
-    ]);
+    expect(updatedTargetOutcome).to.deep.equal(
+      createOutcome([
+        ["A", "0x00"],
+        ["B", "0x05"],
+        ["I", "0x09"],
+      ])
+    );
 
-    expect(exit).to.deep.equal([
-      {
-        asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
-        allocations: [
-          {
-            destination: A_ADDRESS,
-            amount: "0x05",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-          {
-            destination: I_ADDRESS,
-            amount: "0x01",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-        ],
-      },
-    ]);
+    expect(exit).to.deep.equal(
+      createOutcome([
+        ["A", "0x05"],
+        ["I", "0x01"],
+      ])
+    );
   });
 
   it("Can claim with an empty exit request", async function () {
-    const initialOutcome: Exit = [
-      {
-        asset: ZERO_ADDRESS,
-        data: "0x",
-        allocations: [
-          {
-            destination: A_ADDRESS,
-            amount: "0x05",
-            callTo: ZERO_ADDRESS,
-            data: "0x",
-          },
-          {
-            destination: B_ADDRESS,
-            amount: "0x05",
-            callTo: ZERO_ADDRESS,
-            data: "0x",
-          },
-        ],
-      },
-    ];
+    const initialOutcome: Exit = createOutcome([
+      ["A", "0x05"],
+      ["B", "0x05"],
+      ["I", "0x0A"],
+    ]);
 
     const guarantee: Exit = [
       {
@@ -235,20 +164,17 @@ describe("claim (typescript)", function () {
         data: "0x",
         allocations: [
           {
-            destination: ZERO_ADDRESS, // TODO: What should this be?
-            amount: "0x00",
+            destination: TARGET_CHANNEL_ADDRESS,
+            amount: "0x0A", // This should be the total of the allocations in the target channel
             callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-            data: encodeGuaranteeData(
-              "0x53484E75151D07FfD885159d4CF014B874cd2810",
-              "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f"
-            ),
+            data: encodeGuaranteeData(A_ADDRESS, I_ADDRESS, B_ADDRESS),
           },
         ],
       },
     ];
 
     const initialHoldings = [BigNumber.from(6)];
-    const exitRequest = [[1]];
+    const exitRequest = [[2]];
 
     const { updatedHoldings, updatedTargetOutcome, exit } = claim(
       guarantee,
@@ -258,42 +184,16 @@ describe("claim (typescript)", function () {
       exitRequest
     );
 
-    expect(updatedHoldings).to.deep.equal([BigNumber.from(1)]);
+    expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
-    expect(updatedTargetOutcome).to.deep.equal([
-      {
-        asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
-        allocations: [
-          {
-            destination: A_ADDRESS,
-            amount: "0x05",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-          {
-            destination: B_ADDRESS,
-            amount: "0x00",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-        ],
-      },
-    ]);
+    expect(updatedTargetOutcome).to.deep.equal(
+      createOutcome([
+        ["A", "0x05"],
+        ["B", "0x05"],
+        ["I", "0x09"],
+      ])
+    );
 
-    expect(exit).to.deep.equal([
-      {
-        asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
-        allocations: [
-          {
-            destination: B_ADDRESS,
-            amount: "0x05",
-            callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
-          },
-        ],
-      },
-    ]);
+    expect(exit).to.deep.equal(createOutcome([["I", "0x01"]]));
   });
 });
