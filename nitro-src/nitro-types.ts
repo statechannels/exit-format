@@ -1,6 +1,6 @@
 import { defaultAbiCoder } from "@ethersproject/abi";
 import { BytesLike, constants } from "ethers";
-import { Exit, Allocation, SingleAssetExit } from "./types";
+import { Exit, Allocation, SingleAssetExit } from "../src/types";
 
 export const MAGIC_VALUE_DENOTING_A_GUARANTEE =
   "0x0000000000000000000000000000000000000001";

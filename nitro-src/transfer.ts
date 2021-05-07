@@ -1,5 +1,5 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import { Exit, SingleAssetExit } from "./types";
+import { Exit, SingleAssetExit } from "../src/types";
 
 /**
  * Extracts an exit from an initial outcome and an exit request

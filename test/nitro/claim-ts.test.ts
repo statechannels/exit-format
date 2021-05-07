@@ -1,11 +1,11 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { claim } from "../ts/claim";
+import { claim } from "../../nitro-src/claim";
 import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
-} from "../ts/nitro-types";
-import { Exit } from "../ts/types";
+} from "../../nitro-src/nitro-types";
+import { Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 
 describe("claim (typescript)", function () {

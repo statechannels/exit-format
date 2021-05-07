@@ -3,7 +3,7 @@ import {
   decodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
 } from "./nitro-types";
-import { Exit, SingleAssetExit } from "./types";
+import { Exit, SingleAssetExit } from "../src/types";
 
 export function claim(
   initialGuaranteeOutcome: Exit,
