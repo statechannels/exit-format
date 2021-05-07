@@ -1,9 +1,9 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
 import { Result, RLP } from "ethers/lib/utils";
-import { Exit } from "../src/types";
+import { Exit } from "../../src/types";
 const { ethers } = require("hardhat");
-import { Nitro } from "../typechain/Nitro";
+import { Nitro } from "../../typechain/Nitro";
 
 describe("transfer (solidity)", function () {
   let nitro: Nitro;

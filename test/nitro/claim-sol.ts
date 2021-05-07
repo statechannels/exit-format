@@ -4,10 +4,10 @@ import { Result, RLP } from "ethers/lib/utils";
 import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
-} from "../nitro-src/nitro-types";
-import { Exit } from "../src/types";
+} from "../../nitro-src/nitro-types";
+import { Exit } from "../../src/types";
 const { ethers } = require("hardhat");
-import { Nitro } from "../typechain/Nitro";
+import { Nitro } from "../../typechain/Nitro";
 
 describe("claim (solidity)", function () {
   let nitro: Nitro;

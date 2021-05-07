@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { transfer } from "../nitro-src/transfer";
-import { Exit } from "../src/types";
+import { transfer } from "../../nitro-src/transfer";
+import { Exit } from "../../src/types";
 
 describe("transfer (typescript)", function () {
   it("Can transfer", async function () {
