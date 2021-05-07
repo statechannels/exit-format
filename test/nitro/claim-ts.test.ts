@@ -116,6 +116,47 @@ describe("claim (typescript)", function () {
     expect(secondClaim.updatedHoldings).to.deep.equal([BigNumber.from(0)]);
   });
 
+  it("Can claim with a surplus of funds", async function () {
+    const initialOutcome: Exit = createOutcome([
+      ["A", "0x05"],
+      ["B", "0x05"],
+      ["I", "0x0A"],
+    ]);
+    const guarantee = createGuarantee([["C1", "0x06", ["A", "I", "B"]]]);
+
+    const initialHoldings = [BigNumber.from(1000)]; // Enough funds for everyone
+    const exitRequest = [[]];
+
+    const {
+      updatedHoldings,
+      updatedTargetOutcome,
+      exit,
+      updatedGuaranteeOutcome,
+    } = claim(guarantee, initialHoldings, 0, initialOutcome, exitRequest);
+
+    expect(updatedHoldings).to.deep.equal([BigNumber.from(980)]);
+
+    expect(updatedTargetOutcome).to.deep.equal(
+      createOutcome([
+        ["A", "0x00"],
+        ["B", "0x00"],
+        ["I", "0x00"],
+      ])
+    );
+
+    // Since there are lots of funds everything gets funded
+    expect(exit).to.deep.equal(
+      createOutcome([
+        ["A", "0x05"],
+        ["I", "0x0A"],
+        ["B", "0x05"],
+      ])
+    );
+
+    expect(updatedGuaranteeOutcome).to.deep.equal(
+      createGuarantee([["C1", "0x00", ["A", "I", "B"]]])
+    );
+  });
   it("Can claim with no exit requests", async function () {
     const initialOutcome: Exit = createOutcome([
       ["A", "0x05"],
