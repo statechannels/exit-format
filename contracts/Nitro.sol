@@ -203,6 +203,8 @@ contract Nitro {
                     exitRequest[i].length == 0 ||
                     (k < exitRequest[i].length && exitRequest[i][k] == j)
                 ) {
+                    if (initialAllocations[j].callTo == address(1))
+                        revert("cannot transfer a guarantee");
                     updatedHoldings[i] -= affordsForDestination;
 
                     initialAllocations[j].amount -= affordsForDestination;
