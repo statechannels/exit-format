@@ -53,7 +53,8 @@ export function claim(
       guaranteeIndex++
     ) {
       const { amount } = guarantees[guaranteeIndex];
-      surplus = surplus.sub(amount);
+
+      surplus = surplus.sub(min(BigNumber.from(amount), surplus)); // Prevent going below 0
     }
     // If there are not enough funds to fund the guarantee we return immediately
     if (surplus.lte(0)) {
