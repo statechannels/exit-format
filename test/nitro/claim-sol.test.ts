@@ -26,7 +26,7 @@ describe("claim (solidity)", function () {
   const initialOutcome: Exit = [
     {
       asset: ZERO_ADDRESS,
-      data: "0x",
+      tokenType: 0,
       allocations: [
         {
           destination: A_ADDRESS,
@@ -47,7 +47,7 @@ describe("claim (solidity)", function () {
   const guarantee: Exit = [
     {
       asset: ZERO_ADDRESS,
-      data: "0x",
+      tokenType: 0,
       allocations: [
         {
           destination: TARGET_CHANNEL_ADDRESS,

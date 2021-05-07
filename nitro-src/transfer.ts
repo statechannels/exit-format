@@ -61,7 +61,7 @@ export function transfer(
     }
     updatedOutcome.push({
       asset: initialOutcome[i].asset,
-      data: initialOutcome[i].data,
+      tokenType: initialOutcome[i].tokenType,
       allocations: updatedAllocations,
     });
 

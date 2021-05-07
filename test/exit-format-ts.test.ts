@@ -21,7 +21,7 @@ describe("ExitFormat (typescript)", function () {
     const exit: Exit = [
       {
         asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
+        tokenType: 0,
         allocations: [
           {
             destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",

@@ -22,7 +22,7 @@ const B_ADDRESS = "0x53484E75151D07FfD885159d4CF014B874cd2810";
 const exampleGuaranteeOutcome1: GuaranteeOutcome = [
   {
     asset: constants.AddressZero,
-    data: "0x",
+    tokenType: 0,
     allocations: [
       {
         destination: "0xjointchannel1",

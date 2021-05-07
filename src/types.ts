@@ -10,7 +10,7 @@ export interface Allocation {
 
 export interface SingleAssetExit {
   asset: string; // an Ethereum address
-  data: BytesLike;
+  tokenType: BigNumberish;
   allocations: Allocation[];
 }
 

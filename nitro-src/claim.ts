@@ -101,7 +101,7 @@ export function claim(
     }
     updatedTargetOutcome.push({
       asset: initialTargetOutcome[assetIndex].asset,
-      data: initialTargetOutcome[assetIndex].data,
+      tokenType: initialTargetOutcome[assetIndex].tokenType,
       allocations: updatedAllocations,
     });
     exit.push(singleAssetExit);
