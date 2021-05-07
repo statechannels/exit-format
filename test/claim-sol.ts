@@ -4,8 +4,8 @@ import { Result, RLP } from "ethers/lib/utils";
 import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
-} from "../ts/nitro-types";
-import { Exit } from "../ts/types";
+} from "../src/nitro-types";
+import { Exit } from "../src/types";
 const { ethers } = require("hardhat");
 import { Nitro } from "../typechain/Nitro";
 
