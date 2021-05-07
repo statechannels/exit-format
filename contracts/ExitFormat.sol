@@ -19,7 +19,7 @@ library ExitFormat {
     // * an allocations array
     struct SingleAssetExit {
         address asset;
-        bytes data;
+        uint256 tokenType; // TODO We don't need 2**256 different values here
         Allocation[] allocations;
     }
 

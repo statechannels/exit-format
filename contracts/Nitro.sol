@@ -137,13 +137,13 @@ contract Nitro {
                     updatedTargetOutcome[assetIndex] = ExitFormat
                         .SingleAssetExit(
                         initialTargetOutcome[assetIndex].asset,
-                        initialTargetOutcome[assetIndex].data,
+                        initialTargetOutcome[assetIndex].tokenType,
                         targetAllocations
                     );
 
                     exit[assetIndex] = ExitFormat.SingleAssetExit(
                         initialTargetOutcome[assetIndex].asset,
-                        initialTargetOutcome[assetIndex].data,
+                        initialTargetOutcome[assetIndex].tokenType,
                         exitAllocations
                     );
                 }
@@ -219,12 +219,12 @@ contract Nitro {
             }
             updatedOutcome[i] = ExitFormat.SingleAssetExit(
                 initialOutcome[i].asset,
-                initialOutcome[i].data,
+                initialOutcome[i].tokenType,
                 initialAllocations
             );
             exit[i] = ExitFormat.SingleAssetExit(
                 initialOutcome[i].asset,
-                initialOutcome[i].data,
+                initialOutcome[i].tokenType,
                 exitAllocations
             );
         }
