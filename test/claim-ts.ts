@@ -55,14 +55,14 @@ describe("claim (typescript)", function () {
     ];
 
     const initialHoldings = [BigNumber.from(6)];
-    const indices = [[]];
+    const exitRequest = [[]];
 
     const { updatedHoldings, updatedTargetOutcome, exit } = claim(
       guarantee,
       initialHoldings,
       0,
       initialOutcome,
-      indices
+      exitRequest
     );
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
@@ -152,14 +152,14 @@ describe("claim (typescript)", function () {
     ];
 
     const initialHoldings = [BigNumber.from(6)];
-    const indices = [[1]];
+    const exitRequest = [[1]];
 
     const { updatedHoldings, updatedTargetOutcome, exit } = claim(
       guarantee,
       initialHoldings,
       0,
       initialOutcome,
-      indices
+      exitRequest
     );
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(1)]);

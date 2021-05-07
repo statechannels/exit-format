@@ -64,14 +64,14 @@ describe("claim (solidity)", function () {
 
   it("Can claim with no exit requests", async function () {
     const initialHoldings = [BigNumber.from(6)];
-    const indices = [[]];
+    const exitRequest = [[]];
 
     const { updatedHoldings, updatedTargetOutcome, exit } = await nitro.claim(
       guarantee,
       initialHoldings,
       0,
       initialOutcome,
-      indices
+      exitRequest
     );
 
     const gasEstimate = await nitro.estimateGas.claim(
@@ -79,7 +79,7 @@ describe("claim (solidity)", function () {
       initialHoldings,
       0,
       initialOutcome,
-      indices
+      exitRequest
     );
 
     expect(gasEstimate.toNumber()).to.equal(59090);
@@ -132,14 +132,14 @@ describe("claim (solidity)", function () {
 
   it("Can claim with exit requests", async function () {
     const initialHoldings = [BigNumber.from(6)];
-    const indices = [[1]];
+    const exitRequest = [[1]];
 
     const { updatedHoldings, updatedTargetOutcome, exit } = await nitro.claim(
       guarantee,
       initialHoldings,
       0,
       initialOutcome,
-      indices
+      exitRequest
     );
 
     const gasEstimate = await nitro.estimateGas.claim(
@@ -147,7 +147,7 @@ describe("claim (solidity)", function () {
       initialHoldings,
       0,
       initialOutcome,
-      indices
+      exitRequest
     );
 
     expect(gasEstimate.toNumber()).to.equal(57447);

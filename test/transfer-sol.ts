@@ -37,18 +37,18 @@ describe("transfer (solidity)", function () {
     ];
 
     const initialHoldings = [BigNumber.from(6)];
-    const indices = [[1]];
+    const exitRequest = [[1]];
 
     const { updatedHoldings, updatedOutcome, exit } = await nitro.transfer(
       initialOutcome,
       initialHoldings,
-      indices
+      exitRequest
     );
 
     const gasEstimate = await nitro.estimateGas.transfer(
       initialOutcome,
       initialHoldings,
-      indices
+      exitRequest
     );
 
     expect(gasEstimate.toNumber()).to.equal(45704);
