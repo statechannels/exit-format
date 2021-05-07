@@ -64,15 +64,18 @@ export function claim(
         exit,
       };
     } else {
+      const currentAmount = BigNumber.from(
+        updatedGuaranteeOutcome[assetIndex].allocations[targetChannelIndex]
+          .amount
+      );
+      const newAmount = currentAmount
+        .sub(min(surplus, currentAmount)) // It's possible that surplus is large
+        .toHexString();
+
       // If we do have enough funds we update the guarantee to indicate they have been allocated
       updatedGuaranteeOutcome[assetIndex].allocations[
         targetChannelIndex
-      ].amount = BigNumber.from(
-        updatedGuaranteeOutcome[assetIndex].allocations[targetChannelIndex]
-          .amount
-      )
-        .sub(surplus)
-        .toHexString();
+      ].amount = newAmount;
     }
     let exitRequestIndex = 0;
 
