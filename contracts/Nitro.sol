@@ -8,6 +8,14 @@ contract Nitro {
         return a > b ? b : a;
     }
 
+    function decodeGuaranteeData(bytes memory data)
+        internal
+        pure
+        returns (address[] memory)
+    {
+        return abi.decode(data, (address[]));
+    }
+
     /**
      * @dev Computes the new outcome that should be stored against a target channel after a claim is made on its guarantor.
      * @param initialGuaranteeOutcome the outcome containing at least one guarantee(s) which will be claimed for each asset.
@@ -71,9 +79,7 @@ contract Nitro {
             );
 
             address[] memory destinations =
-                ExitFormat.decodeGuaranteeData(
-                    guarantees[targetChannelIndex].data
-                );
+                decodeGuaranteeData(guarantees[targetChannelIndex].data);
 
             // Iterate through every destination in the guarantee's destinations
             for (
