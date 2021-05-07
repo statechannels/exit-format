@@ -53,10 +53,7 @@ describe("claim (solidity)", function () {
           destination: TARGET_CHANNEL_ADDRESS,
           amount: "0x00",
           callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-          data: encodeGuaranteeData(
-            "0x53484E75151D07FfD885159d4CF014B874cd2810",
-            "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f"
-          ),
+          data: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
         },
       ],
     },
