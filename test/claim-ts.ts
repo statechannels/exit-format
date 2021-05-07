@@ -4,7 +4,7 @@ import { claim } from "../src/claim";
 import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
-} from "../src/nitro-types";
+} from "../nitro-src/nitro-types";
 import { Exit } from "../src/types";
 const { ethers } = require("hardhat");
 

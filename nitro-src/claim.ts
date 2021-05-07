@@ -2,7 +2,7 @@ import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import {
   decodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
-} from "../nitro-src/nitro-types";
+} from "./nitro-types";
 import { Exit, SingleAssetExit } from "./types";
 
 export function claim(
