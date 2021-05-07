@@ -1,12 +1,46 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
 interface WithdrawHelper {
     function execute(bytes calldata cD, uint256 actualAmount) external;
+}
+
+library TokenManager {
+    function balance(
+        uint256 tokenType,
+        address asset,
+        address payable destination
+    ) public view returns (uint256) {
+        if (tokenType == 0) {
+            return destination.balance;
+        } else if (tokenType == 21) {
+            return IERC20(asset).balanceOf(destination);
+        } else if (tokenType == 721) {
+            revert("non fungible tokens not yet supported");
+        }
+        revert("");
+    }
+
+    function send(
+        uint256 tokenType,
+        address asset,
+        address payable destination,
+        uint256 amount
+    ) external returns (bool) {
+        if (tokenType == 0) {
+            destination.transfer(amount);
+            return true;
+        } else if (tokenType == 21) {
+            return IERC20(asset).transfer(destination, amount);
+        } else if (tokenType == 721) {
+            revert("non fungible tokens not yet supported");
+        }
+        revert("");
+    }
 }
 
 library ExitFormat {
@@ -79,6 +113,7 @@ library ExitFormat {
      */
     function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
         for (uint256 i = 0; i < exit.length; i++) {
+            uint256 tokenType = exit[i].tokenType;
             address asset = exit[i].asset;
             for (uint256 j = 0; j < exit[i].allocations.length; j++) {
                 address payable destination =
@@ -86,12 +121,7 @@ library ExitFormat {
                 uint256 amount = exit[i].allocations[j].amount;
                 address callTo = exit[i].allocations[j].callTo;
                 bytes memory data = exit[i].allocations[j].data;
-                if (asset == address(0)) {
-                    destination.transfer(amount);
-                } else {
-                    // TODO support other token types via the exit[i].data field
-                    IERC20(asset).transfer(destination, amount);
-                }
+                TokenManager.send(tokenType, asset, destination, amount);
                 if (callTo != address(0)) {
                     WithdrawHelper(callTo).execute(data, amount);
                 }
