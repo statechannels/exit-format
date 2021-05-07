@@ -62,7 +62,7 @@ describe("claim (solidity)", function () {
     },
   ];
 
-  it("Can claim with no exit requests", async function () {
+  it("Can claim with an empty exit request", async function () {
     const initialHoldings = [BigNumber.from(6)];
     const exitRequest = [[]];
 

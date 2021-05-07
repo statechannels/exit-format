@@ -111,7 +111,7 @@ describe("claim (typescript)", function () {
     ]);
   });
 
-  it("Can claim with exit requests", async function () {
+  it("Can claim with an empty exit request", async function () {
     const initialOutcome: Exit = [
       {
         asset: ZERO_ADDRESS,
