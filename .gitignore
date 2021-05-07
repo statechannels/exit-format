@@ -107,3 +107,6 @@ dist
 artifacts
 cache
 typechain
+
+# TypeScript
+lib

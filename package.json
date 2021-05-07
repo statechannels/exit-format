@@ -1,19 +1,24 @@
 {
-  "name": "L2-exit-format",
-  "version": "0.0.0",
+  "name": "@statechannels/exit-format",
+  "version": "0.0.1",
   "description": "Standard Exit Format for L2s built on EVM chains",
-  "main": "index.js",
   "repository": "https://github.com/statechannels/exit-format.git",
   "author": "geoknee <georgeknee@googlemail.com>",
   "license": "MIT",
-  "private": true,
+  "private": false,
+  "files": [
+    "/contracts/ExitFormat.sol"
+  ],
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
-    "prepare": "yarn hardhat compile",
+    "prepare": "yarn hardhat compile && yarn tsc",
     "test": "yarn hardhat test"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@tsconfig/recommended": "^1.0.1",
     "@typechain/ethers-v5": "^6.0.5",
     "@types/chai": "^4.2.17",
     "@types/mocha": "^8.2.2",
