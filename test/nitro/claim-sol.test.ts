@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { Result, RLP } from "ethers/lib/utils";
 import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
@@ -8,6 +7,7 @@ import {
 import { Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 import { Nitro } from "../../typechain/Nitro";
+import { rehydrateExit } from "../test-helpers";
 
 describe("claim (solidity)", function () {
   let nitro: Nitro;
@@ -188,22 +188,3 @@ describe("claim (solidity)", function () {
     ]);
   });
 });
-
-// this is a hack to get around the way ethers presents the result
-// TODO can we get at the raw data returned from the eth_call?
-function rehydrateExit(exitResult: Result) {
-  return exitResult.map((entry) => {
-    const object = {};
-    Object.keys(entry).forEach((key) => {
-      if (key == "allocations") {
-        object[key] = entry[key].map((allocation) => ({
-          destination: allocation[0],
-          amount: BigNumber.from(allocation[1]),
-          callTo: allocation[2],
-          data: allocation[3],
-        }));
-      } else if (Number(key) !== Number(key)) object[key] = entry[key];
-    });
-    return object;
-  });
-}
