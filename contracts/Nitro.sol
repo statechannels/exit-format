@@ -12,14 +12,14 @@ contract Nitro {
      * @dev Computes the new outcome that should be stored against a target channel after a claim is made on its guarantor.
      * @param initialGuaranteeOutcome the outcome containing at least one guarantee(s) which will be claimed for each asset.
      * @param initialHoldings initial quantity of each asset held on chain for the guarantor channel. Order matches that of initialGuaranteeOutcome.
-     * @param targetChannel the index of the guarantee in the list of guarantees for the given asset -- equivalent to declaring a target channel
+     * @param targetChannelIndex the index of the guarantee in the list of guarantees for the given asset -- equivalent to declaring a target channel
      * @param initialTargetOutcome initial outcome stored on chain for the target channel.
      * @param exitRequest list  of indices expressing which destinations in the allocation should be paid out for each asset.
      */
     function claim(
         ExitFormat.SingleAssetExit[] memory initialGuaranteeOutcome,
         uint256[] memory initialHoldings,
-        uint48 targetChannel,
+        uint48 targetChannelIndex,
         ExitFormat.SingleAssetExit[] memory initialTargetOutcome,
         uint48[][] memory exitRequest
     )
@@ -65,13 +65,15 @@ contract Nitro {
             uint48 exitRequestIndex = 0;
 
             require(
-                guarantees[targetChannel].callTo ==
+                guarantees[targetChannelIndex].callTo ==
                     0x0000000000000000000000000000000000000001,
                 "Must be a valid guarantee with callTo set to MAGIC_VALUE_DENOTING_A_GUARANTEE"
             );
 
             address[] memory destinations =
-                ExitFormat.decodeGuaranteeData(guarantees[targetChannel].data);
+                ExitFormat.decodeGuaranteeData(
+                    guarantees[targetChannelIndex].data
+                );
 
             // Iterate through every destination in the guarantee's destinations
             for (

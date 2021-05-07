@@ -8,7 +8,7 @@ import { Exit, SingleAssetExit } from "./types";
 export function claim(
   initialGuaranteeOutcome: Exit,
   initialHoldings: BigNumberish[],
-  targetChannel: number,
+  targetChannelIndex: number,
   initialTargetOutcome: Exit,
   exitRequest: number[][]
 ) {
@@ -33,12 +33,16 @@ export function claim(
       allocations: [], // start with an empty array
     };
 
-    if (guarantees[targetChannel].callTo !== MAGIC_VALUE_DENOTING_A_GUARANTEE)
+    if (
+      guarantees[targetChannelIndex].callTo !== MAGIC_VALUE_DENOTING_A_GUARANTEE
+    )
       throw Error;
 
     let exitRequestIndex = 0;
 
-    const destinations = decodeGuaranteeData(guarantees[targetChannel].data);
+    const destinations = decodeGuaranteeData(
+      guarantees[targetChannelIndex].data
+    );
     // Iterate through every destination in the guarantee's destinations
     for (
       let destinationIndex = 0;
