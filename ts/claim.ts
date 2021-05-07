@@ -17,6 +17,7 @@ export function claim(
   let updatedHoldings = initialHoldings;
   const exit: Exit = [];
 
+  // Iterate through every asset
   for (
     let assetIndex = 0;
     assetIndex < initialGuaranteeOutcome.length;
@@ -35,8 +36,10 @@ export function claim(
     if (guarantees[targetChannel].callTo !== MAGIC_VALUE_DENOTING_A_GUARANTEE)
       throw Error;
 
-    const destinations = decodeGuaranteeData(guarantees[targetChannel].data);
     let exitRequestIndex = 0;
+
+    const destinations = decodeGuaranteeData(guarantees[targetChannel].data);
+    // Iterate through every destination in the guarantee's destinations
     for (
       let destinationIndex = 0;
       destinationIndex < destinations.length;
@@ -54,20 +57,23 @@ export function claim(
           destinations[destinationIndex] ===
           targetAllocations[targetAllocIndex].destination
         ) {
+          // if we find it, compute new amount
           const affordsForDestination = min(
             BigNumber.from(targetAllocations[targetAllocIndex].amount),
             surplus
           );
+
+          // only if specified in supplied exitRequests, or we if we are doing "all"
           if (
             exitRequest.length === 0 ||
             exitRequest[assetIndex].length === 0 ||
             (exitRequestIndex < exitRequest[assetIndex].length &&
               exitRequest[assetIndex][exitRequestIndex] === targetAllocIndex)
           ) {
+            // Update the holdings and allocation
             updatedHoldings[assetIndex] = BigNumber.from(
               updatedHoldings[assetIndex]
             ).sub(affordsForDestination);
-            console.log(updatedHoldings);
             updatedAllocations[targetAllocIndex].amount = BigNumber.from(
               targetAllocations[targetAllocIndex].amount
             )

@@ -15,7 +15,6 @@ contract Nitro {
      * @param targetChannel the index of the guarantee in the list of guarantees for the given asset -- equivalent to declaring a target channel
      * @param initialTargetOutcome initial outcome stored on chain for the target channel.
      * @param exitRequest list  of indices expressing which destinations in the allocation should be paid out for each asset.
-
      */
     function claim(
         ExitFormat.SingleAssetExit[] memory initialGuaranteeOutcome,
@@ -33,9 +32,11 @@ contract Nitro {
         )
     {
         require(initialTargetOutcome.length == initialHoldings.length);
+        require(initialTargetOutcome.length == initialGuaranteeOutcome.length);
 
         exit = new ExitFormat.SingleAssetExit[](initialTargetOutcome.length);
-        // For asset of initialGuaranteeOutcome
+
+        // Iterate through every asset
         for (
             uint256 assetIndex = 0;
             assetIndex < initialGuaranteeOutcome.length;
@@ -47,7 +48,7 @@ contract Nitro {
             ExitFormat.Allocation[] memory targetAllocations =
                 initialTargetOutcome[assetIndex].allocations;
 
-            // If exitRequest is empty for teh allocation we want ALL to exit
+            // If exitRequest is empty for the allocation we want ALL to exit
             ExitFormat.Allocation[] memory exitAllocations =
                 new ExitFormat.Allocation[](
                     exitRequest[assetIndex].length > 0
@@ -59,6 +60,7 @@ contract Nitro {
                 initialTargetOutcome.length
             );
             updatedHoldings = initialHoldings;
+
             uint256 surplus = initialHoldings[assetIndex];
             uint48 exitRequestIndex = 0;
 
@@ -68,18 +70,18 @@ contract Nitro {
                 "Must be a valid guarantee with callTo set to MAGIC_VALUE_DENOTING_A_GUARANTEE"
             );
 
-            // Get the guarantee destinations
             address[] memory destinations =
                 ExitFormat.decodeGuaranteeData(guarantees[targetChannel].data);
 
-            // For destination in destinations
+            // Iterate through every destination in the guarantee's destinations
             for (
                 uint256 destinationIndex = 0;
                 destinationIndex < destinations.length;
                 destinationIndex++
             ) {
                 if (surplus == 0) break;
-                // Iterate through the 
+
+                // Iterate through every allocation item in the target allocation
                 for (
                     uint256 targetAllocIndex = 0;
                     targetAllocIndex < targetAllocations.length;
@@ -103,7 +105,7 @@ contract Nitro {
                                 exitRequest[assetIndex][exitRequestIndex] ==
                                 targetAllocIndex)
                         ) {
-                            // Update the holdings
+                            // Update the holdings and allocation
                             updatedHoldings[
                                 assetIndex
                             ] -= affordsForDestination;
@@ -119,7 +121,7 @@ contract Nitro {
                             );
 
                             ++exitRequestIndex;
-                        } else {}
+                        }
                         // decrease surplus by the current amount regardless of hitting a specified exitRequest
                         surplus -= affordsForDestination;
                     }
