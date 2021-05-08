@@ -4,7 +4,7 @@
 
 **Standard Exit Format for L2s built on EVM chains**
 
-We present a general standard for such a format, along with coders written in Typescript and Cairo, which will aid L2 interoperability and support arbitrary tokens
+We present a general standard for such a format, along with coders written in Typescript, which will aid L2 interoperability and support arbitrary tokens.
 
 The idea behind this library is to standardise the data structures used in exiting a layer 2 system: whether that is a [Connext](https://connext.network/) state channel or a rollup such as [Arbitrum](https://offchainlabs.com/) or [Optimism](https://optimism.io/). An exit format allows one to specify how assets locked up and redistributed in an L2 should be paid out in L1.  Our hope is that as many layer 2 projects as possible can contribute to this repo and consider adopting the format in their system. If that happens, it should enable greater interoperability between these layer 2s, which otherwise are a little bit silo-ed.
 
