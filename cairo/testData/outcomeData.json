@@ -1,6 +1,6 @@
 [
   {
-    "asset": 123,
+    "asset": "0xffffffffffffffffffffffffffffffffffffffff",
     "allocation": [
       {
         "destination": 3070,
@@ -11,7 +11,7 @@
     "data": 2
   },
   {
-    "asset": 456,
+    "asset": "0x9876543210987654321098765432109876543210",
     "allocation": [
       {
         "destination": 7646,
