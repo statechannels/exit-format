@@ -10,7 +10,7 @@ The idea behind this library is to standardise the data structures used in exiti
 
 We have concentrated so far on a format that works for [Nitro state channels](https://medium.com/magmo/nitro-protocol-c49b50f59df7). While working on the hack we realised that the new format actually enables us to streamline our virtual channel construction: leading to much greater simplicity and lowering the gas costs for channel disputes. The nitro specific code can be found in `/nitro-src` and is not currently exported from the npm package.
 
-As another bonus, we have also built the beginnings of a zero-knowledge proof mechanism, which will allow Nitro state channels to scale even farther beyond their current limit and bring gas costs down even further. This work-in-progress currently takes the form of some [cairo](https://www.cairo-lang.org/) code in the `/cairo` directory, and is alo not currently exported from the npm package. There's another readme in that folder that explains more. 
+As another bonus, we have also built the beginnings of a zero-knowledge proof mechanism, which will allow Nitro state channels to scale even farther beyond their current limit and bring gas costs down even further. This work-in-progress currently takes the form of some [Cairo](https://www.cairo-lang.org/) code in the `/cairo` directory, and is alo not currently exported from the npm package. There's another readme in that folder that explains more. 
 
 **How to install this package**
 ```shell
