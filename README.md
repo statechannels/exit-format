@@ -6,11 +6,24 @@
 
 We present a general standard for such a format, along with coders written in Typescript, which will aid L2 interoperability and support arbitrary tokens.
 
-The idea behind this library is to standardise the data structures used in exiting a layer 2 system: whether that is a [Connext](https://connext.network/) state channel or a rollup such as [Arbitrum](https://offchainlabs.com/) or [Optimism](https://optimism.io/). An exit format allows one to specify how assets locked up and redistributed in an L2 should be paid out in L1.  Our hope is that as many layer 2 projects as possible can contribute to this repo and consider adopting the format in their system. If that happens, it should enable greater interoperability between these layer 2s, which otherwise are a little bit silo-ed.
 
-We have concentrated so far on a format that works for [Nitro state channels](https://medium.com/magmo/nitro-protocol-c49b50f59df7). While working on the hack we realised that the new format actually enables us to [streamline our virtual channel construction](https://www.notion.so/statechannels/Streamlining-Virtual-Channels-8a8650ba849d4221b7e93c125a794ecf): leading to much greater simplicity and lowering the gas costs for channel disputes. The nitro specific code can be found in `/nitro-src` and is not currently exported from the npm package.
+Description
 
-As another bonus, we have also built the beginnings of a zero-knowledge proof mechanism, which will allow Nitro state channels to scale even farther beyond their current limit and bring gas costs down even further. This work-in-progress currently takes the form of some [Cairo](https://www.cairo-lang.org/) code in the `/cairo` directory, and is alo not currently exported from the npm package. There's another readme in that folder that explains more. 
+The idea behind this library is to standardise the data structures used in exiting a layer 2 system: whether that is a [Celer](https://www.celer.network/), [Connext](https://connext.network/), or [Nitro](https://statechannels.org/) state channel or a rollup such as [Arbitrum](https://offchainlabs.com/) or [Optimism](https://optimism.io/). An exit format allows one to specify how assets locked up and redistributed in an L2 should be paid out in L1. Standard utilities, built against a standard format, can undergo a higher concentration of scrutiny from the community and auditors — a major benefit.
+
+We hope to receive feedback from as many layer 2 projects as possible, to help towards writing a standards track EIP. Adoption of this standard improves interoperability between L2s, and enables the sharing of L2 entrance & exit utilities, such as exit meta transactions. 
+
+We have concentrated so far on a format that works for [Nitro state channels](https://medium.com/magmo/nitro-protocol-c49b50f59df7). The new format enables us to streamline our virtual channel construction, simplifying the protocol while lowering the gas costs for channel disputes. Find out more at [https://www.notion.so/statechannels/Streamlining-Virtual-Channels-8a8650ba849d4221b7e93c125a794ecf](https://www.notion.so/statechannels/Streamlining-Virtual-Channels-8a8650ba849d4221b7e93c125a794ecf)
+
+The standard is extensible enough to support future token standards and even to describe cross-chain assets.
+
+As another bonus, we have also built the beginnings of a zero-knowledge proof mechanism, which will allow Nitro state channels to scale even farther beyond their current limit and bring gas costs down even further. This work-in-progress currently takes the form of some [Cairo](https://www.cairo-lang.org/) code that we successfully submitted to the Starkware [shared prover](https://www.cairo-lang.org/docs/sharp.html).
+
+### How It's Made
+
+The main content is the definition of an exit format, with some exit-transformations implemented in Typescript, Solidity & Cairo. One notable transformation, `claim`, streamlines Nitro's virtual channel protocol.
+
+This repo has two dependencies: `ethers-js` for BigNumber types and ABI encoding and `openzeppelin/contracts` for token interfaces. We used `hardhat` for our development environment. The zk work uses the `cairo` language.
 
 **How to install this package**
 ```shell
