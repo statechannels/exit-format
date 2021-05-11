@@ -77,7 +77,7 @@ export function claim(
       destinationIndex < destinations.length;
       destinationIndex++
     ) {
-      if (surplus.lte(0)) break;
+      if (surplus.isZero()) break;
       for (
         let targetAllocIndex = 0;
         targetAllocIndex < targetAllocations.length;
