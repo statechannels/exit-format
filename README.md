@@ -59,7 +59,7 @@ contract MyLayer2 {
 import { Exit, SingleAssetExit } from "@statechannels/exit-format";
 
 const ethExit: SingleAssetExit = {
-  asset: "0x0000000000000000000000000000000000000000", // this implies an ETH token
+  asset: "0x0000000000000000000000000000000000000000", // this implies the native token (e.g. ETH)
   data: "0x",
   allocations: [
     {
