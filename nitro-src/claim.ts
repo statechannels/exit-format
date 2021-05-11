@@ -14,7 +14,11 @@ export function claim(
 ) {
   if (initialTargetOutcome.length !== initialHoldings.length) throw Error;
   const updatedTargetOutcome: Exit = [];
-  let updatedHoldings = initialHoldings;
+  // We want to create a clone of the original values to prevent mutation
+  const updatedHoldings = initialHoldings.map((h) => BigNumber.from(h));
+  const updatedGuaranteeOutcome: Exit = JSON.parse(
+    JSON.stringify(initialGuaranteeOutcome)
+  );
   const exit: Exit = [];
 
   // Iterate through every asset
@@ -26,8 +30,10 @@ export function claim(
     const guarantees = initialGuaranteeOutcome[assetIndex].allocations;
     const targetAllocations = initialTargetOutcome[assetIndex].allocations;
 
-    const updatedAllocations = [...targetAllocations]; // copy the allocations for mutation
-    let surplus = BigNumber.from(initialHoldings[assetIndex]);
+    const updatedAllocations = targetAllocations.map((a) =>
+      JSON.parse(JSON.stringify(a))
+    ); // copy the allocations for mutation
+
     const singleAssetExit: SingleAssetExit = {
       ...initialTargetOutcome[assetIndex],
       allocations: [], // start with an empty array
@@ -37,6 +43,28 @@ export function claim(
       guarantees[targetChannelIndex].callTo !== MAGIC_VALUE_DENOTING_A_GUARANTEE
     )
       throw Error;
+
+    let surplus = BigNumber.from(initialHoldings[assetIndex]);
+    // Any guarantees before this one have priority on the funds
+    // So we must account for that by reducing the surplus
+    for (
+      let guaranteeIndex = 0;
+      guaranteeIndex < targetChannelIndex;
+      guaranteeIndex++
+    ) {
+      const { amount } = guarantees[guaranteeIndex];
+
+      surplus = surplus.sub(min(BigNumber.from(amount), surplus)); // Prevent going below 0
+    }
+    // If there are not enough funds to fund the guarantee we return immediately
+    if (surplus.isZero()) {
+      return {
+        updatedGuaranteeOutcome,
+        updatedHoldings,
+        updatedTargetOutcome,
+        exit,
+      };
+    }
 
     let exitRequestIndex = 0;
 
@@ -55,7 +83,7 @@ export function claim(
         targetAllocIndex < targetAllocations.length;
         targetAllocIndex++
       ) {
-        if (surplus.isZero()) break;
+        if (surplus.lte(0)) break;
 
         if (
           destinations[destinationIndex] ===
@@ -84,6 +112,19 @@ export function claim(
               .sub(affordsForDestination)
               .toHexString();
 
+            const currentGuaranteeAmount = BigNumber.from(
+              updatedGuaranteeOutcome[assetIndex].allocations[
+                targetChannelIndex
+              ].amount
+            );
+
+            // Update the guarantee
+            updatedGuaranteeOutcome[assetIndex].allocations[
+              targetChannelIndex
+            ].amount = currentGuaranteeAmount
+              .sub(min(currentGuaranteeAmount, affordsForDestination))
+              .toHexString();
+
             singleAssetExit.allocations.push({
               destination: targetAllocations[targetAllocIndex].destination,
               amount: affordsForDestination.toHexString(),
@@ -106,7 +147,12 @@ export function claim(
     });
     exit.push(singleAssetExit);
   }
-  return { updatedHoldings, updatedTargetOutcome, exit };
+  return {
+    updatedHoldings,
+    updatedTargetOutcome,
+    exit,
+    updatedGuaranteeOutcome,
+  };
 }
 
 function min(a: BigNumber, b: BigNumber) {
