@@ -57,27 +57,15 @@ export function claim(
       surplus = surplus.sub(min(BigNumber.from(amount), surplus)); // Prevent going below 0
     }
     // If there are not enough funds to fund the guarantee we return immediately
-    if (surplus.lte(0)) {
+    if (surplus.isZero()) {
       return {
         updatedGuaranteeOutcome,
         updatedHoldings,
         updatedTargetOutcome,
         exit,
       };
-    } else {
-      const currentAmount = BigNumber.from(
-        updatedGuaranteeOutcome[assetIndex].allocations[targetChannelIndex]
-          .amount
-      );
-      const newAmount = currentAmount
-        .sub(min(surplus, currentAmount)) // It's possible that surplus is large
-        .toHexString();
-
-      // If we do have enough funds we update the guarantee to indicate they have been allocated
-      updatedGuaranteeOutcome[assetIndex].allocations[
-        targetChannelIndex
-      ].amount = newAmount;
     }
+
     let exitRequestIndex = 0;
 
     const destinations = decodeGuaranteeData(
@@ -122,6 +110,19 @@ export function claim(
               targetAllocations[targetAllocIndex].amount
             )
               .sub(affordsForDestination)
+              .toHexString();
+
+            const currentGuaranteeAmount = BigNumber.from(
+              updatedGuaranteeOutcome[assetIndex].allocations[
+                targetChannelIndex
+              ].amount
+            );
+
+            // Update the guarantee
+            updatedGuaranteeOutcome[assetIndex].allocations[
+              targetChannelIndex
+            ].amount = currentGuaranteeAmount
+              .sub(min(currentGuaranteeAmount, affordsForDestination))
               .toHexString();
 
             singleAssetExit.allocations.push({
