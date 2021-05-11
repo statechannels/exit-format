@@ -61,6 +61,41 @@ describe("claim (typescript)", function () {
     ];
   };
 
+  it("correctly calculates the exit when the payout is less than the holdings", async function () {
+    const initialOutcome = createOutcome([
+      ["A", "0x05"],
+      ["B", "0x05"],
+      ["I", "0x0A"],
+    ]);
+
+    const guarantee = createGuarantee([["C1", "0x0A", ["A", "I", "B"]]]);
+
+    const initialHoldings = [BigNumber.from(10)];
+    const exitRequest = [[0]];
+
+    const claimResult = claim(
+      guarantee,
+      initialHoldings,
+      0,
+      initialOutcome,
+      exitRequest
+    );
+
+    expect(claimResult.updatedTargetOutcome).to.deep.equal(
+      createOutcome([
+        ["A", "0x00"],
+        ["B", "0x05"],
+        ["I", "0x0A"],
+      ])
+    );
+    expect(claimResult.exit).to.deep.equal(createOutcome([["A", "0x05"]]));
+    expect(claimResult.updatedHoldings).to.deep.equal([BigNumber.from(5)]);
+
+    expect(claimResult.updatedGuaranteeOutcome).to.deep.equal(
+      createGuarantee([["C1", "0x05", ["A", "I", "B"]]])
+    );
+  });
+
   it("Can handle an underfunded claim", async function () {
     const initialOutcomeForTargetChannel = createOutcome([
       ["A", "0x05"],
@@ -207,26 +242,38 @@ describe("claim (typescript)", function () {
     const guarantee: Exit = createGuarantee([["C1", "0x06", ["A", "I", "B"]]]);
 
     const initialHoldings = [BigNumber.from(6)];
-    const exitRequest = [[2]];
+    const exitRequest = [[]];
 
+    const claimResult = claim(
+      guarantee,
+      initialHoldings,
+      0,
+      initialOutcome,
+      exitRequest
+    );
     const {
       updatedHoldings,
       updatedTargetOutcome,
       exit,
       updatedGuaranteeOutcome,
-    } = claim(guarantee, initialHoldings, 0, initialOutcome, exitRequest);
+    } = claimResult;
 
-    expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
+    expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
     expect(updatedTargetOutcome).to.deep.equal(
       createOutcome([
-        ["A", "0x05"],
+        ["A", "0x00"],
         ["B", "0x05"],
         ["I", "0x09"],
       ])
     );
 
-    expect(exit).to.deep.equal(createOutcome([["I", "0x01"]]));
+    expect(exit).to.deep.equal(
+      createOutcome([
+        ["A", "0x05"],
+        ["I", "0x01"],
+      ])
+    );
     expect(updatedGuaranteeOutcome).to.deep.equal(
       createGuarantee([["C1", "0x00", ["A", "I", "B"]]])
     );
