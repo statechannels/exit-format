@@ -45,6 +45,10 @@ contract Nitro {
         exit = new ExitFormat.SingleAssetExit[](initialTargetOutcome.length);
         updatedHoldings = initialHoldings;
 
+        updatedTargetOutcome = new ExitFormat.SingleAssetExit[](
+            initialTargetOutcome.length
+        );
+
         // Iterate through every asset
         for (
             uint256 assetIndex = 0;
@@ -64,10 +68,6 @@ contract Nitro {
                         ? exitRequest[assetIndex].length
                         : targetAllocations.length
                 );
-
-            updatedTargetOutcome = new ExitFormat.SingleAssetExit[](
-                initialTargetOutcome.length
-            );
 
             uint256 surplus = initialHoldings[assetIndex];
             uint48 exitRequestIndex = 0;
