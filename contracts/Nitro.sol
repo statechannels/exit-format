@@ -55,6 +55,28 @@ contract Nitro {
             assetIndex < initialGuaranteeOutcome.length;
             assetIndex++
         ) {
+            uint256 surplus = initialHoldings[assetIndex];
+
+            for (
+                uint48 targetsIndex;
+                targetsIndex < targetChannelIndex;
+                targetsIndex++
+            ) {
+                uint256 affordsForDestination =
+                    min(
+                        surplus,
+                        initialGuaranteeOutcome[assetIndex].allocations[
+                            targetsIndex
+                        ]
+                            .amount
+                    );
+                surplus -= affordsForDestination;
+            }
+
+            if (surplus == 0) {
+                break;
+            }
+
             ExitFormat.Allocation[] memory guarantees =
                 initialGuaranteeOutcome[assetIndex].allocations;
 
@@ -69,7 +91,6 @@ contract Nitro {
                         : targetAllocations.length
                 );
 
-            uint256 surplus = initialHoldings[assetIndex];
             uint48 exitRequestIndex = 0;
 
             require(
