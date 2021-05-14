@@ -34,6 +34,7 @@ contract Nitro {
         public
         pure
         returns (
+            ExitFormat.SingleAssetExit[] memory updatedGuaranteeOutcome,
             ExitFormat.SingleAssetExit[] memory updatedTargetOutcome,
             uint256[] memory updatedHoldings,
             ExitFormat.SingleAssetExit[] memory exit
@@ -45,6 +46,7 @@ contract Nitro {
         exit = new ExitFormat.SingleAssetExit[](initialTargetOutcome.length);
         updatedHoldings = initialHoldings;
 
+        updatedGuaranteeOutcome = initialGuaranteeOutcome;
         updatedTargetOutcome = new ExitFormat.SingleAssetExit[](
             initialTargetOutcome.length
         );
