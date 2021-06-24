@@ -22,7 +22,7 @@ describe("claim (typescript)", function () {
     return [
       {
         asset: ZERO_ADDRESS,
-        data: "0x",
+        metadata: "0x",
         allocations: guarantees.map((g) => {
           const guaranteeList = g[2].map(
             (p) =>
@@ -37,7 +37,7 @@ describe("claim (typescript)", function () {
             destination: g[0] === "C1" ? CHANNEL_1 : CHANNEL_2,
             amount: BigNumber.from(g[1]).toHexString(),
             callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-            data: encodeGuaranteeData(...guaranteeList),
+            metadata: encodeGuaranteeData(...guaranteeList),
           };
         }),
       },
@@ -49,13 +49,13 @@ describe("claim (typescript)", function () {
     return [
       {
         asset: ZERO_ADDRESS,
-        data: "0x",
+        metadata: "0x",
         allocations: allocations.map((a) => ({
           destination:
             a[0] === "A" ? A_ADDRESS : a[0] === "B" ? B_ADDRESS : I_ADDRESS,
           amount: BigNumber.from(a[1]).toHexString(),
           callTo: ZERO_ADDRESS,
-          data: "0x",
+          metadata: "0x",
         })),
       },
     ];

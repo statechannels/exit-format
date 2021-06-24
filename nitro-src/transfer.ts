@@ -52,7 +52,7 @@ export function transfer(
           destination: initialAllocations[j].destination,
           amount: affordsForDestination.toHexString(),
           callTo: initialAllocations[j].callTo,
-          data: initialAllocations[j].data,
+          metadata: initialAllocations[j].metadata,
         });
         ++k;
       } else {
@@ -64,7 +64,7 @@ export function transfer(
     }
     updatedOutcome.push({
       asset: initialOutcome[i].asset,
-      data: initialOutcome[i].data,
+      metadata: initialOutcome[i].metadata,
       allocations: updatedAllocations,
     });
 

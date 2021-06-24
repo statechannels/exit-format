@@ -79,7 +79,7 @@ contract Nitro {
             );
 
             address[] memory destinations =
-                decodeGuaranteeData(guarantees[targetChannelIndex].data);
+                decodeGuaranteeData(guarantees[targetChannelIndex].metadata);
 
             // Iterate through every destination in the guarantee's destinations
             for (
@@ -125,7 +125,7 @@ contract Nitro {
                                 targetAllocations[targetAllocIndex].destination,
                                 affordsForDestination,
                                 targetAllocations[targetAllocIndex].callTo,
-                                targetAllocations[targetAllocIndex].data
+                                targetAllocations[targetAllocIndex].metadata
                             );
 
                             ++exitRequestIndex;
@@ -137,13 +137,13 @@ contract Nitro {
                     updatedTargetOutcome[assetIndex] = ExitFormat
                         .SingleAssetExit(
                         initialTargetOutcome[assetIndex].asset,
-                        initialTargetOutcome[assetIndex].data,
+                        initialTargetOutcome[assetIndex].metadata,
                         targetAllocations
                     );
 
                     exit[assetIndex] = ExitFormat.SingleAssetExit(
                         initialTargetOutcome[assetIndex].asset,
-                        initialTargetOutcome[assetIndex].data,
+                        initialTargetOutcome[assetIndex].metadata,
                         exitAllocations
                     );
                 }
@@ -213,7 +213,7 @@ contract Nitro {
                         initialAllocations[j].destination,
                         affordsForDestination,
                         initialAllocations[j].callTo,
-                        initialAllocations[j].data
+                        initialAllocations[j].metadata
                     );
                     ++k;
                 } else {}
@@ -221,12 +221,12 @@ contract Nitro {
             }
             updatedOutcome[i] = ExitFormat.SingleAssetExit(
                 initialOutcome[i].asset,
-                initialOutcome[i].data,
+                initialOutcome[i].metadata,
                 initialAllocations
             );
             exit[i] = ExitFormat.SingleAssetExit(
                 initialOutcome[i].asset,
-                initialOutcome[i].data,
+                initialOutcome[i].metadata,
                 exitAllocations
             );
         }

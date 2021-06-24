@@ -3,7 +3,7 @@ import { Allocation, Exit } from "./types";
 
 export function encodeAllocations(allocation: Allocation) {
   return defaultAbiCoder.encode(
-    ["tuple(address destination, uint256 amount, address callTo, bytes data)"],
+    ["tuple(address destination, uint256 amount, address callTo, bytes metadata)"],
     [allocation]
   );
 }
@@ -15,7 +15,7 @@ export function encodeExit(exit: Exit) {
         type: "tuple[]",
         components: [
           { name: "asset", type: "address" },
-          { name: "data", type: "bytes" },
+          { name: "metadata", type: "bytes" },
           {
             type: "tuple[]",
             name: "allocations",
@@ -23,7 +23,7 @@ export function encodeExit(exit: Exit) {
               { name: "destination", type: "address" },
               { name: "amount", type: "uint256" },
               { name: "callTo", type: "address" },
-              { name: "data", type: "bytes" },
+              { name: "metadata", type: "bytes" },
             ],
           } as ParamType,
         ],
@@ -40,14 +40,14 @@ export function decodeExit(_exit_: any) {
         type: "tuple[]",
         components: [
           { name: "asset", type: "address" },
-          { name: "data", type: "bytes" },
+          { name: "metadata", type: "bytes" },
           {
             type: "tuple[]",
             name: "allocations",
             components: [
               { name: "destination", type: "address" },
               { name: "amount", type: "uint256" },
-              { name: "data", type: "bytes" },
+              { name: "metadata", type: "bytes" },
             ],
           } as ParamType,
         ],

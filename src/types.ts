@@ -5,12 +5,12 @@ export interface Allocation {
   destination: string; // an Ethereum address
   amount: BigNumberish;
   callTo: string; // an Ethereum address
-  data: BytesLike;
+  metadata: BytesLike;
 }
 
 export interface SingleAssetExit {
   asset: string; // an Ethereum address
-  data: BytesLike;
+  metadata: BytesLike;
   allocations: Allocation[];
 }
 
