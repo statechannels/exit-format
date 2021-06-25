@@ -26,19 +26,19 @@ describe("claim (solidity)", function () {
   const initialOutcome: Exit = [
     {
       asset: ZERO_ADDRESS,
-      data: "0x",
+      metadata: "0x",
       allocations: [
         {
           destination: A_ADDRESS,
           amount: "0x05",
           callTo: ZERO_ADDRESS,
-          data: "0x",
+          metadata: "0x",
         },
         {
           destination: B_ADDRESS,
           amount: "0x05",
           callTo: ZERO_ADDRESS,
-          data: "0x",
+          metadata: "0x",
         },
       ],
     },
@@ -47,13 +47,13 @@ describe("claim (solidity)", function () {
   const guarantee: Exit = [
     {
       asset: ZERO_ADDRESS,
-      data: "0x",
+      metadata: "0x",
       allocations: [
         {
           destination: TARGET_CHANNEL_ADDRESS,
           amount: "0x00",
           callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-          data: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
+          metadata: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
         },
       ],
     },
@@ -86,19 +86,19 @@ describe("claim (solidity)", function () {
     expect(rehydrateExit(updatedTargetOutcome)).to.deep.equal([
       {
         asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
+        metadata: "0x",
         allocations: [
           {
             destination: A_ADDRESS,
             amount: BigNumber.from("0x04"),
             callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
+            metadata: "0x",
           },
           {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x00"), // TODO: It would be nice if these were stripped out
             callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
+            metadata: "0x",
           },
         ],
       },
@@ -107,20 +107,20 @@ describe("claim (solidity)", function () {
     expect(rehydrateExit(exit)).to.deep.equal([
       {
         asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
+        metadata: "0x",
         allocations: [
           {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
+            metadata: "0x",
           },
 
           {
             destination: A_ADDRESS,
             amount: BigNumber.from("0x01"),
             callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
+            metadata: "0x",
           },
         ],
       },
@@ -154,19 +154,19 @@ describe("claim (solidity)", function () {
     expect(rehydrateExit(updatedTargetOutcome)).to.deep.equal([
       {
         asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
+        metadata: "0x",
         allocations: [
           {
             destination: A_ADDRESS,
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
+            metadata: "0x",
           },
           {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x00"),
             callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
+            metadata: "0x",
           },
         ],
       },
@@ -175,13 +175,13 @@ describe("claim (solidity)", function () {
     expect(rehydrateExit(exit)).to.deep.equal([
       {
         asset: "0x0000000000000000000000000000000000000000",
-        data: "0x",
+        metadata: "0x",
         allocations: [
           {
             destination: B_ADDRESS,
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
-            data: "0x",
+            metadata: "0x",
           },
         ],
       },

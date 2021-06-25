@@ -22,19 +22,19 @@ const B_ADDRESS = "0x53484E75151D07FfD885159d4CF014B874cd2810";
 const exampleGuaranteeOutcome1: GuaranteeOutcome = [
   {
     asset: constants.AddressZero,
-    data: "0x",
+    metadata: "0x",
     allocations: [
       {
         destination: "0xjointchannel1",
         amount: "0xa",
         callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-        data: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
+        metadata: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
       },
       {
         destination: "0xjointchannel2",
         amount: "0xa",
         callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-        data: encodeGuaranteeData(A_ADDRESS, B_ADDRESS),
+        metadata: encodeGuaranteeData(A_ADDRESS, B_ADDRESS),
       },
     ],
   },

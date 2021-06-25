@@ -14,7 +14,7 @@ export function rehydrateExit(exitResult: Result) {
           destination: allocation[0],
           amount: BigNumber.from(allocation[1]),
           callTo: allocation[2],
-          data: allocation[3],
+          metadata: allocation[3],
         }));
       } else if (Number(key) !== Number(key)) object[key] = entry[key];
     });

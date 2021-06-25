@@ -69,7 +69,7 @@ export function claim(
     let exitRequestIndex = 0;
 
     const destinations = decodeGuaranteeData(
-      guarantees[targetChannelIndex].data
+      guarantees[targetChannelIndex].metadata
     );
     // Iterate through every destination in the guarantee's destinations
     for (
@@ -129,7 +129,7 @@ export function claim(
               destination: targetAllocations[targetAllocIndex].destination,
               amount: affordsForDestination.toHexString(),
               callTo: targetAllocations[targetAllocIndex].callTo,
-              data: targetAllocations[targetAllocIndex].data,
+              metadata: targetAllocations[targetAllocIndex].metadata,
             });
 
             ++exitRequestIndex;
@@ -142,7 +142,7 @@ export function claim(
     }
     updatedTargetOutcome.push({
       asset: initialTargetOutcome[assetIndex].asset,
-      data: initialTargetOutcome[assetIndex].data,
+      metadata: initialTargetOutcome[assetIndex].metadata,
       allocations: updatedAllocations,
     });
     exit.push(singleAssetExit);

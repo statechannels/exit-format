@@ -15,11 +15,11 @@ library ExitFormat {
 
     // A SingleAssetExit specifies
     // * an asset address (0 implies the native asset of the chain: on mainnet, this is ETH)
-    // * custom data (optional field, can be zero bytes). This might specify how to transfer this particular asset (e.g. target an "ERC20.transfer"' method)
+    // * custom metadata (optional field, can be zero bytes). This might specify how to transfer this particular asset (e.g. target an "ERC20.transfer"' method)
     // * an allocations array
     struct SingleAssetExit {
         address asset;
-        bytes data;
+        bytes metadata;
         Allocation[] allocations;
     }
 
@@ -31,12 +31,12 @@ library ExitFormat {
     // An Allocation specifies
     // * a destination address
     // * an amount of asset
-    // * custom data (optional field, can be zero bytes). This can be used flexibly by different protocols.
+    // * custom metadata (optional field, can be zero bytes). This can be used flexibly by different protocols.
     struct Allocation {
         address payable destination;
         uint256 amount;
         address callTo; // compatible with Vetor WithdrawHelper
-        bytes data; // compatible with Vetor WithdrawHelper
+        bytes metadata; // compatible with Vetor WithdrawHelper
     }
 
     // We use underscore parentheses to denote an _encodedVariable_
@@ -85,15 +85,15 @@ library ExitFormat {
                     exit[i].allocations[j].destination;
                 uint256 amount = exit[i].allocations[j].amount;
                 address callTo = exit[i].allocations[j].callTo;
-                bytes memory data = exit[i].allocations[j].data;
+                bytes memory metadata = exit[i].allocations[j].metadata;
                 if (asset == address(0)) {
                     destination.transfer(amount);
                 } else {
-                    // TODO support other token types via the exit[i].data field
+                    // TODO support other token types via the exit[i].metadata field
                     IERC20(asset).transfer(destination, amount);
                 }
                 if (callTo != address(0)) {
-                    WithdrawHelper(callTo).execute(data, amount);
+                    WithdrawHelper(callTo).execute(metadata, amount);
                 }
             }
         }
