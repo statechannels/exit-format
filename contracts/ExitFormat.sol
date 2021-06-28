@@ -83,7 +83,7 @@ library ExitFormat {
             for (uint256 j = 0; j < exit[i].allocations.length; j++) {
                 require(
                     _isAddress(exit[i].allocations[j].destination),
-                    "Destination is not an address"
+                    "Destination is not a zero-padded address"
                 );
                 address payable destination =
                     payable(
