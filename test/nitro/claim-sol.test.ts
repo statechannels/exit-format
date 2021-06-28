@@ -79,7 +79,7 @@ describe("claim (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(59090);
+    expect(gasEstimate.toNumber()).to.equal(58607);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
@@ -147,7 +147,7 @@ describe("claim (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(57447);
+    expect(gasEstimate.toNumber()).to.equal(57016);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(1)]);
 
