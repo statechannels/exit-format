@@ -43,9 +43,9 @@ const exampleGuaranteeOutcome1: GuaranteeOutcome = [
 const exampleGuaranteeOutcome2: Exit = exampleGuaranteeOutcome1; // GuaranteeOutcome is assignable to Exit
 
 export function encodeGuaranteeData(...destinations: string[]): BytesLike {
-  return defaultAbiCoder.encode(["address[]"], [destinations]);
+  return defaultAbiCoder.encode(["bytes32[]"], [destinations]);
 }
 
 export function decodeGuaranteeData(data: BytesLike): string[] {
-  return defaultAbiCoder.decode(["address[]"], data)[0];
+  return defaultAbiCoder.decode(["bytes32[]"], data)[0];
 }
