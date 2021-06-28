@@ -29,11 +29,11 @@ library ExitFormat {
     // Allocations = Allocation[]
 
     // An Allocation specifies
-    // * a destination address
+    // * a destination, referring either to an ethereum address or an application-specific identifier
     // * an amount of asset
     // * custom metadata (optional field, can be zero bytes). This can be used flexibly by different protocols.
     struct Allocation {
-        address payable destination;
+        bytes32 destination;
         uint256 amount;
         address callTo; // compatible with Vetor WithdrawHelper
         bytes metadata; // compatible with Vetor WithdrawHelper
@@ -81,8 +81,16 @@ library ExitFormat {
         for (uint256 i = 0; i < exit.length; i++) {
             address asset = exit[i].asset;
             for (uint256 j = 0; j < exit[i].allocations.length; j++) {
+                require(
+                    _isAddress(exit[i].allocations[j].destination),
+                    "Destination is not an address"
+                );
                 address payable destination =
-                    exit[i].allocations[j].destination;
+                    payable(
+                        address(
+                            uint160(uint256(exit[i].allocations[j].destination))
+                        )
+                    );
                 uint256 amount = exit[i].allocations[j].amount;
                 address callTo = exit[i].allocations[j].callTo;
                 bytes memory metadata = exit[i].allocations[j].metadata;
@@ -97,5 +105,14 @@ library ExitFormat {
                 }
             }
         }
+    }
+
+    /**
+     * @notice Checks whether given destination is a valid Ethereum address
+     * @dev Checks whether given destination is a valid Ethereum address
+     * @param destination the destination to be checked
+     */
+    function _isAddress(bytes32 destination) internal pure returns (bool) {
+        return uint96(bytes12(destination)) == 0;
     }
 }
