@@ -4,6 +4,11 @@ import { MAGIC_VALUE_DENOTING_A_GUARANTEE } from "../../nitro-src/nitro-types";
 import { transfer } from "../../nitro-src/transfer";
 import { Exit } from "../../src/types";
 
+const destinations = {
+  alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
+  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810"
+}
+
 describe("transfer (typescript)", function () {
   it("Can transfer", async function () {
     const initialOutcome: Exit = [
@@ -12,13 +17,13 @@ describe("transfer (typescript)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination: destinations.alice,
             amount: "0x05",
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: "0x05",
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -44,13 +49,13 @@ describe("transfer (typescript)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination: destinations.alice,
             amount: "0x05",
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: "0x04",
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -65,7 +70,7 @@ describe("transfer (typescript)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: "0x01",
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -84,13 +89,13 @@ describe("transfer (typescript)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination: destinations.alice,
             amount: "0x05",
             callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
             metadata: "0x",
           },
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: "0x05",
             callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
             metadata: "0x",
