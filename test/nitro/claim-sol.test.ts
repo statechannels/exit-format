@@ -9,6 +9,11 @@ const { ethers } = require("hardhat");
 import { Nitro } from "../../typechain/Nitro";
 import { rehydrateExit } from "../test-helpers";
 
+const destinations = {
+  alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
+  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810"
+}
+
 describe("claim (solidity)", function () {
   let nitro: Nitro;
 
@@ -19,9 +24,7 @@ describe("claim (solidity)", function () {
   });
 
   const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-  const A_ADDRESS = "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f";
-  const B_ADDRESS = "0x53484E75151D07FfD885159d4CF014B874cd2810";
-  const TARGET_CHANNEL_ADDRESS = "0x080678731247781ff0d57c649b6d0ad1a0620df0"; // At some point in the full claim operation, the outcome of this channel must be read and checked
+  const TARGET_CHANNEL_ADDRESS = "0x000000000000000000000000080678731247781ff0d57c649b6d0ad1a0620df0"; // At some point in the full claim operation, the outcome of this channel must be read and checked
 
   const initialOutcome: Exit = [
     {
@@ -29,13 +32,13 @@ describe("claim (solidity)", function () {
       metadata: "0x",
       allocations: [
         {
-          destination: A_ADDRESS,
+          destination: destinations.alice,
           amount: "0x05",
           callTo: ZERO_ADDRESS,
           metadata: "0x",
         },
         {
-          destination: B_ADDRESS,
+          destination: destinations.bob,
           amount: "0x05",
           callTo: ZERO_ADDRESS,
           metadata: "0x",
@@ -53,7 +56,7 @@ describe("claim (solidity)", function () {
           destination: TARGET_CHANNEL_ADDRESS,
           amount: "0x00",
           callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
-          metadata: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
+          metadata: encodeGuaranteeData(destinations.bob, destinations.alice),
         },
       ],
     },
@@ -79,7 +82,7 @@ describe("claim (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(59090);
+    expect(gasEstimate.toNumber()).to.equal(58607);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
@@ -89,13 +92,13 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: A_ADDRESS,
+            destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x04"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: B_ADDRESS,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x00"), // TODO: It would be nice if these were stripped out
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -110,14 +113,14 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: B_ADDRESS,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
 
           {
-            destination: A_ADDRESS,
+            destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x01"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -147,7 +150,7 @@ describe("claim (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(57447);
+    expect(gasEstimate.toNumber()).to.equal(57016);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(1)]);
 
@@ -157,13 +160,13 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: A_ADDRESS,
+            destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: B_ADDRESS,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x00"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -178,7 +181,7 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: B_ADDRESS,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",

@@ -86,8 +86,8 @@ export function claim(
         if (surplus.lte(0)) break;
 
         if (
-          destinations[destinationIndex] ===
-          targetAllocations[targetAllocIndex].destination
+          destinations[destinationIndex].toLowerCase() ===
+          targetAllocations[targetAllocIndex].destination.toLowerCase()
         ) {
           // if we find it, compute new amount
           const affordsForDestination = min(

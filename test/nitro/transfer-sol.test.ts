@@ -6,6 +6,11 @@ const { ethers } = require("hardhat");
 import { Nitro } from "../../typechain/Nitro";
 import { rehydrateExit } from "../test-helpers";
 
+const destinations = {
+  alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f".toLowerCase(),
+  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810".toLowerCase()
+}
+
 describe("transfer (solidity)", function () {
   let nitro: Nitro;
 
@@ -21,13 +26,13 @@ describe("transfer (solidity)", function () {
       metadata: "0x",
       allocations: [
         {
-          destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+          destination: destinations.alice,
           amount: "0x05",
           callTo: "0x0000000000000000000000000000000000000000",
           metadata: "0x",
         },
         {
-          destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+          destination: destinations.bob,
           amount: "0x05",
           callTo: "0x0000000000000000000000000000000000000000",
           metadata: "0x",
@@ -52,7 +57,7 @@ describe("transfer (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(45876);
+    expect(gasEstimate.toNumber()).to.equal(45628);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
@@ -62,13 +67,13 @@ describe("transfer (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination: destinations.alice,
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: BigNumber.from("0x04"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -83,7 +88,7 @@ describe("transfer (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: BigNumber.from("0x01"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -109,7 +114,7 @@ describe("transfer (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(47404);
+    expect(gasEstimate.toNumber()).to.equal(47104);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
@@ -119,13 +124,13 @@ describe("transfer (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination: destinations.alice,
             amount: BigNumber.from("0x0"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: BigNumber.from("0x04"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -140,13 +145,13 @@ describe("transfer (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination: destinations.alice,
             amount: BigNumber.from("0x5"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: BigNumber.from("0x01"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -165,13 +170,13 @@ describe("transfer (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination: destinations.alice,
             amount: "0x05",
             callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
             metadata: "0x",
           },
           {
-            destination: "0x53484E75151D07FfD885159d4CF014B874cd2810",
+            destination: destinations.bob,
             amount: "0x05",
             callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
             metadata: "0x",

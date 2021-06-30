@@ -11,9 +11,9 @@ contract Nitro {
     function decodeGuaranteeData(bytes memory data)
         internal
         pure
-        returns (address[] memory)
+        returns (bytes32[] memory)
     {
-        return abi.decode(data, (address[]));
+        return abi.decode(data, (bytes32[]));
     }
 
     /**
@@ -78,7 +78,7 @@ contract Nitro {
                 "Must be a valid guarantee with callTo set to MAGIC_VALUE_DENOTING_A_GUARANTEE"
             );
 
-            address[] memory destinations =
+            bytes32[] memory destinations =
                 decodeGuaranteeData(guarantees[targetChannelIndex].metadata);
 
             // Iterate through every destination in the guarantee's destinations

@@ -17,8 +17,8 @@ export type SingleAssetGuaranteeOutcome = SingleAssetExit & {
 };
 
 export type GuaranteeOutcome = SingleAssetGuaranteeOutcome[];
-const A_ADDRESS = "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f";
-const B_ADDRESS = "0x53484E75151D07FfD885159d4CF014B874cd2810";
+const A_ADDRESS = "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f";
+const B_ADDRESS = "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810";
 const exampleGuaranteeOutcome1: GuaranteeOutcome = [
   {
     asset: constants.AddressZero,
@@ -43,9 +43,9 @@ const exampleGuaranteeOutcome1: GuaranteeOutcome = [
 const exampleGuaranteeOutcome2: Exit = exampleGuaranteeOutcome1; // GuaranteeOutcome is assignable to Exit
 
 export function encodeGuaranteeData(...destinations: string[]): BytesLike {
-  return defaultAbiCoder.encode(["address[]"], [destinations]);
+  return defaultAbiCoder.encode(["bytes32[]"], [destinations]);
 }
 
 export function decodeGuaranteeData(data: BytesLike): string[] {
-  return defaultAbiCoder.decode(["address[]"], data)[0];
+  return defaultAbiCoder.decode(["bytes32[]"], data)[0];
 }
