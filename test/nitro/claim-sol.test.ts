@@ -10,8 +10,8 @@ import { Nitro } from "../../typechain/Nitro";
 import { rehydrateExit } from "../test-helpers";
 
 const destinations = {
-  alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f".toLowerCase(),
-  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810".toLowerCase()
+  alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
+  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810"
 }
 
 describe("claim (solidity)", function () {
@@ -92,13 +92,13 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: destinations.alice,
+            destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x04"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: destinations.bob,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x00"), // TODO: It would be nice if these were stripped out
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -113,14 +113,14 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: destinations.bob,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
 
           {
-            destination: destinations.alice,
+            destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x01"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -160,13 +160,13 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: destinations.alice,
+            destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
           },
           {
-            destination: destinations.bob,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x00"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
@@ -181,7 +181,7 @@ describe("claim (solidity)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: destinations.bob,
+            destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x05"),
             callTo: "0x0000000000000000000000000000000000000000",
             metadata: "0x",
