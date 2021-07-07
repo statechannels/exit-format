@@ -60,38 +60,38 @@ import { Exit, SingleAssetExit } from "@statechannels/exit-format";
 
 const ethExit: SingleAssetExit = {
   asset: "0x0000000000000000000000000000000000000000", // this implies the native token (e.g. ETH)
-  data: "0x",
+  metadata: "0x",
   allocations: [
     {
       destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f", // Alice
       amount: "0x05",
-      callTo: "0x0000000000000000000000000000000000000000", // a regular ETH transfer
-      data: "0x",
+      allocationType: AllocationType.simple, // a regular ETH transfer
+      metadata: "0x",
     },
     {
       destination: "0x0737369d5F8525D039038Da1EdBAC4C4f161b949", // Bob
       amount: "0x05",
-      callTo: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f", // this implies "call a WithdrawHelper"
-      data: "0x0123", /// ... with this calldata
+      allocationType: AllocationType.withdrawHelper, // call a WithdrawHelper
+      metadata: "0x0123", // at the address, and with the calldata, encoded within
     },
   ],
 };
 
 const daiExit: SingleAssetExit = {
-  asset: "0x6b175474e89094c44da98b954eedeac495271d0f ", // this implies DAI (an ERC20 token)
-  data: "0x",
+  asset: "0x6b175474e89094c44da98b954eedeac495271d0f", // this implies DAI (an ERC20 token)
+  metadata: "0x",
   allocations: [
     {
       destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f", // Alice
       amount: "0x05",
-      callTo: "0x0000000000000000000000000000000000000000", // a regular ERC20.transfer
-      data: "0x",
+      allocationType: AllocationType.simple, // a regular ERC20.transfer
+      metadata: "0x",
     },
     {
       destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f", // Bob
       amount: "0x05",
-      callTo: "0x0000000000000000000000000000000000000000", // a regular ERC20.transfer
-      data: "0x",
+      allocationType: AllocationType.simple, // a regular ERC20.transfer
+      metadata: "0x",
     },
   ],
 };
