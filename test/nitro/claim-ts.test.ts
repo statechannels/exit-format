@@ -5,7 +5,7 @@ import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
 } from "../../nitro-src/nitro-types";
-import { Exit } from "../../src/types";
+import { AllocationType, Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 
 describe("claim (typescript)", function () {
@@ -36,7 +36,7 @@ describe("claim (typescript)", function () {
           return {
             destination: g[0] === "C1" ? CHANNEL_1 : CHANNEL_2,
             amount: BigNumber.from(g[1]).toHexString(),
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+            allocationType: AllocationType.guarantee,
             metadata: encodeGuaranteeData(...guaranteeList),
           };
         }),
@@ -54,7 +54,7 @@ describe("claim (typescript)", function () {
           destination:
             a[0] === "A" ? A_ADDRESS : a[0] === "B" ? B_ADDRESS : I_ADDRESS,
           amount: BigNumber.from(a[1]).toHexString(),
-          callTo: ZERO_ADDRESS,
+          allocationType: AllocationType.simple,
           metadata: "0x",
         })),
       },

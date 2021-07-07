@@ -2,7 +2,7 @@ const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
 import { MAGIC_VALUE_DENOTING_A_GUARANTEE } from "../../nitro-src/nitro-types";
 import { transfer } from "../../nitro-src/transfer";
-import { Exit } from "../../src/types";
+import { AllocationType, Exit } from "../../src/types";
 
 const destinations = {
   alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
@@ -19,13 +19,13 @@ describe("transfer (typescript)", function () {
           {
             destination: destinations.alice,
             amount: "0x05",
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
           {
             destination: destinations.bob,
             amount: "0x05",
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -51,13 +51,13 @@ describe("transfer (typescript)", function () {
           {
             destination: destinations.alice,
             amount: "0x05",
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
           {
             destination: destinations.bob,
             amount: "0x04",
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -72,7 +72,7 @@ describe("transfer (typescript)", function () {
           {
             destination: destinations.bob,
             amount: "0x01",
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -91,13 +91,13 @@ describe("transfer (typescript)", function () {
           {
             destination: destinations.alice,
             amount: "0x05",
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+            allocationType: AllocationType.guarantee,
             metadata: "0x",
           },
           {
             destination: destinations.bob,
             amount: "0x05",
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+            allocationType: AllocationType.guarantee,
             metadata: "0x",
           },
         ],

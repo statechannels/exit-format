@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-import { Allocation, Exit } from "../src/types";
+import { Allocation, AllocationType, Exit } from "../src/types";
 import { TestConsumer } from "../typechain/TestConsumer";
 
 describe("ExitFormat (solidity)", function () {
@@ -18,7 +18,7 @@ describe("ExitFormat (solidity)", function () {
     const allocation: Allocation = {
       destination: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
       amount: "0x01",
-      callTo: "0x0000000000000000000000000000000000000000",
+      allocationType: AllocationType.simple,
       metadata: "0x",
     };
     const encodedAllocation = await testConsumer.encodeAllocation(allocation);
@@ -37,7 +37,7 @@ describe("ExitFormat (solidity)", function () {
           {
             destination: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: "0x01",
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],

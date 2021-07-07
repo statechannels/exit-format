@@ -4,7 +4,7 @@ import {
   encodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
 } from "../../nitro-src/nitro-types";
-import { Exit } from "../../src/types";
+import { AllocationType, Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 import { Nitro } from "../../typechain/Nitro";
 import { rehydrateExit } from "../test-helpers";
@@ -34,13 +34,13 @@ describe("claim (solidity)", function () {
         {
           destination: destinations.alice,
           amount: "0x05",
-          callTo: ZERO_ADDRESS,
+          allocationType: AllocationType.simple,
           metadata: "0x",
         },
         {
           destination: destinations.bob,
           amount: "0x05",
-          callTo: ZERO_ADDRESS,
+          allocationType: AllocationType.simple,
           metadata: "0x",
         },
       ],
@@ -55,7 +55,7 @@ describe("claim (solidity)", function () {
         {
           destination: TARGET_CHANNEL_ADDRESS,
           amount: "0x00",
-          callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+          allocationType: AllocationType.guarantee,
           metadata: encodeGuaranteeData(destinations.bob, destinations.alice),
         },
       ],
@@ -94,13 +94,13 @@ describe("claim (solidity)", function () {
           {
             destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x04"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
           {
             destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x00"), // TODO: It would be nice if these were stripped out
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -115,14 +115,14 @@ describe("claim (solidity)", function () {
           {
             destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x05"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
 
           {
             destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x01"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -162,13 +162,13 @@ describe("claim (solidity)", function () {
           {
             destination: destinations.alice.toLowerCase(),
             amount: BigNumber.from("0x05"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
           {
             destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x00"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -183,7 +183,7 @@ describe("claim (solidity)", function () {
           {
             destination: destinations.bob.toLowerCase(),
             amount: BigNumber.from("0x05"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
