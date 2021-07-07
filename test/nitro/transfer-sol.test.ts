@@ -56,7 +56,7 @@ describe("transfer (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(45628);
+    expect(gasEstimate.toNumber()).to.equal(45461);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
@@ -113,7 +113,7 @@ describe("transfer (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(47104);
+    expect(gasEstimate.toNumber()).to.equal(46920);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
