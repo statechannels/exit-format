@@ -3,7 +3,7 @@ import {
   decodeGuaranteeData,
   MAGIC_VALUE_DENOTING_A_GUARANTEE,
 } from "./nitro-types";
-import { Exit, SingleAssetExit } from "../src/types";
+import { AllocationType, Exit, SingleAssetExit } from "../src/types";
 
 export function claim(
   initialGuaranteeOutcome: Exit,
@@ -40,7 +40,7 @@ export function claim(
     };
 
     if (
-      guarantees[targetChannelIndex].callTo !== MAGIC_VALUE_DENOTING_A_GUARANTEE
+      guarantees[targetChannelIndex].allocationType !== AllocationType.guarantee
     )
       throw Error;
 
@@ -128,7 +128,7 @@ export function claim(
             singleAssetExit.allocations.push({
               destination: targetAllocations[targetAllocIndex].destination,
               amount: affordsForDestination.toHexString(),
-              callTo: targetAllocations[targetAllocIndex].callTo,
+              allocationType: targetAllocations[targetAllocIndex].allocationType,
               metadata: targetAllocations[targetAllocIndex].metadata,
             });
 

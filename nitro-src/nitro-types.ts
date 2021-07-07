@@ -1,6 +1,6 @@
 import { defaultAbiCoder } from "@ethersproject/abi";
 import { BytesLike, constants } from "ethers";
-import { Exit, Allocation, SingleAssetExit } from "../src/types";
+import { Exit, Allocation, SingleAssetExit, AllocationType } from "../src/types";
 
 export const MAGIC_VALUE_DENOTING_A_GUARANTEE =
   "0x0000000000000000000000000000000000000001";
@@ -9,7 +9,7 @@ export const MAGIC_VALUE_DENOTING_A_GUARANTEE =
 // we avoid the magic value of the zero address, because that is already used by executeExit
 
 export type GuaranteeAllocation = Allocation & {
-  callTo: typeof MAGIC_VALUE_DENOTING_A_GUARANTEE;
+  allocationType: AllocationType.guarantee;
 };
 
 export type SingleAssetGuaranteeOutcome = SingleAssetExit & {
@@ -27,13 +27,13 @@ const exampleGuaranteeOutcome1: GuaranteeOutcome = [
       {
         destination: "0xjointchannel1",
         amount: "0xa",
-        callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+        allocationType: AllocationType.guarantee,
         metadata: encodeGuaranteeData(B_ADDRESS, A_ADDRESS),
       },
       {
         destination: "0xjointchannel2",
         amount: "0xa",
-        callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+        allocationType: AllocationType.guarantee,
         metadata: encodeGuaranteeData(A_ADDRESS, B_ADDRESS),
       },
     ],

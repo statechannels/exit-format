@@ -73,9 +73,9 @@ contract Nitro {
             uint48 exitRequestIndex = 0;
 
             require(
-                guarantees[targetChannelIndex].callTo ==
-                    0x0000000000000000000000000000000000000001,
-                "Must be a valid guarantee with callTo set to MAGIC_VALUE_DENOTING_A_GUARANTEE"
+                guarantees[targetChannelIndex].allocationType ==
+                    uint8(ExitFormat.AllocationType.guarantee),
+                "Must be a valid guarantee with allocationType set to ExitFormat.AllocationType.guarantee"
             );
 
             bytes32[] memory destinations =
@@ -124,7 +124,7 @@ contract Nitro {
                                 .Allocation(
                                 targetAllocations[targetAllocIndex].destination,
                                 affordsForDestination,
-                                targetAllocations[targetAllocIndex].callTo,
+                                targetAllocations[targetAllocIndex].allocationType,
                                 targetAllocations[targetAllocIndex].metadata
                             );
 
@@ -203,7 +203,9 @@ contract Nitro {
                     exitRequest[i].length == 0 ||
                     (k < exitRequest[i].length && exitRequest[i][k] == j)
                 ) {
-                    if (initialAllocations[j].callTo == address(1))
+                    if (initialAllocations[j].allocationType == uint8(
+                        ExitFormat.AllocationType.guarantee
+                    ))
                         revert("cannot transfer a guarantee");
                     updatedHoldings[i] -= affordsForDestination;
 
@@ -212,7 +214,7 @@ contract Nitro {
                     exitAllocations[k] = ExitFormat.Allocation(
                         initialAllocations[j].destination,
                         affordsForDestination,
-                        initialAllocations[j].callTo,
+                        initialAllocations[j].allocationType,
                         initialAllocations[j].metadata
                     );
                     ++k;
