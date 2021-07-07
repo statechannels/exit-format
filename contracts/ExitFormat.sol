@@ -28,15 +28,18 @@ library ExitFormat {
     // (which would make a material difference to the final state in the case of running out of gas or funds)
     // Allocations = Allocation[]
 
+    enum AllocationType {simple, withdrawHelper, guarantee}
+
     // An Allocation specifies
     // * a destination, referring either to an ethereum address or an application-specific identifier
     // * an amount of asset
+    // * an allocationType, which directs calling code on how to interpret the allocation
     // * custom metadata (optional field, can be zero bytes). This can be used flexibly by different protocols.
     struct Allocation {
         bytes32 destination;
         uint256 amount;
-        address callTo; // compatible with Vetor WithdrawHelper
-        bytes metadata; // compatible with Vetor WithdrawHelper
+        uint8 allocationType;
+        bytes metadata;
     }
 
     // We use underscore parentheses to denote an _encodedVariable_
