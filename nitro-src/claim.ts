@@ -1,8 +1,5 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import {
-  decodeGuaranteeData,
-  MAGIC_VALUE_DENOTING_A_GUARANTEE,
-} from "./nitro-types";
+import { decodeGuaranteeData } from "./nitro-types";
 import { AllocationType, Exit, SingleAssetExit } from "../src/types";
 
 export function claim(
@@ -128,7 +125,8 @@ export function claim(
             singleAssetExit.allocations.push({
               destination: targetAllocations[targetAllocIndex].destination,
               amount: affordsForDestination.toHexString(),
-              allocationType: targetAllocations[targetAllocIndex].allocationType,
+              allocationType:
+                targetAllocations[targetAllocIndex].allocationType,
               metadata: targetAllocations[targetAllocIndex].metadata,
             });
 

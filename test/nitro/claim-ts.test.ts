@@ -1,10 +1,7 @@
 const { expect } = require("chai");
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { claim } from "../../nitro-src/claim";
-import {
-  encodeGuaranteeData,
-  MAGIC_VALUE_DENOTING_A_GUARANTEE,
-} from "../../nitro-src/nitro-types";
+import { encodeGuaranteeData } from "../../nitro-src/nitro-types";
 import { AllocationType, Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 

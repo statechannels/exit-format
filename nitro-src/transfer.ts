@@ -1,6 +1,5 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { AllocationType, Exit, SingleAssetExit } from "../src/types";
-import { MAGIC_VALUE_DENOTING_A_GUARANTEE } from "./nitro-types";
 
 /**
  * Extracts an exit from an initial outcome and an exit request

@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { MAGIC_VALUE_DENOTING_A_GUARANTEE } from "../../nitro-src/nitro-types";
 import { AllocationType, Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 import { Nitro } from "../../typechain/Nitro";

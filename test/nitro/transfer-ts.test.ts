@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { MAGIC_VALUE_DENOTING_A_GUARANTEE } from "../../nitro-src/nitro-types";
 import { transfer } from "../../nitro-src/transfer";
 import { AllocationType, Exit } from "../../src/types";
 
