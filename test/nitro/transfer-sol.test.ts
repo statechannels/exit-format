@@ -7,8 +7,8 @@ import { rehydrateExit } from "../test-helpers";
 
 const destinations = {
   alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f".toLowerCase(),
-  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810".toLowerCase()
-}
+  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810".toLowerCase(),
+};
 
 describe("transfer (solidity)", function () {
   let nitro: Nitro;

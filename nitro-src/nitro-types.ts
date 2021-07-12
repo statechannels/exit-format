@@ -1,6 +1,11 @@
 import { defaultAbiCoder } from "@ethersproject/abi";
 import { BytesLike, constants } from "ethers";
-import { Exit, Allocation, SingleAssetExit, AllocationType } from "../src/types";
+import {
+  Exit,
+  Allocation,
+  SingleAssetExit,
+  AllocationType,
+} from "../src/types";
 
 // this will cause executeExit to revert, which is what we want for a guarantee
 // it should only work with a custom 'claim' operation
@@ -15,8 +20,10 @@ export type SingleAssetGuaranteeOutcome = SingleAssetExit & {
 };
 
 export type GuaranteeOutcome = SingleAssetGuaranteeOutcome[];
-const A_ADDRESS = "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f";
-const B_ADDRESS = "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810";
+const A_ADDRESS =
+  "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f";
+const B_ADDRESS =
+  "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810";
 const exampleGuaranteeOutcome1: GuaranteeOutcome = [
   {
     asset: constants.AddressZero,
