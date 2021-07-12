@@ -1,7 +1,6 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { MAGIC_VALUE_DENOTING_A_GUARANTEE } from "../../nitro-src/nitro-types";
-import { Exit } from "../../src/types";
+import { AllocationType, Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 import { Nitro } from "../../typechain/Nitro";
 import { rehydrateExit } from "../test-helpers";
@@ -28,13 +27,13 @@ describe("transfer (solidity)", function () {
         {
           destination: destinations.alice,
           amount: "0x05",
-          callTo: "0x0000000000000000000000000000000000000000",
+          allocationType: AllocationType.simple,
           metadata: "0x",
         },
         {
           destination: destinations.bob,
           amount: "0x05",
-          callTo: "0x0000000000000000000000000000000000000000",
+          allocationType: AllocationType.simple,
           metadata: "0x",
         },
       ],
@@ -57,7 +56,7 @@ describe("transfer (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(45628);
+    expect(gasEstimate.toNumber()).to.equal(45461);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
@@ -69,13 +68,13 @@ describe("transfer (solidity)", function () {
           {
             destination: destinations.alice,
             amount: BigNumber.from("0x05"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
           {
             destination: destinations.bob,
             amount: BigNumber.from("0x04"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -90,7 +89,7 @@ describe("transfer (solidity)", function () {
           {
             destination: destinations.bob,
             amount: BigNumber.from("0x01"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -114,7 +113,7 @@ describe("transfer (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(47104);
+    expect(gasEstimate.toNumber()).to.equal(46920);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
@@ -126,13 +125,13 @@ describe("transfer (solidity)", function () {
           {
             destination: destinations.alice,
             amount: BigNumber.from("0x0"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
           {
             destination: destinations.bob,
             amount: BigNumber.from("0x04"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -147,13 +146,13 @@ describe("transfer (solidity)", function () {
           {
             destination: destinations.alice,
             amount: BigNumber.from("0x5"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
           {
             destination: destinations.bob,
             amount: BigNumber.from("0x01"),
-            callTo: "0x0000000000000000000000000000000000000000",
+            allocationType: AllocationType.simple,
             metadata: "0x",
           },
         ],
@@ -172,13 +171,13 @@ describe("transfer (solidity)", function () {
           {
             destination: destinations.alice,
             amount: "0x05",
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+            allocationType: AllocationType.guarantee,
             metadata: "0x",
           },
           {
             destination: destinations.bob,
             amount: "0x05",
-            callTo: MAGIC_VALUE_DENOTING_A_GUARANTEE,
+            allocationType: AllocationType.guarantee,
             metadata: "0x",
           },
         ],

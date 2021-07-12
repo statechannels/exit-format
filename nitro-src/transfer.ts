@@ -1,6 +1,5 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import { Exit, SingleAssetExit } from "../src/types";
-import { MAGIC_VALUE_DENOTING_A_GUARANTEE } from "./nitro-types";
+import { AllocationType, Exit, SingleAssetExit } from "../src/types";
 
 /**
  * Extracts an exit from an initial outcome and an exit request
@@ -38,7 +37,7 @@ export function transfer(
         exitRequest[i].length == 0 ||
         (k < exitRequest[i].length && exitRequest[i][k] === j)
       ) {
-        if (initialAllocations[j].callTo == MAGIC_VALUE_DENOTING_A_GUARANTEE)
+        if (initialAllocations[j].allocationType == AllocationType.guarantee)
           throw Error("Cannot transfer a guarantee");
         updatedHoldings[i] = BigNumber.from(updatedHoldings[i]).sub(
           affordsForDestination
@@ -51,7 +50,7 @@ export function transfer(
         singleAssetExit.allocations.push({
           destination: initialAllocations[j].destination,
           amount: affordsForDestination.toHexString(),
-          callTo: initialAllocations[j].callTo,
+          allocationType: initialAllocations[j].allocationType,
           metadata: initialAllocations[j].metadata,
         });
         ++k;

@@ -28,15 +28,27 @@ library ExitFormat {
     // (which would make a material difference to the final state in the case of running out of gas or funds)
     // Allocations = Allocation[]
 
+    enum AllocationType {simple, withdrawHelper, guarantee}
+
     // An Allocation specifies
     // * a destination, referring either to an ethereum address or an application-specific identifier
     // * an amount of asset
+    // * an allocationType, which directs calling code on how to interpret the allocation
     // * custom metadata (optional field, can be zero bytes). This can be used flexibly by different protocols.
     struct Allocation {
         bytes32 destination;
         uint256 amount;
-        address callTo; // compatible with Vetor WithdrawHelper
-        bytes metadata; // compatible with Vetor WithdrawHelper
+        uint8 allocationType;
+        bytes metadata;
+    }
+
+    /**
+     * specifies the decoding format for metadata bytes fields
+     * received with the WithdrawHelper flag
+     */ 
+    struct WithdrawHelperMetaData {
+        address callTo;
+        bytes callData;
     }
 
     // We use underscore parentheses to denote an _encodedVariable_
@@ -92,16 +104,19 @@ library ExitFormat {
                         )
                     );
                 uint256 amount = exit[i].allocations[j].amount;
-                address callTo = exit[i].allocations[j].callTo;
-                bytes memory metadata = exit[i].allocations[j].metadata;
                 if (asset == address(0)) {
                     destination.transfer(amount);
                 } else {
                     // TODO support other token types via the exit[i].metadata field
                     IERC20(asset).transfer(destination, amount);
                 }
-                if (callTo != address(0)) {
-                    WithdrawHelper(callTo).execute(metadata, amount);
+                if (
+                    exit[i].allocations[j].allocationType ==
+                    uint8(AllocationType.withdrawHelper)
+                ) {
+                    WithdrawHelperMetaData memory wd =
+                        _parseWithdrawHelper(exit[i].allocations[j].metadata);
+                    WithdrawHelper(wd.callTo).execute(wd.callData, amount);
                 }
             }
         }
@@ -114,5 +129,17 @@ library ExitFormat {
      */
     function _isAddress(bytes32 destination) internal pure returns (bool) {
         return uint96(bytes12(destination)) == 0;
+    }
+
+    /**
+     * @notice Returns a callTo address and callData from metadata bytes
+     * @dev Returns a callTo address and callData from metadata bytes
+     */
+    function _parseWithdrawHelper(bytes memory metadata)
+        internal
+        pure
+        returns (WithdrawHelperMetaData memory)
+    {
+        return abi.decode(metadata, (WithdrawHelperMetaData));
     }
 }
