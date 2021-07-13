@@ -4,7 +4,7 @@ import { BytesLike } from "@ethersproject/bytes";
 export enum AllocationType {
   simple,
   withdrawHelper,
-  guarantee
+  guarantee,
 }
 
 export interface Allocation {

@@ -8,8 +8,8 @@ import { rehydrateExit } from "../test-helpers";
 
 const destinations = {
   alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
-  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810"
-}
+  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810",
+};
 
 describe("claim (solidity)", function () {
   let nitro: Nitro;
@@ -21,7 +21,8 @@ describe("claim (solidity)", function () {
   });
 
   const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-  const TARGET_CHANNEL_ADDRESS = "0x000000000000000000000000080678731247781ff0d57c649b6d0ad1a0620df0"; // At some point in the full claim operation, the outcome of this channel must be read and checked
+  const TARGET_CHANNEL_ADDRESS =
+    "0x000000000000000000000000080678731247781ff0d57c649b6d0ad1a0620df0"; // At some point in the full claim operation, the outcome of this channel must be read and checked
 
   const initialOutcome: Exit = [
     {

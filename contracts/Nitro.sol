@@ -124,7 +124,8 @@ contract Nitro {
                                 .Allocation(
                                 targetAllocations[targetAllocIndex].destination,
                                 affordsForDestination,
-                                targetAllocations[targetAllocIndex].allocationType,
+                                targetAllocations[targetAllocIndex]
+                                    .allocationType,
                                 targetAllocations[targetAllocIndex].metadata
                             );
 
@@ -203,10 +204,10 @@ contract Nitro {
                     exitRequest[i].length == 0 ||
                     (k < exitRequest[i].length && exitRequest[i][k] == j)
                 ) {
-                    if (initialAllocations[j].allocationType == uint8(
-                        ExitFormat.AllocationType.guarantee
-                    ))
-                        revert("cannot transfer a guarantee");
+                    if (
+                        initialAllocations[j].allocationType ==
+                        uint8(ExitFormat.AllocationType.guarantee)
+                    ) revert("cannot transfer a guarantee");
                     updatedHoldings[i] -= affordsForDestination;
 
                     initialAllocations[j].amount -= affordsForDestination;

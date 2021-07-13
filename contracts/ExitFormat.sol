@@ -45,7 +45,7 @@ library ExitFormat {
     /**
      * specifies the decoding format for metadata bytes fields
      * received with the WithdrawHelper flag
-     */ 
+     */
     struct WithdrawHelperMetaData {
         address callTo;
         bytes callData;

@@ -5,8 +5,8 @@ import { AllocationType, Exit } from "../../src/types";
 
 const destinations = {
   alice: "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
-  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810"
-}
+  bob: "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810",
+};
 
 describe("transfer (typescript)", function () {
   it("Can transfer", async function () {
