@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { claim } from "../../nitro-src/claim";
-import { encodeGuaranteeData } from "../../nitro-src/nitro-types";
+import { encodeTagList } from "../../nitro-src/nitro-types";
 import { AllocationType, Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 
@@ -25,23 +25,12 @@ describe("claim (typescript)", function () {
       {
         asset: ZERO_ADDRESS,
         metadata: "0x",
-        allocations: guarantees.map((g) => {
-          const guaranteeList = g[2].map(
-            (p) =>
-              (p === "A"
-                ? A_ADDRESS
-                : p === "B"
-                ? B_ADDRESS
-                : I_ADDRESS) as string
-          );
-
-          return {
-            destination: g[0] === "C1" ? CHANNEL_1 : CHANNEL_2,
-            amount: BigNumber.from(g[1]).toHexString(),
-            allocationType: AllocationType.guarantee,
-            metadata: encodeGuaranteeData(...guaranteeList),
-          };
-        }),
+        allocations: guarantees.map((g) => ({
+          destination: g[0] === "C1" ? CHANNEL_1 : CHANNEL_2,
+          amount: BigNumber.from(g[1]).toHexString(),
+          allocationType: AllocationType.guarantee,
+          metadata: encodeTagList(...g[2]),
+        })),
       },
     ];
   };
@@ -57,7 +46,7 @@ describe("claim (typescript)", function () {
             a[0] === "A" ? A_ADDRESS : a[0] === "B" ? B_ADDRESS : I_ADDRESS,
           amount: BigNumber.from(a[1]).toHexString(),
           allocationType: AllocationType.simple,
-          metadata: "0x",
+          metadata: encodeTagList(a[0]),
         })),
       },
     ];

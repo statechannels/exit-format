@@ -1,5 +1,5 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import { decodeGuaranteeData } from "./nitro-types";
+import { decodeTagList } from "./nitro-types";
 import { AllocationType, Exit, SingleAssetExit } from "../src/types";
 
 export function claim(
@@ -65,15 +65,9 @@ export function claim(
 
     let exitRequestIndex = 0;
 
-    const destinations = decodeGuaranteeData(
-      guarantees[targetChannelIndex].metadata
-    );
-    // Iterate through every destination in the guarantee's destinations
-    for (
-      let destinationIndex = 0;
-      destinationIndex < destinations.length;
-      destinationIndex++
-    ) {
+    const tags = decodeTagList(guarantees[targetChannelIndex].metadata);
+    // Iterate through every tag in the guarantee's tags
+    for (let tagIndex = 0; tagIndex < tags.length; tagIndex++) {
       if (surplus.isZero()) break;
       for (
         let targetAllocIndex = 0;
@@ -83,11 +77,12 @@ export function claim(
         if (surplus.lte(0)) break;
 
         if (
-          destinations[destinationIndex].toLowerCase() ===
-          targetAllocations[targetAllocIndex].destination.toLowerCase()
+          decodeTagList(targetAllocations[targetAllocIndex].metadata).includes(
+            tags[tagIndex]
+          )
         ) {
           // if we find it, compute new amount
-          const affordsForDestination = min(
+          const affordsForTag = min(
             BigNumber.from(targetAllocations[targetAllocIndex].amount),
             surplus
           );
@@ -102,11 +97,11 @@ export function claim(
             // Update the holdings and allocation
             updatedHoldings[assetIndex] = BigNumber.from(
               updatedHoldings[assetIndex]
-            ).sub(affordsForDestination);
+            ).sub(affordsForTag);
             updatedAllocations[targetAllocIndex].amount = BigNumber.from(
               targetAllocations[targetAllocIndex].amount
             )
-              .sub(affordsForDestination)
+              .sub(affordsForTag)
               .toHexString();
 
             const currentGuaranteeAmount = BigNumber.from(
@@ -119,12 +114,12 @@ export function claim(
             updatedGuaranteeOutcome[assetIndex].allocations[
               targetChannelIndex
             ].amount = currentGuaranteeAmount
-              .sub(min(currentGuaranteeAmount, affordsForDestination))
+              .sub(min(currentGuaranteeAmount, affordsForTag))
               .toHexString();
 
             singleAssetExit.allocations.push({
               destination: targetAllocations[targetAllocIndex].destination,
-              amount: affordsForDestination.toHexString(),
+              amount: affordsForTag.toHexString(),
               allocationType:
                 targetAllocations[targetAllocIndex].allocationType,
               metadata: targetAllocations[targetAllocIndex].metadata,
@@ -134,7 +129,7 @@ export function claim(
           } else {
           }
           // decrease surplus by the current amount regardless of hitting a specified exitRequest
-          surplus = surplus.sub(affordsForDestination);
+          surplus = surplus.sub(affordsForTag);
         }
       }
     }

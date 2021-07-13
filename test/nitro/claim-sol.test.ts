@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 import { BigNumber } from "@ethersproject/bignumber";
-import { encodeGuaranteeData } from "../../nitro-src/nitro-types";
+import { encodeTagList } from "../../nitro-src/nitro-types";
 import { AllocationType, Exit } from "../../src/types";
 const { ethers } = require("hardhat");
 import { Nitro } from "../../typechain/Nitro";
@@ -54,7 +54,7 @@ describe("claim (solidity)", function () {
           destination: TARGET_CHANNEL_ADDRESS,
           amount: "0x00",
           allocationType: AllocationType.guarantee,
-          metadata: encodeGuaranteeData(destinations.bob, destinations.alice),
+          metadata: encodeTagList(destinations.bob, destinations.alice),
         },
       ],
     },
