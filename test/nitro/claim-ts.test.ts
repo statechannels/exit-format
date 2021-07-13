@@ -63,7 +63,14 @@ describe("claim (typescript)", function () {
     ];
   };
 
-  it("correctly calculates the exit when the payout is less than the holdings", async function () {
+  /**
+   * One channel per guarantee tests
+   * - guarantor_funding is the amount of funds deposited for the guarantor channel aka initialHoldings
+   * - target_funding is the amount of funds the guarantee allots to the target channel
+   * - outcome_sum is the sum of amounts in the outcome for destinations that are listed in the guarantee.
+   */
+
+  it("guarantor_funding == target_funding < outcome_sum, pay out 1 destination", async function () {
     const initialOutcome = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
@@ -98,62 +105,7 @@ describe("claim (typescript)", function () {
     );
   });
 
-  it("Can handle an underfunded claim", async function () {
-    const initialOutcomeForTargetChannel = createOutcome([
-      ["A", "0x05"],
-      ["B", "0x05"],
-      ["I", "0x0A"],
-    ]);
-    const initialOutcomeForAnotherChannel = createOutcome([["A", "0x03"]]);
-    const guarantee = createGuarantee([
-      ["C2", "0x03", ["A"]],
-      ["C1", "0x0A", ["A", "I", "B"]],
-    ]);
-
-    const initialHoldings = [BigNumber.from(6)];
-    const exitRequest = [[]];
-
-    const firstClaim = claim(
-      guarantee,
-      initialHoldings,
-      1,
-      initialOutcomeForTargetChannel,
-      exitRequest
-    );
-
-    const secondClaim = claim(
-      firstClaim.updatedGuaranteeOutcome,
-      firstClaim.updatedHoldings, // The holdings will be updated by the first claim
-      0,
-      initialOutcomeForAnotherChannel,
-      exitRequest
-    );
-
-    expect(firstClaim.updatedTargetOutcome).to.deep.equal(
-      createOutcome([
-        ["A", "0x02"],
-        ["B", "0x05"],
-        ["I", "0x0A"],
-      ])
-    );
-    expect(firstClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
-    expect(firstClaim.updatedHoldings).to.deep.equal([BigNumber.from(3)]);
-
-    expect(firstClaim.updatedGuaranteeOutcome).to.deep.equal(
-      createGuarantee([
-        ["C2", "0x03", ["A"]],
-        ["C1", "0x07", ["A", "I", "B"]],
-      ])
-    );
-
-    expect(secondClaim.updatedTargetOutcome).to.deep.equal(
-      createOutcome([["A", "0x00"]])
-    );
-    expect(secondClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
-    expect(secondClaim.updatedHoldings).to.deep.equal([BigNumber.from(0)]);
-  });
-
-  it("Can claim with a surplus of funds", async function () {
+  it("guarantor_funding > target_funding < outcome_sum, pay out all", async function () {
     const initialOutcome: Exit = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
@@ -194,7 +146,8 @@ describe("claim (typescript)", function () {
       createGuarantee([["C1", "0x00", ["A", "I", "B"]]])
     );
   });
-  it("Can claim with no exit requests", async function () {
+
+  it("guarantor_funding == target_funding < outcome_sum, pay out all via no exit requests", async function () {
     const initialOutcome: Exit = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
@@ -234,7 +187,7 @@ describe("claim (typescript)", function () {
     );
   });
 
-  it("Can claim with an empty exit request", async function () {
+  it("guarantor_funding == target_funding < outcome_sum, pay out all via empty exit request", async function () {
     const initialOutcome: Exit = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
@@ -279,5 +232,63 @@ describe("claim (typescript)", function () {
     expect(updatedGuaranteeOutcome).to.deep.equal(
       createGuarantee([["C1", "0x00", ["A", "I", "B"]]])
     );
+  });
+
+  /**
+   * Multiple channel per guarantee test
+   */
+  it("Can handle an underfunded claim", async function () {
+    const initialOutcomeForTargetChannel = createOutcome([
+      ["A", "0x05"],
+      ["B", "0x05"],
+      ["I", "0x0A"],
+    ]);
+    const initialOutcomeForAnotherChannel = createOutcome([["A", "0x03"]]);
+    const guarantee = createGuarantee([
+      ["C1", "0x03", ["A"]],
+      ["C2", "0x0A", ["A", "I", "B"]],
+    ]);
+
+    const initialHoldings = [BigNumber.from(6)];
+    const exitRequest = [[]];
+
+    const firstClaim = claim(
+      guarantee,
+      initialHoldings,
+      1,
+      initialOutcomeForTargetChannel,
+      exitRequest
+    );
+
+    const secondClaim = claim(
+      firstClaim.updatedGuaranteeOutcome,
+      firstClaim.updatedHoldings, // The holdings will be updated by the first claim
+      0,
+      initialOutcomeForAnotherChannel,
+      exitRequest
+    );
+
+    expect(firstClaim.updatedTargetOutcome).to.deep.equal(
+      createOutcome([
+        ["A", "0x02"],
+        ["B", "0x05"],
+        ["I", "0x0A"],
+      ])
+    );
+    expect(firstClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
+    expect(firstClaim.updatedHoldings).to.deep.equal([BigNumber.from(3)]);
+
+    expect(firstClaim.updatedGuaranteeOutcome).to.deep.equal(
+      createGuarantee([
+        ["C1", "0x03", ["A"]],
+        ["C2", "0x07", ["A", "I", "B"]],
+      ])
+    );
+
+    expect(secondClaim.updatedTargetOutcome).to.deep.equal(
+      createOutcome([["A", "0x00"]])
+    );
+    expect(secondClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
+    expect(secondClaim.updatedHoldings).to.deep.equal([BigNumber.from(0)]);
   });
 });
