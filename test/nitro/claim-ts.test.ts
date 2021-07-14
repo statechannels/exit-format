@@ -113,7 +113,7 @@ describe("claim (typescript)", function () {
     ]);
     const guarantee = createGuarantee([["C1", "0x06", ["A", "I", "B"]]]);
 
-    const initialHoldings = [BigNumber.from(1000)]; // Enough funds for everyone
+    const initialHoldings = [BigNumber.from(10)];
     const exitRequest = [[]];
 
     const {
@@ -123,13 +123,13 @@ describe("claim (typescript)", function () {
       updatedGuaranteeOutcome,
     } = claim(guarantee, initialHoldings, 0, initialOutcome, exitRequest);
 
-    expect(updatedHoldings).to.deep.equal([BigNumber.from(980)]);
+    expect(updatedHoldings).to.deep.equal([BigNumber.from(4)]);
 
     expect(updatedTargetOutcome).to.deep.equal(
       createOutcome([
         ["A", "0x00"],
-        ["B", "0x00"],
-        ["I", "0x00"],
+        ["B", "0x05"],
+        ["I", "0x09"],
       ])
     );
 
@@ -137,8 +137,7 @@ describe("claim (typescript)", function () {
     expect(exit).to.deep.equal(
       createOutcome([
         ["A", "0x05"],
-        ["I", "0x0A"],
-        ["B", "0x05"],
+        ["I", "0x01"],
       ])
     );
 
