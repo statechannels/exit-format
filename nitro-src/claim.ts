@@ -63,6 +63,11 @@ export function claim(
       };
     }
 
+    surplus = min(
+      surplus,
+      BigNumber.from(guarantees[targetChannelIndex].amount)
+    );
+
     let exitRequestIndex = 0;
 
     const destinations = decodeGuaranteeData(
