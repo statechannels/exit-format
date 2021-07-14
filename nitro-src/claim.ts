@@ -1,18 +1,20 @@
-import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
+import { BigNumber } from "@ethersproject/bignumber";
 import { decodeGuaranteeData } from "./nitro-types";
 import { AllocationType, Exit, SingleAssetExit } from "../src/types";
+import { constants } from "ethers";
 
 export function claim(
   initialGuaranteeOutcome: Exit,
-  initialHoldings: BigNumberish[],
+  initialHoldings: BigNumber[],
   targetChannelIndex: number,
   initialTargetOutcome: Exit,
   exitRequest: number[][]
 ) {
   if (initialTargetOutcome.length !== initialHoldings.length) throw Error;
   const updatedTargetOutcome: Exit = [];
-  // We want to create a clone of the original values to prevent mutation
-  const updatedHoldings = initialHoldings.map((h) => BigNumber.from(h));
+  // Shallow-copy the holdings array as we will creating modified version.
+  const updatedHoldings = [...initialHoldings];
+  // Deep-copy the guaranteeOutcome as we will be creating a modified version.
   const updatedGuaranteeOutcome: Exit = JSON.parse(
     JSON.stringify(initialGuaranteeOutcome)
   );
@@ -41,20 +43,16 @@ export function claim(
     )
       throw Error;
 
-    let surplus = BigNumber.from(initialHoldings[assetIndex]);
+    let surplus = initialHoldings[assetIndex];
     // Any guarantees before this one have priority on the funds
     // So we must account for that by reducing the surplus
-    for (
-      let guaranteeIndex = 0;
-      guaranteeIndex < targetChannelIndex;
-      guaranteeIndex++
-    ) {
-      const { amount } = guarantees[guaranteeIndex];
-
-      surplus = surplus.sub(min(BigNumber.from(amount), surplus)); // Prevent going below 0
-    }
+    const guaranteesBeforeOurs = guarantees.slice(0, targetChannelIndex);
+    const amountBeforeUs = guaranteesBeforeOurs
+      .map((allocation) => BigNumber.from(allocation.amount))
+      .reduce((sumSoFar, amount) => sumSoFar.add(amount), constants.Zero);
+    surplus = surplus.sub(amountBeforeUs);
     // If there are not enough funds to fund the guarantee we return immediately
-    if (surplus.isZero()) {
+    if (surplus.lte(0)) {
       return {
         updatedGuaranteeOutcome,
         updatedHoldings,
