@@ -169,7 +169,6 @@ describe("claim (typescript)", function () {
       ])
     );
 
-    // Since there are lots of funds everything gets funded
     expect(exit).to.deep.equal(
       createOutcome([
         ["A", "0x05"],
@@ -182,7 +181,7 @@ describe("claim (typescript)", function () {
     );
   });
 
-  it("guarantor_funding == target_funding < outcome_sum, pay out all via no exit requests", async function () {
+  it("guarantor_funding == target_funding < outcome_sum", async function () {
     const initialOutcome: Exit = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
