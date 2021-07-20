@@ -23,12 +23,13 @@ export function claim(
   targetOutcome: Exit,
   exitRequest: number[][]
 ) {
-  if (targetOutcome.length !== funds.length)
+  if (targetOutcome.length !== funds.length) {
     throw Error("targetOutcome length must match funds length");
+  }
 
-  // Deep-copy as we will be creating a modified version.
+  // Deep-copy as we will mutating this object.
   const afterClaimGuarantee: Exit = JSON.parse(JSON.stringify(guarantees));
-  // Shallow-copy as we will creating modified version.
+  // Shallow-copy as we will assinging new values to indeces.
   const afterClaimFunds = [...funds];
 
   const afterClaimTargetOutcome: Exit = [];
@@ -53,9 +54,7 @@ export function claim(
     // Any guarantees before this one have priority on the funds
     // So we must account for that by reducing the surplus
     const guaranteesBeforeOurs = guarantee.slice(0, targetChannelIndex);
-    const amountBeforeUs = guaranteesBeforeOurs
-      .map((allocation) => BigNumber.from(allocation.amount))
-      .reduce((sumSoFar, amount) => sumSoFar.add(amount), constants.Zero);
+    const amountBeforeUs = sumAllocationAmounts(guaranteesBeforeOurs);
     const maximumAmountToPayOut = funds[assetIndex].sub(amountBeforeUs);
 
     // If there are not enough funds to fund the guarantee, we skip the asset
@@ -68,7 +67,6 @@ export function claim(
       BigNumber.from(guarantee[targetChannelIndex].amount)
     );
 
-    // Iterate through every destination in the guarantee's destinations
     const {
       updatedAllocations,
       updatedGuaranteeAmount,
@@ -80,12 +78,14 @@ export function claim(
       exitRequest,
       assetIndex
     );
-    const amountPaidOut = newExits
-      .map((allocation) => BigNumber.from(allocation.amount))
-      .reduce((prevVal, currentVal) => prevVal.add(currentVal));
+
+    // How much did all of the exits pay out?
+    const amountPaidOut = sumAllocationAmounts(newExits);
+    // For an asset, update funds based on payout
     afterClaimFunds[assetIndex] = afterClaimFunds[assetIndex].sub(
       amountPaidOut
     );
+    // Update the guarantee to account for the payout
     afterClaimGuarantee[assetIndex].allocations[
       targetChannelIndex
     ].amount = updatedGuaranteeAmount.toHexString();
@@ -133,8 +133,7 @@ function claimOneGuarantee(
     destinationIndex < destinations.length;
     destinationIndex++
   ) {
-    // TODO: why do we check for zero here but for less than zero below?
-    if (fundingLeft.isZero()) break;
+    if (fundingLeft.lte(0)) break;
 
     /**
      * The inner loop iterates through the target allocations.
@@ -197,4 +196,10 @@ function claimOneGuarantee(
 
 function min(a: BigNumber, b: BigNumber) {
   return a.gt(b) ? b : a;
+}
+
+function sumAllocationAmounts(allocations: Allocation[]) {
+  return allocations
+    .map((allocation) => BigNumber.from(allocation.amount))
+    .reduce((prevVal, currentVal) => prevVal.add(currentVal), constants.Zero);
 }
