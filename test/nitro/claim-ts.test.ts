@@ -46,19 +46,21 @@ describe("claim (typescript)", function () {
     ];
   };
   const createOutcome = (
-    allocations: ["A" | "B" | "I", BigNumberish][]
+    allocations?: ["A" | "B" | "I", BigNumberish][]
   ): Exit => {
     return [
       {
         asset: ZERO_ADDRESS,
         metadata: "0x",
-        allocations: allocations.map((a) => ({
-          destination:
-            a[0] === "A" ? A_ADDRESS : a[0] === "B" ? B_ADDRESS : I_ADDRESS,
-          amount: BigNumber.from(a[1]).toHexString(),
-          allocationType: AllocationType.simple,
-          metadata: "0x",
-        })),
+        allocations: allocations
+          ? allocations.map((a) => ({
+              destination:
+                a[0] === "A" ? A_ADDRESS : a[0] === "B" ? B_ADDRESS : I_ADDRESS,
+              amount: BigNumber.from(a[1]).toHexString(),
+              allocationType: AllocationType.simple,
+              metadata: "0x",
+            }))
+          : [],
       },
     ];
   };
@@ -76,9 +78,7 @@ describe("claim (typescript)", function () {
       ["B", "0x05"],
       ["I", "0x0A"],
     ]);
-
     const guarantee = createGuarantee([["C1", "0x0A", ["A", "I", "B"]]]);
-
     const initialHoldings = [BigNumber.from(10)];
     const exitRequest = [[0]];
 
@@ -103,6 +103,42 @@ describe("claim (typescript)", function () {
     expect(claimResult.updatedGuaranteeOutcome).to.deep.equal(
       createGuarantee([["C1", "0x05", ["A", "I", "B"]]])
     );
+
+    // Now, let's try to claim for the second index. This test reuses values above. But we do not depend on the outcome of the first claim
+    const claimResult2 = claim(guarantee, initialHoldings, 0, initialOutcome, [
+      [1],
+    ]);
+
+    expect(claimResult2.updatedTargetOutcome).to.deep.equal(
+      createOutcome([
+        ["A", "0x05"],
+        ["B", "0x00"],
+        ["I", "0x0A"],
+      ])
+    );
+    expect(claimResult2.exit).to.deep.equal(createOutcome([["B", "0x05"]]));
+    expect(claimResult2.updatedHoldings).to.deep.equal([BigNumber.from(5)]);
+
+    expect(claimResult2.updatedGuaranteeOutcome).to.deep.equal(
+      createGuarantee([["C1", "0x05", ["A", "I", "B"]]])
+    );
+
+    // Let's try to claim for a destination not part of the guarantee
+    const guarantee3 = createGuarantee([["C1", "0x0A", ["I", "B"]]]);
+    const claimResult3 = claim(guarantee3, initialHoldings, 0, initialOutcome, [
+      [0],
+    ]);
+
+    expect(claimResult3.updatedTargetOutcome).to.deep.equal(
+      createOutcome([
+        ["A", "0x05"],
+        ["B", "0x05"],
+        ["I", "0x0A"],
+      ])
+    );
+    expect(claimResult3.exit).to.deep.equal(createOutcome());
+    expect(claimResult3.updatedHoldings).to.deep.equal([BigNumber.from(10)]);
+    expect(claimResult3.updatedGuaranteeOutcome).to.deep.equal(guarantee3);
   });
 
   it("guarantor_funding > target_funding < outcome_sum, pay out all", async function () {

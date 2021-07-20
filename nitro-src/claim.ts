@@ -7,6 +7,7 @@ import {
   SingleAssetExit,
 } from "../src/types";
 import { constants } from "ethers";
+import _ from "lodash";
 
 /**
  * @dev Computes the new outcome that should be stored against a target channel after a claim is made on its guarantor.
@@ -27,10 +28,9 @@ export function claim(
     throw Error("targetOutcome length must match funds length");
   }
 
-  // Deep-copy as we will mutating this object.
-  const afterClaimGuarantee: Exit = JSON.parse(JSON.stringify(guarantees));
-  // Shallow-copy as we will assinging new values to indeces.
-  const afterClaimHoldings = [...holdings];
+  // Deep-copy as we will mutating these objects.
+  const afterClaimGuarantee: Exit = _.cloneDeep(guarantees);
+  const afterClaimHoldings = _.cloneDeep(holdings);
 
   const afterClaimTargetOutcome: Exit = [];
   const afterClaimExits: Exit = [];
@@ -121,7 +121,7 @@ function claimOneGuaranteeForOneAsset(
   afterClaimGuaranteeAmount: BigNumber;
   newExits: Allocation[];
 } {
-  let afterClaimAllocations = [...targetAllocations];
+  let afterClaimAllocations = _.cloneDeep(targetAllocations);
   let afterClaimGuaranteeAmount = BigNumber.from(guarantee.amount);
   const newExits: Allocation[] = [];
   const destinations = decodeGuaranteeData(guarantee.metadata);
@@ -191,6 +191,7 @@ function claimOneGuaranteeForOneAsset(
       }
     }
   }
+
   return {
     afterClaimAllocations,
     afterClaimGuaranteeAmount,
