@@ -11,33 +11,33 @@ import { constants } from "ethers";
 /**
  * @dev Computes the new outcome that should be stored against a target channel after a claim is made on its guarantor.
  * @param guarantees the outcome containing at least one guarantee(s) which will be claimed for each asset.
- * @param funds initial quantity of each asset held on chain for the guarantor channel. Order matches that of initialGuaranteeOutcome.
+ * @param holdings initial quantity of each asset held on chain for the guarantor channel. Order matches that of initialGuaranteeOutcome.
  * @param targetChannelIndex the index of the guarantee in the list of guarantees for the given asset -- equivalent to declaring a target channel
  * @param targetOutcome initial outcome stored on chain for the target channel.
  * @param exitRequest list  of indices expressing which destinations in the allocation should be paid out for each asset.
  */
 export function claim(
   guarantees: Exit,
-  funds: BigNumber[],
+  holdings: BigNumber[],
   targetChannelIndex: number,
   targetOutcome: Exit,
   exitRequest: number[][]
 ) {
-  if (targetOutcome.length !== funds.length) {
+  if (targetOutcome.length !== holdings.length) {
     throw Error("targetOutcome length must match funds length");
   }
 
   // Deep-copy as we will mutating this object.
   const afterClaimGuarantee: Exit = JSON.parse(JSON.stringify(guarantees));
   // Shallow-copy as we will assinging new values to indeces.
-  const afterClaimFunds = [...funds];
+  const afterClaimHoldings = [...holdings];
 
   const afterClaimTargetOutcome: Exit = [];
   const afterClaimExits: Exit = [];
 
   // Iterate through every asset
   for (let assetIndex = 0; assetIndex < guarantees.length; assetIndex++) {
-    const guarantee = guarantees[assetIndex].allocations;
+    const guaranteesForOneAsset = guarantees[assetIndex].allocations;
     const targetAllocations = targetOutcome[assetIndex].allocations;
 
     const singleAssetExit: SingleAssetExit = {
@@ -46,54 +46,57 @@ export function claim(
     };
 
     if (
-      guarantee[targetChannelIndex].allocationType !== AllocationType.guarantee
+      guaranteesForOneAsset[targetChannelIndex].allocationType !==
+      AllocationType.guarantee
     ) {
       throw Error("Expected allocation type guarantee");
     }
 
     // Any guarantees before this one have priority on the funds
     // So we must account for that by reducing the surplus
-    const guaranteesBeforeOurs = guarantee.slice(0, targetChannelIndex);
+    const guaranteesBeforeOurs = guaranteesForOneAsset.slice(
+      0,
+      targetChannelIndex
+    );
     const amountBeforeUs = sumAllocationAmounts(guaranteesBeforeOurs);
-    const maximumAmountToPayOut = funds[assetIndex].sub(amountBeforeUs);
+    let maxAmountCanPayOut = holdings[assetIndex].sub(amountBeforeUs);
 
     // If there are not enough funds to fund the guarantee, we skip the asset
-    if (maximumAmountToPayOut.lte(0)) {
+    if (maxAmountCanPayOut.lte(0)) {
       continue;
     }
 
-    const fundsForOurGuarantee = min(
-      maximumAmountToPayOut,
-      BigNumber.from(guarantee[targetChannelIndex].amount)
+    maxAmountCanPayOut = min(
+      maxAmountCanPayOut,
+      BigNumber.from(guaranteesForOneAsset[targetChannelIndex].amount)
     );
 
     const {
-      updatedAllocations,
-      updatedGuaranteeAmount,
+      afterClaimAllocations,
+      afterClaimGuaranteeAmount,
       newExits,
-    } = claimOneGuarantee(
-      guarantee[targetChannelIndex],
+    } = claimOneGuaranteeForOneAsset(
+      guaranteesForOneAsset[targetChannelIndex],
       targetAllocations,
-      fundsForOurGuarantee,
-      exitRequest,
-      assetIndex
+      maxAmountCanPayOut,
+      exitRequest[assetIndex]
     );
 
     // How much did all of the exits pay out?
     const amountPaidOut = sumAllocationAmounts(newExits);
     // For an asset, update funds based on payout
-    afterClaimFunds[assetIndex] = afterClaimFunds[assetIndex].sub(
+    afterClaimHoldings[assetIndex] = afterClaimHoldings[assetIndex].sub(
       amountPaidOut
     );
     // Update the guarantee to account for the payout
     afterClaimGuarantee[assetIndex].allocations[
       targetChannelIndex
-    ].amount = updatedGuaranteeAmount.toHexString();
+    ].amount = afterClaimGuaranteeAmount.toHexString();
 
     afterClaimTargetOutcome.push({
       asset: targetOutcome[assetIndex].asset,
       metadata: targetOutcome[assetIndex].metadata,
-      allocations: updatedAllocations,
+      allocations: afterClaimAllocations,
     });
 
     singleAssetExit.allocations = newExits;
@@ -101,26 +104,25 @@ export function claim(
   }
 
   return {
-    updatedHoldings: afterClaimFunds,
+    updatedHoldings: afterClaimHoldings,
     updatedTargetOutcome: afterClaimTargetOutcome,
     exit: afterClaimExits,
     updatedGuaranteeOutcome: afterClaimGuarantee,
   };
 }
 
-function claimOneGuarantee(
+function claimOneGuaranteeForOneAsset(
   guarantee: Allocation,
   targetAllocations: Allocation[],
-  fundingLeft: BigNumber,
-  exitRequest: number[][],
-  assetIndex: number
+  holdingsForGuarantee: BigNumber,
+  exitRequest: number[]
 ): {
-  updatedAllocations: Allocation[];
-  updatedGuaranteeAmount: BigNumber;
+  afterClaimAllocations: Allocation[];
+  afterClaimGuaranteeAmount: BigNumber;
   newExits: Allocation[];
 } {
-  let updatedAllocations = [...targetAllocations];
-  let updatedGuaranteeAmount = BigNumber.from(guarantee.amount);
+  let afterClaimAllocations = [...targetAllocations];
+  let afterClaimGuaranteeAmount = BigNumber.from(guarantee.amount);
   const newExits: Allocation[] = [];
   const destinations = decodeGuaranteeData(guarantee.metadata);
   let exitRequestIndex = 0;
@@ -133,7 +135,7 @@ function claimOneGuarantee(
     destinationIndex < destinations.length;
     destinationIndex++
   ) {
-    if (fundingLeft.lte(0)) break;
+    if (holdingsForGuarantee.lte(0)) break;
 
     /**
      * The inner loop iterates through the target allocations.
@@ -143,7 +145,7 @@ function claimOneGuarantee(
       targetAllocIndex < targetAllocations.length;
       targetAllocIndex++
     ) {
-      if (fundingLeft.lte(0)) break;
+      if (holdingsForGuarantee.lte(0)) break;
 
       if (
         destinations[destinationIndex].toLowerCase() ===
@@ -152,24 +154,24 @@ function claimOneGuarantee(
         // if we find it, compute new amount
         const affordsForDestination = min(
           BigNumber.from(targetAllocations[targetAllocIndex].amount),
-          fundingLeft
+          holdingsForGuarantee
         );
 
         // only if specified in supplied exitRequests, or we if we are doing "all"
         if (
           exitRequest.length === 0 ||
-          exitRequest[assetIndex].length === 0 ||
-          (exitRequestIndex < exitRequest[assetIndex].length &&
-            exitRequest[assetIndex][exitRequestIndex] === targetAllocIndex)
+          exitRequest.length === 0 ||
+          (exitRequestIndex < exitRequest.length &&
+            exitRequest[exitRequestIndex] === targetAllocIndex)
         ) {
           // Update the holdings and allocation
-          updatedAllocations[targetAllocIndex].amount = BigNumber.from(
+          afterClaimAllocations[targetAllocIndex].amount = BigNumber.from(
             targetAllocations[targetAllocIndex].amount
           )
             .sub(affordsForDestination)
             .toHexString();
 
-          updatedGuaranteeAmount = updatedGuaranteeAmount.sub(
+          afterClaimGuaranteeAmount = afterClaimGuaranteeAmount.sub(
             affordsForDestination
           );
 
@@ -182,14 +184,16 @@ function claimOneGuarantee(
 
           exitRequestIndex++;
           // decrease surplus by the current amount regardless of hitting a specified exitRequest
-          fundingLeft = fundingLeft.sub(affordsForDestination);
+          holdingsForGuarantee = holdingsForGuarantee.sub(
+            affordsForDestination
+          );
         }
       }
     }
   }
   return {
-    updatedAllocations,
-    updatedGuaranteeAmount,
+    afterClaimAllocations,
+    afterClaimGuaranteeAmount,
     newExits,
   };
 }
