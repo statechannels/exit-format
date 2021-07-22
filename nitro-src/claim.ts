@@ -61,7 +61,7 @@ export function claim(
       throw Error("Expected allocation type guarantee");
     }
 
-    // Any guarantees before this one have priority on the funds
+    // Any allocations before this one have priority on the funds
     // So we must account for that by reducing the surplus
     const guaranteesBeforeOurs = guaranteesForOneAsset.slice(
       0,
