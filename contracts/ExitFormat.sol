@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity >=0.7.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
+}
 
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
