@@ -56,8 +56,6 @@ describe("transfer (solidity)", function () {
       exitRequest
     );
 
-    expect(gasEstimate.toNumber()).to.equal(45461);
-
     expect(updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
     expect(rehydrateExit(updatedOutcome)).to.deep.equal([
@@ -95,6 +93,8 @@ describe("transfer (solidity)", function () {
         ],
       },
     ]);
+
+    expect(gasEstimate.toNumber()).to.equal(48024);
   });
 
   it("Can transfer with an emptpy exitRequest", async function () {
@@ -112,8 +112,6 @@ describe("transfer (solidity)", function () {
       initialHoldings,
       exitRequest
     );
-
-    expect(gasEstimate.toNumber()).to.equal(46920);
 
     expect(updatedHoldings).to.deep.equal([BigNumber.from(0)]);
 
@@ -158,6 +156,8 @@ describe("transfer (solidity)", function () {
         ],
       },
     ]);
+
+    expect(gasEstimate.toNumber()).to.equal(49824);
   });
 
   it("Reverts if the initialOutcome is a guarantee", async function () {
