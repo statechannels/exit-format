@@ -174,71 +174,85 @@ contract Nitro {
     {
         require(initialOutcome.length == initialHoldings.length);
 
+        updatedOutcome = new ExitFormat.SingleAssetExit[](
+            initialOutcome.length
+        );
+        updatedHoldings = initialHoldings;
         exit = new ExitFormat.SingleAssetExit[](initialOutcome.length);
 
-        for (uint256 i = 0; i < initialOutcome.length; i++) {
-            ExitFormat.Allocation[] memory initialAllocations =
-                initialOutcome[i].allocations;
-
-            updatedOutcome = new ExitFormat.SingleAssetExit[](
-                initialOutcome.length
+        // loop over assets
+        for (
+            uint256 assetIndex = 0;
+            assetIndex < initialOutcome.length;
+            assetIndex++
+        ) {
+            (
+                ExitFormat.Allocation[] memory newAllocations,
+                ,
+                uint256[] memory payouts,
+                uint256 totalPayouts
+            ) =
+                _computeNewAllocation(
+                    initialHoldings[assetIndex],
+                    initialOutcome[assetIndex].allocations,
+                    exitRequest[assetIndex]
+                );
+            updatedHoldings[assetIndex] -= totalPayouts;
+            updatedOutcome[assetIndex] = ExitFormat.SingleAssetExit(
+                initialOutcome[assetIndex].asset,
+                initialOutcome[assetIndex].metadata,
+                newAllocations
             );
-
-            updatedHoldings = initialHoldings;
-
-            uint48 k = 0;
-            uint256 surplus = initialHoldings[i];
 
             ExitFormat.Allocation[] memory exitAllocations =
-                new ExitFormat.Allocation[](
-                    exitRequest[i].length > 0
-                        ? exitRequest[i].length
-                        : initialAllocations.length
+                convertPayoutsToExitAllocations(
+                    initialOutcome[assetIndex].allocations,
+                    payouts,
+                    exitRequest[assetIndex]
                 );
 
-            for (uint256 j = 0; j < initialAllocations.length; j++) {
-                uint256 affordsForDestination =
-                    min(initialAllocations[j].amount, surplus);
-
-                if (
-                    exitRequest[i].length == 0 ||
-                    (k < exitRequest[i].length && exitRequest[i][k] == j)
-                ) {
-                    if (
-                        initialAllocations[j].allocationType ==
-                        uint8(ExitFormat.AllocationType.guarantee)
-                    ) revert("cannot transfer a guarantee");
-                    updatedHoldings[i] -= affordsForDestination;
-
-                    initialAllocations[j].amount -= affordsForDestination;
-
-                    exitAllocations[k] = ExitFormat.Allocation(
-                        initialAllocations[j].destination,
-                        affordsForDestination,
-                        initialAllocations[j].allocationType,
-                        initialAllocations[j].metadata
-                    );
-                    ++k;
-                } else {}
-                surplus -= affordsForDestination;
-            }
-            updatedOutcome[i] = ExitFormat.SingleAssetExit(
-                initialOutcome[i].asset,
-                initialOutcome[i].metadata,
-                initialAllocations
-            );
-            exit[i] = ExitFormat.SingleAssetExit(
-                initialOutcome[i].asset,
-                initialOutcome[i].metadata,
+            exit[assetIndex] = ExitFormat.SingleAssetExit(
+                initialOutcome[assetIndex].asset,
+                initialOutcome[assetIndex].metadata,
                 exitAllocations
             );
+        }
+    }
+
+    function convertPayoutsToExitAllocations(
+        ExitFormat.Allocation[] memory initialAllocations,
+        uint256[] memory payouts,
+        uint48[] memory indices
+    ) public pure returns (ExitFormat.Allocation[] memory exitAllocations) {
+        // massage output so it is an "exit" again
+        uint256 k = 0;
+        exitAllocations = new ExitFormat.Allocation[](
+            initialAllocations.length
+        );
+        // loop over allocations
+        for (uint256 i = 0; i < initialAllocations.length; i++) {
+            // there will be no payout by default
+            uint256 payout = 0;
+            if (
+                (indices.length == 0) ||
+                ((k < indices.length) && (indices[k] == i))
+            ) {
+                // unless the allocation was targetted in indices (a slice of an exitRequest)
+                // in which case we defer to the payouts
+                payout = payouts[i];
+            }
+            exitAllocations[i].destination = initialAllocations[i].destination;
+            exitAllocations[i].amount = payout;
+            exitAllocations[i].allocationType = initialAllocations[i]
+                .allocationType;
+            exitAllocations[i].metadata = initialAllocations[i].metadata;
         }
     }
 
     function _computeNewAllocation(
         uint256 initialHoldings,
         ExitFormat.Allocation[] memory allocations,
-        uint256[] memory indices
+        uint48[] memory indices
     )
         public
         pure
@@ -270,6 +284,10 @@ contract Nitro {
                 (indices.length == 0) ||
                 ((k < indices.length) && (indices[k] == i))
             ) {
+                if (
+                    allocations[k].allocationType ==
+                    uint8(ExitFormat.AllocationType.guarantee)
+                ) revert("cannot transfer a guarantee");
                 // found a match
                 // reduce the current allocationItem.amount
                 newAllocations[i].amount =
