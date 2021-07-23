@@ -234,4 +234,58 @@ contract Nitro {
             );
         }
     }
+
+    function _computeNewAllocation(
+        uint256 initialHoldings,
+        ExitFormat.Allocation[] memory allocations,
+        uint256[] memory indices
+    )
+        public
+        pure
+        returns (
+            ExitFormat.Allocation[] memory newAllocations,
+            bool allocatesOnlyZeros,
+            uint256[] memory payouts,
+            uint256 totalPayouts
+        )
+    {
+        // `indices == []` means "pay out to all"
+        // Note: by initializing payouts to be an array of fixed length, its entries are initialized to be `0`
+        payouts = new uint256[](
+            indices.length > 0 ? indices.length : allocations.length
+        );
+        totalPayouts = 0;
+        newAllocations = new ExitFormat.Allocation[](allocations.length);
+        allocatesOnlyZeros = true; // switched to false if there is an item remaining with amount > 0
+        uint256 surplus = initialHoldings; // tracks funds available during calculation
+        uint256 k = 0; // indexes the `indices` array
+
+        // loop over allocations and decrease surplus
+        for (uint256 i = 0; i < allocations.length; i++) {
+            // copy destination part
+            newAllocations[i].destination = allocations[i].destination;
+            // compute new amount part
+            uint256 affordsForDestination = min(allocations[i].amount, surplus);
+            if (
+                (indices.length == 0) ||
+                ((k < indices.length) && (indices[k] == i))
+            ) {
+                // found a match
+                // reduce the current allocationItem.amount
+                newAllocations[i].amount =
+                    allocations[i].amount -
+                    affordsForDestination;
+                // increase the relevant payout
+                payouts[k] = affordsForDestination;
+                totalPayouts += affordsForDestination;
+                // move on to the next supplied index
+                ++k;
+            } else {
+                newAllocations[i].amount = allocations[i].amount;
+            }
+            if (newAllocations[i].amount != 0) allocatesOnlyZeros = false;
+            // decrease surplus by the current amount if possible, else surplus goes to zero
+            surplus -= affordsForDestination;
+        }
+    }
 }
