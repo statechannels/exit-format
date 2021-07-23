@@ -10,7 +10,7 @@ interface IERC20 {
         returns (bool);
 }
 
-// Ideally this would be imported from @connect/vector-withdraw-helpers
+// Ideally this would be imported from @connext/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
 interface WithdrawHelper {
     function execute(bytes calldata cD, uint256 actualAmount) external;
