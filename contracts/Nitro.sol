@@ -219,15 +219,16 @@ contract Nitro {
         }
     }
 
+    // massage payouts into an allocations array
     function convertPayoutsToExitAllocations(
         ExitFormat.Allocation[] memory initialAllocations,
         uint256[] memory payouts,
         uint48[] memory indices
     ) public pure returns (ExitFormat.Allocation[] memory exitAllocations) {
-        // massage output so it is an "exit" again
+        // TODO require indices to be of the right length
         uint256 k = 0;
         exitAllocations = new ExitFormat.Allocation[](
-            initialAllocations.length
+            indices.length == 0 ? initialAllocations.length : indices.length
         );
         // loop over allocations
         for (uint256 i = 0; i < initialAllocations.length; i++) {
@@ -237,15 +238,18 @@ contract Nitro {
                 (indices.length == 0) ||
                 ((k < indices.length) && (indices[k] == i))
             ) {
+                uint256 m = indices.length == 0 ? i : k;
                 // unless the allocation was targetted in indices (a slice of an exitRequest)
                 // in which case we defer to the payouts
-                payout = payouts[i];
+                payout = payouts[m];
+                ++k;
+                exitAllocations[m].destination = initialAllocations[i]
+                    .destination;
+                exitAllocations[m].amount = payout;
+                exitAllocations[m].allocationType = initialAllocations[i]
+                    .allocationType;
+                exitAllocations[m].metadata = initialAllocations[i].metadata;
             }
-            exitAllocations[i].destination = initialAllocations[i].destination;
-            exitAllocations[i].amount = payout;
-            exitAllocations[i].allocationType = initialAllocations[i]
-                .allocationType;
-            exitAllocations[i].metadata = initialAllocations[i].metadata;
         }
     }
 
