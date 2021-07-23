@@ -169,7 +169,6 @@ function claimOneGuaranteeForOneAsset(
         // only if specified in supplied exitRequests, or we if we are doing "all"
         if (
           exitRequest.length === 0 ||
-          exitRequest.length === 0 ||
           (exitRequestIndex < exitRequest.length &&
             exitRequest[exitRequestIndex] === targetAllocIndex)
         ) {
