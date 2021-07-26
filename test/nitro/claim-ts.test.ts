@@ -72,7 +72,7 @@ describe("claim (typescript)", function () {
    * - outcome_sum is the sum of amounts in the outcome for destinations that are listed in the guarantee.
    */
 
-  it.only("guarantor_funding == target_funding < outcome_sum, pay out 1 destination", async function () {
+  it("guarantor_funding == target_funding < outcome_sum, pay out 1 destination", async function () {
     const initialOutcome = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
