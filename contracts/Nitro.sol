@@ -280,8 +280,10 @@ contract Nitro {
 
         // loop over allocations and decrease surplus
         for (uint256 i = 0; i < allocations.length; i++) {
-            // copy destination part
+            // copy destination, allocationType and metadata parts
             newAllocations[i].destination = allocations[i].destination;
+            newAllocations[i].allocationType = allocations[i].allocationType;
+            newAllocations[i].metadata = allocations[i].metadata;
             // compute new amount part
             uint256 affordsForDestination = min(allocations[i].amount, surplus);
             if (
