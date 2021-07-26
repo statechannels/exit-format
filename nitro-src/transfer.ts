@@ -58,7 +58,7 @@ export function transfer(
   return { updatedHoldings, updatedOutcome, exit };
 }
 
-function convertPayoutsToExitAllocations(
+export function convertPayoutsToExitAllocations(
   initialAllocations: Allocation[],
   payouts: string[],
   indices: number[]
