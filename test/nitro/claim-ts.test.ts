@@ -7,16 +7,11 @@ const { ethers } = require("hardhat");
 
 describe("claim (typescript)", function () {
   const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-  const A_ADDRESS =
-    "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f";
-  const B_ADDRESS =
-    "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810";
-  const CHANNEL_1 =
-    "0x000000000000000000000000080678731247781ff0d57c649b6d0ad1a0620df0"; // At some point in the full claim operation, the outcome of this channel must be read and checked
-  const CHANNEL_2 =
-    "0x00000000000000000000000027592B3827907B54684E4f9da3d988263828893D"; // At some point in the full claim operation, the outcome of this channel must be read and checked
-  const I_ADDRESS =
-    "0x0000000000000000000000007ab853663C531EaA080d84091AD0E0e985c688C7";
+  const A_ADDRESS = "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f".toLowerCase();
+  const B_ADDRESS = "0x00000000000000000000000053484E75151D07FfD885159d4CF014B874cd2810".toLowerCase();
+  const CHANNEL_1 = "0x000000000000000000000000080678731247781ff0d57c649b6d0ad1a0620df0".toLowerCase(); // At some point in the full claim operation, the outcome of this channel must be read and checked
+  const CHANNEL_2 = "0x00000000000000000000000027592B3827907B54684E4f9da3d988263828893D".toLowerCase(); // At some point in the full claim operation, the outcome of this channel must be read and checked
+  const I_ADDRESS = "0x0000000000000000000000007ab853663C531EaA080d84091AD0E0e985c688C7".toLowerCase();
 
   const createGuarantee = (
     guarantees: ["C1" | "C2", BigNumberish, Array<"A" | "B" | "I">][]
@@ -97,7 +92,13 @@ describe("claim (typescript)", function () {
         ["I", "0x0A"],
       ])
     );
-    expect(claimResult.exit).to.deep.equal(createOutcome([["A", "0x05"]]));
+    expect(claimResult.exit).to.deep.equal(
+      createOutcome([
+        ["A", "0x05"],
+        ["I", "0x00"],
+        ["B", "0x00"],
+      ])
+    );
     expect(claimResult.updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
     expect(claimResult.updatedGuaranteeOutcome).to.deep.equal(
@@ -117,7 +118,13 @@ describe("claim (typescript)", function () {
       ])
     );
 
-    expect(claimResult2.exit).to.deep.equal(createOutcome([["B", "0x00"]]));
+    expect(claimResult2.exit).to.deep.equal(
+      createOutcome([
+        ["A", "0x00"],
+        ["I", "0x00"],
+        ["B", "0x00"],
+      ])
+    );
     expect(claimResult2.updatedHoldings).to.deep.equal([BigNumber.from(10)]);
 
     expect(claimResult2.updatedGuaranteeOutcome).to.deep.equal(
@@ -137,7 +144,12 @@ describe("claim (typescript)", function () {
         ["I", "0x0A"],
       ])
     );
-    expect(claimResult3.exit).to.deep.equal(createOutcome([["A", "0x00"]]));
+    expect(claimResult3.exit).to.deep.equal(
+      createOutcome([
+        ["I", "0x00"],
+        ["B", "0x00"],
+      ])
+    );
     expect(claimResult3.updatedHoldings).to.deep.equal([BigNumber.from(10)]);
     expect(claimResult3.updatedGuaranteeOutcome).to.deep.equal(guarantee3);
   });
@@ -174,6 +186,7 @@ describe("claim (typescript)", function () {
       createOutcome([
         ["A", "0x05"],
         ["I", "0x01"],
+        ["B", "0x00"],
       ])
     );
 
@@ -214,6 +227,7 @@ describe("claim (typescript)", function () {
       createOutcome([
         ["A", "0x05"],
         ["I", "0x01"],
+        ["B", "0x00"],
       ])
     );
 
@@ -263,7 +277,13 @@ describe("claim (typescript)", function () {
         ["I", "0x0A"],
       ])
     );
-    expect(firstClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
+    expect(firstClaim.exit).to.deep.equal(
+      createOutcome([
+        ["A", "0x03"],
+        ["I", "0x00"],
+        ["B", "0x00"],
+      ])
+    );
     expect(firstClaim.updatedHoldings).to.deep.equal([BigNumber.from(3)]);
 
     expect(firstClaim.updatedGuaranteeOutcome).to.deep.equal(
