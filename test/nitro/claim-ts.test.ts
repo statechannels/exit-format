@@ -72,7 +72,7 @@ describe("claim (typescript)", function () {
    * - outcome_sum is the sum of amounts in the outcome for destinations that are listed in the guarantee.
    */
 
-  it("guarantor_funding == target_funding < outcome_sum, pay out 1 destination", async function () {
+  it.only("guarantor_funding == target_funding < outcome_sum, pay out 1 destination", async function () {
     const initialOutcome = createOutcome([
       ["A", "0x05"],
       ["B", "0x05"],
@@ -112,15 +112,16 @@ describe("claim (typescript)", function () {
     expect(claimResult2.updatedTargetOutcome).to.deep.equal(
       createOutcome([
         ["A", "0x05"],
-        ["B", "0x00"],
+        ["B", "0x05"],
         ["I", "0x0A"],
       ])
     );
-    expect(claimResult2.exit).to.deep.equal(createOutcome([["B", "0x05"]]));
-    expect(claimResult2.updatedHoldings).to.deep.equal([BigNumber.from(5)]);
+
+    expect(claimResult2.exit).to.deep.equal(createOutcome([["B", "0x00"]]));
+    expect(claimResult2.updatedHoldings).to.deep.equal([BigNumber.from(10)]);
 
     expect(claimResult2.updatedGuaranteeOutcome).to.deep.equal(
-      createGuarantee([["C1", "0x05", ["A", "I", "B"]]])
+      createGuarantee([["C1", "0x0a", ["A", "I", "B"]]])
     );
 
     // Let's try to claim for a destination not part of the guarantee
