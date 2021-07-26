@@ -102,7 +102,9 @@ export function claim(
       targetChannelIndex
     ].amount = BigNumber.from(
       afterClaimGuarantee[assetIndex].allocations[targetChannelIndex].amount
-    ).sub(totalPayouts);
+    )
+      .sub(totalPayouts)
+      .toHexString();
 
     afterClaimTargetOutcome.push({
       asset: targetOutcome[assetIndex].asset,
