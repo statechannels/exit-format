@@ -1,5 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { decodeGuaranteeData } from "./nitro-types";
+import { decodeGuaranteeData, GuaranteeAllocation } from "./nitro-types";
 import {
   Allocation,
   AllocationType,
@@ -8,6 +8,7 @@ import {
 } from "../src/types";
 import { constants } from "ethers";
 import _ from "lodash";
+import { convertPayoutsToExitAllocations } from "./transfer";
 
 /**
  * Note about the inputs.
@@ -81,26 +82,27 @@ export function claim(
     );
 
     const {
-      afterClaimAllocations,
-      afterClaimGuaranteeAmount,
-      newExits,
-    } = claimOneGuaranteeForOneAsset(
-      guaranteesForOneAsset[targetChannelIndex],
+      newAllocations: afterClaimAllocations,
+      allocatesOnlyZeros,
+      payouts,
+      totalPayouts,
+    } = computeNewAllocationsWithGuarantee(
+      maxAmountCanPayOut.toHexString(),
       targetAllocations,
-      maxAmountCanPayOut,
-      exitRequest[assetIndex]
+      exitRequest[assetIndex],
+      guaranteesForOneAsset[targetChannelIndex] as GuaranteeAllocation // we checked this above
     );
 
-    // How much did all of the exits pay out?
-    const amountPaidOut = sumAllocationAmounts(newExits);
     // For an asset, update funds based on payout
     afterClaimHoldings[assetIndex] = afterClaimHoldings[assetIndex].sub(
-      amountPaidOut
+      totalPayouts
     );
     // Update the guarantee to account for the payout
     afterClaimGuarantee[assetIndex].allocations[
       targetChannelIndex
-    ].amount = afterClaimGuaranteeAmount.toHexString();
+    ].amount = BigNumber.from(
+      afterClaimGuarantee[assetIndex].allocations[targetChannelIndex].amount
+    ).sub(totalPayouts);
 
     afterClaimTargetOutcome.push({
       asset: targetOutcome[assetIndex].asset,
@@ -108,7 +110,11 @@ export function claim(
       allocations: afterClaimAllocations,
     });
 
-    singleAssetExit.allocations = newExits;
+    singleAssetExit.allocations = convertPayoutsToExitAllocations(
+      targetAllocations,
+      payouts,
+      exitRequest[assetIndex]
+    );
     afterClaimExits.push(singleAssetExit);
   }
 
@@ -120,90 +126,91 @@ export function claim(
   };
 }
 
-function claimOneGuaranteeForOneAsset(
-  guarantee: Allocation,
-  targetAllocations: Allocation[],
-  holdingsForGuarantee: BigNumber,
-  exitRequest: number[]
+/**
+ *
+ * Emulates solidity code. TODO replace with PureEVM implementation?
+ * @param initialHoldings
+ * @param allocation
+ * @param indices
+ */
+export function computeNewAllocationsWithGuarantee(
+  initialHoldings: string,
+  allocations: Allocation[], // we must index this with a JS number that is less than 2**32 - 1
+  indices: number[],
+  guarantee: GuaranteeAllocation
 ): {
-  afterClaimAllocations: Allocation[];
-  afterClaimGuaranteeAmount: BigNumber;
-  newExits: Allocation[];
+  newAllocations: Allocation[];
+  allocatesOnlyZeros: boolean;
+  payouts: string[];
+  totalPayouts: string;
 } {
-  let afterClaimAllocations = _.cloneDeep(targetAllocations);
-  let afterClaimGuaranteeAmount = BigNumber.from(guarantee.amount);
-  const newExits: Allocation[] = [];
+  const payouts: string[] = Array(
+    indices.length > 0 ? indices.length : allocations.length
+  ).fill(BigNumber.from(0).toHexString());
+  let totalPayouts = BigNumber.from(0);
+  let allocatesOnlyZeros = true;
+  let surplus = BigNumber.from(initialHoldings);
+  let k = 0;
+
+  // copy allocation
+  const newAllocations: Allocation[] = [];
+  for (let i = 0; i < allocations.length; i++) {
+    newAllocations.push({
+      destination: allocations[i].destination,
+      amount: allocations[i].amount,
+      allocationType: allocations[i].allocationType,
+      metadata: allocations[i].metadata,
+    });
+  }
+
   const destinations = decodeGuaranteeData(guarantee.metadata);
-  let exitRequestIndex = 0;
 
-  /**
-   * The outer for loop iterates through destinations in the guarantee
-   */
-  for (
-    let destinationIndex = 0;
-    destinationIndex < destinations.length;
-    destinationIndex++
-  ) {
-    if (holdingsForGuarantee.lte(0)) break;
-
-    /**
-     * The inner loop iterates through the target allocations.
-     */
-    for (
-      let targetAllocIndex = 0;
-      targetAllocIndex < targetAllocations.length;
-      targetAllocIndex++
-    ) {
-      if (holdingsForGuarantee.lte(0)) break;
-
+  // for each guarantee destination
+  for (let j = 0; j < destinations.length; j++) {
+    if (surplus.isZero()) break;
+    for (let i = 0; i < newAllocations.length; i++) {
+      if (surplus.isZero()) break;
+      // search for it in the allocation
       if (
-        destinations[destinationIndex].toLowerCase() ===
-        targetAllocations[targetAllocIndex].destination.toLowerCase()
+        BigNumber.from(destinations[j]).eq(
+          BigNumber.from(newAllocations[i].destination)
+        )
       ) {
         // if we find it, compute new amount
         const affordsForDestination = min(
-          BigNumber.from(targetAllocations[targetAllocIndex].amount),
-          holdingsForGuarantee
+          BigNumber.from(newAllocations[i].amount),
+          surplus
         );
-
-        // only if specified in supplied exitRequests, or we if we are doing "all"
-        if (
-          exitRequest.length === 0 ||
-          (exitRequestIndex < exitRequest.length &&
-            exitRequest[exitRequestIndex] === targetAllocIndex)
-        ) {
-          // Update the holdings and allocation
-          afterClaimAllocations[targetAllocIndex].amount = BigNumber.from(
-            targetAllocations[targetAllocIndex].amount
-          )
+        // decrease surplus by the current amount regardless of hitting a specified index
+        surplus = surplus.sub(affordsForDestination);
+        if (indices.length === 0 || (k < indices.length && indices[k] === i)) {
+          // only if specified in supplied indices, or we if we are doing "all"
+          // reduce the current allocationItem.amount
+          newAllocations[i].amount = BigNumber.from(newAllocations[i].amount)
             .sub(affordsForDestination)
             .toHexString();
-
-          afterClaimGuaranteeAmount = afterClaimGuaranteeAmount.sub(
-            affordsForDestination
-          );
-
-          newExits.push({
-            destination: targetAllocations[targetAllocIndex].destination,
-            amount: affordsForDestination.toHexString(),
-            allocationType: targetAllocations[targetAllocIndex].allocationType,
-            metadata: targetAllocations[targetAllocIndex].metadata,
-          });
-
-          exitRequestIndex++;
-          // decrease surplus by the current amount regardless of hitting a specified exitRequest
-          holdingsForGuarantee = holdingsForGuarantee.sub(
-            affordsForDestination
-          );
+          // increase the relevant payout
+          payouts[k] = affordsForDestination.toHexString();
+          totalPayouts = totalPayouts.add(affordsForDestination);
+          ++k;
         }
+        break;
       }
     }
   }
 
+  for (let i = 0; i < allocations.length; i++) {
+    if (!BigNumber.from(newAllocations[i].amount).isZero()) {
+      allocatesOnlyZeros = false;
+      break;
+    }
+  }
+
   return {
-    afterClaimAllocations,
-    afterClaimGuaranteeAmount,
-    newExits,
+    newAllocations,
+    allocatesOnlyZeros,
+    payouts,
+    totalPayouts: totalPayouts.toHexString(),
   };
 }
 
