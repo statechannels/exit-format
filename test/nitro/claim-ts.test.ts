@@ -125,7 +125,7 @@ describe("claim (typescript)", function () {
     );
 
     // Let's try to claim for a destination not part of the guarantee
-    const guarantee3 = createGuarantee([["C1", "0x0A", ["I", "B"]]]);
+    const guarantee3 = createGuarantee([["C1", "0x0a", ["I", "B"]]]);
     const claimResult3 = claim(guarantee3, initialHoldings, 0, initialOutcome, [
       [0],
     ]);
@@ -137,7 +137,7 @@ describe("claim (typescript)", function () {
         ["I", "0x0A"],
       ])
     );
-    expect(claimResult3.exit).to.deep.equal(createOutcome());
+    expect(claimResult3.exit).to.deep.equal(createOutcome([["A", "0x00"]]));
     expect(claimResult3.updatedHoldings).to.deep.equal([BigNumber.from(10)]);
     expect(claimResult3.updatedGuaranteeOutcome).to.deep.equal(guarantee3);
   });
