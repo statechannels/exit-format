@@ -7,12 +7,8 @@ import {
   AllocationType,
 } from "../src/types";
 
-// this will cause executeExit to revert, which is what we want for a guarantee
-// it should only work with a custom 'claim' operation
-// we avoid the magic value of the zero address, because that is already used by executeExit
-
 export type GuaranteeAllocation = Allocation & {
-  allocationType: AllocationType.guarantee;
+  allocationType: AllocationType.guarantee; // this should cause executeExit to revert, which is what we want for a guarantee
 };
 
 export type SingleAssetGuaranteeOutcome = SingleAssetExit & {
