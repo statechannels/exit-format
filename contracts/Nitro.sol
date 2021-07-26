@@ -192,7 +192,7 @@ contract Nitro {
                 uint256[] memory payouts,
                 uint256 totalPayouts
             ) =
-                _computeNewAllocation(
+                _computeNewAllocations(
                     initialHoldings[assetIndex],
                     initialOutcome[assetIndex].allocations,
                     exitRequest[assetIndex]
@@ -253,7 +253,7 @@ contract Nitro {
         }
     }
 
-    function _computeNewAllocation(
+    function _computeNewAllocations(
         uint256 initialHoldings,
         ExitFormat.Allocation[] memory allocations,
         uint48[] memory indices
