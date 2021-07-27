@@ -27,7 +27,7 @@ export function transfer(
     const {
       newAllocations,
       allocatesOnlyZeros,
-      payouts,
+      exit: exitAllocations,
       totalPayouts,
     } = computeNewAllocations(
       BigNumber.from(initialHoldings[assetIndex]).toHexString(),
@@ -42,12 +42,6 @@ export function transfer(
       allocations: newAllocations,
     };
 
-    const exitAllocations: Allocation[] = convertPayoutsToExitAllocations(
-      initialOutcome[assetIndex].allocations,
-      payouts,
-      exitRequest[assetIndex]
-    );
-
     exit[assetIndex] = {
       asset: initialOutcome[assetIndex].asset,
       metadata: initialOutcome[assetIndex].metadata,
@@ -56,30 +50,6 @@ export function transfer(
   }
 
   return { updatedHoldings, updatedOutcome, exit };
-}
-
-function convertPayoutsToExitAllocations(
-  initialAllocations: Allocation[],
-  payouts: string[],
-  indices: number[]
-) {
-  let k = 0;
-  const exitAllocations: Allocation[] = [];
-  // loop over allocations
-  for (let i = 0; i < initialAllocations.length; i++) {
-    if (indices.length == 0 || (k < indices.length && indices[k] == i)) {
-      const m = indices.length === 0 ? i : k;
-      const payout = payouts[m];
-      ++k;
-      exitAllocations.push({
-        destination: initialAllocations[i].destination,
-        amount: payout,
-        allocationType: initialAllocations[i].allocationType,
-        metadata: initialAllocations[i].metadata,
-      });
-    }
-  }
-  return exitAllocations;
 }
 
 /**
@@ -96,12 +66,10 @@ export function computeNewAllocations(
 ): {
   newAllocations: Allocation[];
   allocatesOnlyZeros: boolean;
-  payouts: string[];
+  exit: Allocation[];
   totalPayouts: string;
 } {
-  const payouts: string[] = Array(
-    indices.length > 0 ? indices.length : allocations.length
-  ).fill(BigNumber.from(0).toHexString());
+  const exit: Allocation[] = [];
   let totalPayouts = BigNumber.from(0);
   const newAllocations: Allocation[] = [];
   let allocatesOnlyZeros = true;
@@ -125,7 +93,12 @@ export function computeNewAllocations(
       newAllocations[i].amount = BigNumber.from(allocations[i].amount)
         .sub(affordsForDestination)
         .toHexString();
-      payouts[k] = affordsForDestination.toHexString();
+      exit[k] = {
+        destination: allocations[i].destination,
+        metadata: allocations[i].metadata,
+        allocationType: allocations[i].allocationType,
+        amount: affordsForDestination.toHexString(),
+      };
       totalPayouts = totalPayouts.add(affordsForDestination);
       ++k;
     } else {
@@ -139,7 +112,7 @@ export function computeNewAllocations(
   return {
     newAllocations,
     allocatesOnlyZeros,
-    payouts,
+    exit,
     totalPayouts: totalPayouts.toHexString(),
   };
 }

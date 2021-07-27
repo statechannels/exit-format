@@ -94,7 +94,7 @@ describe("transfer (solidity)", function () {
       },
     ]);
 
-    expect(gasEstimate.toNumber()).to.equal(48584);
+    expect(gasEstimate.toNumber()).to.equal(47047);
   });
 
   it("Can transfer with an emptpy exitRequest", async function () {
@@ -157,7 +157,7 @@ describe("transfer (solidity)", function () {
       },
     ]);
 
-    expect(gasEstimate.toNumber()).to.equal(50384);
+    expect(gasEstimate.toNumber()).to.equal(48609);
   });
 
   it("Reverts if the initialOutcome is a guarantee", async function () {

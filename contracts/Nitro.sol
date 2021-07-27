@@ -189,7 +189,7 @@ contract Nitro {
             (
                 ExitFormat.Allocation[] memory newAllocations,
                 ,
-                uint256[] memory payouts,
+                ExitFormat.Allocation[] memory exitAllocations,
                 uint256 totalPayouts
             ) =
                 _computeNewAllocations(
@@ -204,52 +204,11 @@ contract Nitro {
                 newAllocations
             );
 
-            ExitFormat.Allocation[] memory exitAllocations =
-                convertPayoutsToExitAllocations(
-                    initialOutcome[assetIndex].allocations,
-                    payouts,
-                    exitRequest[assetIndex]
-                );
-
             exit[assetIndex] = ExitFormat.SingleAssetExit(
                 initialOutcome[assetIndex].asset,
                 initialOutcome[assetIndex].metadata,
                 exitAllocations
             );
-        }
-    }
-
-    // massage payouts into an allocations array
-    function convertPayoutsToExitAllocations(
-        ExitFormat.Allocation[] memory initialAllocations,
-        uint256[] memory payouts,
-        uint48[] memory indices
-    ) public pure returns (ExitFormat.Allocation[] memory exitAllocations) {
-        // TODO require indices to be of the right length
-        uint256 k = 0;
-        exitAllocations = new ExitFormat.Allocation[](
-            indices.length == 0 ? initialAllocations.length : indices.length
-        );
-        // loop over allocations
-        for (uint256 i = 0; i < initialAllocations.length; i++) {
-            // there will be no payout by default
-            uint256 payout = 0;
-            if (
-                (indices.length == 0) ||
-                ((k < indices.length) && (indices[k] == i))
-            ) {
-                uint256 m = indices.length == 0 ? i : k;
-                // unless the allocation was targetted in indices (a slice of an exitRequest)
-                // in which case we defer to the payouts
-                payout = payouts[m];
-                ++k;
-                exitAllocations[m].destination = initialAllocations[i]
-                    .destination;
-                exitAllocations[m].amount = payout;
-                exitAllocations[m].allocationType = initialAllocations[i]
-                    .allocationType;
-                exitAllocations[m].metadata = initialAllocations[i].metadata;
-            }
         }
     }
 
@@ -263,13 +222,13 @@ contract Nitro {
         returns (
             ExitFormat.Allocation[] memory newAllocations,
             bool allocatesOnlyZeros,
-            uint256[] memory payouts,
+            ExitFormat.Allocation[] memory exit,
             uint256 totalPayouts
         )
     {
         // `indices == []` means "pay out to all"
         // Note: by initializing payouts to be an array of fixed length, its entries are initialized to be `0`
-        payouts = new uint256[](
+        exit = new ExitFormat.Allocation[](
             indices.length > 0 ? indices.length : allocations.length
         );
         totalPayouts = 0;
@@ -300,7 +259,12 @@ contract Nitro {
                     allocations[i].amount -
                     affordsForDestination;
                 // increase the relevant payout
-                payouts[k] = affordsForDestination;
+                exit[k] = ExitFormat.Allocation(
+                    allocations[i].destination,
+                    affordsForDestination,
+                    allocations[i].allocationType,
+                    allocations[i].metadata
+                );
                 totalPayouts += affordsForDestination;
                 // move on to the next supplied index
                 ++k;
