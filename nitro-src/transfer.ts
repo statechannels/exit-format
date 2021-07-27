@@ -1,10 +1,5 @@
 import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-import {
-  Allocation,
-  AllocationType,
-  Exit,
-  SingleAssetExit,
-} from "../src/types";
+import { Allocation, AllocationType, Exit } from "../src/types";
 
 /**
  * Extracts an exit from an initial outcome and an exit request
@@ -27,7 +22,7 @@ export function transfer(
     const {
       newAllocations,
       allocatesOnlyZeros,
-      exit: exitAllocations,
+      exitAllocations,
       totalPayouts,
     } = computeNewAllocations(
       BigNumber.from(initialHoldings[assetIndex]).toHexString(),
@@ -66,10 +61,10 @@ export function computeNewAllocations(
 ): {
   newAllocations: Allocation[];
   allocatesOnlyZeros: boolean;
-  exit: Allocation[];
+  exitAllocations: Allocation[];
   totalPayouts: string;
 } {
-  const exit: Allocation[] = [];
+  const exitAllocations: Allocation[] = [];
   let totalPayouts = BigNumber.from(0);
   const newAllocations: Allocation[] = [];
   let allocatesOnlyZeros = true;
@@ -93,7 +88,7 @@ export function computeNewAllocations(
       newAllocations[i].amount = BigNumber.from(allocations[i].amount)
         .sub(affordsForDestination)
         .toHexString();
-      exit[k] = {
+      exitAllocations[k] = {
         destination: allocations[i].destination,
         metadata: allocations[i].metadata,
         allocationType: allocations[i].allocationType,
@@ -112,7 +107,7 @@ export function computeNewAllocations(
   return {
     newAllocations,
     allocatesOnlyZeros,
-    exit,
+    exitAllocations,
     totalPayouts: totalPayouts.toHexString(),
   };
 }
