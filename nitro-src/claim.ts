@@ -83,7 +83,7 @@ export function claim(
     const {
       newAllocations: afterClaimAllocations,
       allocatesOnlyZeros,
-      payouts,
+      exitAllocations,
       totalPayouts,
     } = computeNewAllocationsWithGuarantee(
       maxAmountCanPayOut.toHexString(),
@@ -111,11 +111,7 @@ export function claim(
       allocations: afterClaimAllocations,
     });
 
-    singleAssetExit.allocations = convertPayoutsToExitAllocations(
-      targetAllocations,
-      decodeGuaranteeData(guaranteesForOneAsset[targetChannelIndex].metadata),
-      payouts
-    );
+    singleAssetExit.allocations = exitAllocations;
     afterClaimExits.push(singleAssetExit);
   }
 
@@ -142,12 +138,10 @@ export function computeNewAllocationsWithGuarantee(
 ): {
   newAllocations: Allocation[];
   allocatesOnlyZeros: boolean;
-  payouts: string[];
+  exitAllocations: Allocation[];
   totalPayouts: string;
 } {
-  const payouts: string[] = Array(
-    indices.length > 0 ? indices.length : allocations.length
-  ).fill(BigNumber.from(0).toHexString());
+  const exitAllocations: Allocation[] = [];
   let totalPayouts = BigNumber.from(0);
   let allocatesOnlyZeros = true;
   let surplus = BigNumber.from(initialHoldings);
@@ -191,7 +185,12 @@ export function computeNewAllocationsWithGuarantee(
             .sub(affordsForDestination)
             .toHexString();
           // increase the relevant payout
-          payouts[k] = affordsForDestination.toHexString();
+          exitAllocations[k] = {
+            destination: allocations[i].destination,
+            metadata: allocations[i].metadata,
+            allocationType: allocations[i].allocationType,
+            amount: affordsForDestination.toHexString(),
+          };
           totalPayouts = totalPayouts.add(affordsForDestination);
           ++k;
         }
@@ -210,32 +209,9 @@ export function computeNewAllocationsWithGuarantee(
   return {
     newAllocations,
     allocatesOnlyZeros,
-    payouts,
+    exitAllocations,
     totalPayouts: totalPayouts.toHexString(),
   };
-}
-
-function convertPayoutsToExitAllocations(
-  initialAllocations: Allocation[],
-  destinations: string[],
-  payouts: string[]
-) {
-  const exitAllocations: Allocation[] = [];
-  // loop over destinations (from the guarantee)
-  for (let i = 0; i < destinations.length; i++) {
-    const allocation = initialAllocations.find(
-      (a: Allocation) =>
-        a.destination.toLowerCase() === destinations[i].toLowerCase()
-    );
-    if (!allocation) throw Error("could not find allocation");
-    exitAllocations.push({
-      destination: destinations[i].toLowerCase(),
-      amount: payouts[i] ?? "0x00",
-      allocationType: allocation.allocationType,
-      metadata: allocation.metadata,
-    });
-  }
-  return exitAllocations;
 }
 
 function min(a: BigNumber, b: BigNumber) {
