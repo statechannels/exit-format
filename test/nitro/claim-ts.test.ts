@@ -92,13 +92,7 @@ describe("claim (typescript)", function () {
         ["I", "0x0A"],
       ])
     );
-    expect(claimResult.exit).to.deep.equal(
-      createOutcome([
-        ["A", "0x05"],
-        ["I", "0x00"],
-        ["B", "0x00"],
-      ])
-    );
+    expect(claimResult.exit).to.deep.equal(createOutcome([["A", "0x05"]]));
     expect(claimResult.updatedHoldings).to.deep.equal([BigNumber.from(5)]);
 
     expect(claimResult.updatedGuaranteeOutcome).to.deep.equal(
@@ -118,13 +112,7 @@ describe("claim (typescript)", function () {
       ])
     );
 
-    expect(claimResult2.exit).to.deep.equal(
-      createOutcome([
-        ["A", "0x00"],
-        ["I", "0x00"],
-        ["B", "0x00"],
-      ])
-    );
+    expect(claimResult2.exit).to.deep.equal(createOutcome([]));
     expect(claimResult2.updatedHoldings).to.deep.equal([BigNumber.from(10)]);
 
     expect(claimResult2.updatedGuaranteeOutcome).to.deep.equal(
@@ -144,12 +132,7 @@ describe("claim (typescript)", function () {
         ["I", "0x0A"],
       ])
     );
-    expect(claimResult3.exit).to.deep.equal(
-      createOutcome([
-        ["I", "0x00"],
-        ["B", "0x00"],
-      ])
-    );
+    expect(claimResult3.exit).to.deep.equal(createOutcome([]));
     expect(claimResult3.updatedHoldings).to.deep.equal([BigNumber.from(10)]);
     expect(claimResult3.updatedGuaranteeOutcome).to.deep.equal(guarantee3);
   });
@@ -186,7 +169,6 @@ describe("claim (typescript)", function () {
       createOutcome([
         ["A", "0x05"],
         ["I", "0x01"],
-        ["B", "0x00"],
       ])
     );
 
@@ -227,7 +209,6 @@ describe("claim (typescript)", function () {
       createOutcome([
         ["A", "0x05"],
         ["I", "0x01"],
-        ["B", "0x00"],
       ])
     );
 
@@ -277,13 +258,7 @@ describe("claim (typescript)", function () {
         ["I", "0x0A"],
       ])
     );
-    expect(firstClaim.exit).to.deep.equal(
-      createOutcome([
-        ["A", "0x03"],
-        ["I", "0x00"],
-        ["B", "0x00"],
-      ])
-    );
+    expect(firstClaim.exit).to.deep.equal(createOutcome([["A", "0x03"]]));
     expect(firstClaim.updatedHoldings).to.deep.equal([BigNumber.from(3)]);
 
     expect(firstClaim.updatedGuaranteeOutcome).to.deep.equal(
