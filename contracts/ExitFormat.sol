@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.0;
+pragma experimental ABIEncoderV2;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
  */
-interface IERC20 {
+interface ERC20Interface {
     function transfer(address recipient, uint256 amount)
         external
         returns (bool);
@@ -115,7 +116,7 @@ library ExitFormat {
                     destination.transfer(amount);
                 } else {
                     // TODO support other token types via the exit[i].metadata field
-                    IERC20(asset).transfer(destination, amount);
+                    ERC20Interface(asset).transfer(destination, amount);
                 }
                 if (
                     exit[i].allocations[j].allocationType ==
