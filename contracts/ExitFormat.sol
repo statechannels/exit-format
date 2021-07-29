@@ -98,34 +98,51 @@ library ExitFormat {
      * @param exit The exit to be paid out.
      */
     function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
-        for (uint256 i = 0; i < exit.length; i++) {
-            address asset = exit[i].asset;
-            for (uint256 j = 0; j < exit[i].allocations.length; j++) {
-                require(
-                    _isAddress(exit[i].allocations[j].destination),
-                    "Destination is not a zero-padded address"
-                );
-                address payable destination =
-                    payable(
-                        address(
-                            uint160(uint256(exit[i].allocations[j].destination))
+        for (uint256 assetIndex = 0; assetIndex < exit.length; assetIndex++) {
+            executeSingleAssetExit(exit[assetIndex]);
+        }
+    }
+
+    /**
+     * @notice Executes a single asset exit by paying out the asset and calling external contracts
+     * @dev Executes a single asset exit by paying out the asset and calling external contracts
+     * @param singleAssetExit The single asset exit to be paid out.
+     * TODO absorb into exit format repo
+     */
+    function executeSingleAssetExit(
+        ExitFormat.SingleAssetExit memory singleAssetExit
+    ) public {
+        address asset = singleAssetExit.asset;
+        for (uint256 j = 0; j < singleAssetExit.allocations.length; j++) {
+            require(
+                _isAddress(singleAssetExit.allocations[j].destination),
+                "Destination is not a zero-padded address"
+            );
+            address payable destination =
+                payable(
+                    address(
+                        uint160(
+                            uint256(singleAssetExit.allocations[j].destination)
                         )
+                    )
+                );
+            uint256 amount = singleAssetExit.allocations[j].amount;
+            if (asset == address(0)) {
+                (bool success, ) = destination.call{value: amount}(""); //solhint-disable-line avoid-low-level-calls
+                require(success, "Could not transfer ETH");
+            } else {
+                // TODO support other token types via the singleAssetExit.metadata field
+                ERC20Interface(asset).transfer(destination, amount);
+            }
+            if (
+                singleAssetExit.allocations[j].allocationType ==
+                uint8(AllocationType.withdrawHelper)
+            ) {
+                WithdrawHelperMetaData memory wd =
+                    _parseWithdrawHelper(
+                        singleAssetExit.allocations[j].metadata
                     );
-                uint256 amount = exit[i].allocations[j].amount;
-                if (asset == address(0)) {
-                    destination.transfer(amount);
-                } else {
-                    // TODO support other token types via the exit[i].metadata field
-                    ERC20Interface(asset).transfer(destination, amount);
-                }
-                if (
-                    exit[i].allocations[j].allocationType ==
-                    uint8(AllocationType.withdrawHelper)
-                ) {
-                    WithdrawHelperMetaData memory wd =
-                        _parseWithdrawHelper(exit[i].allocations[j].metadata);
-                    WithdrawHelper(wd.callTo).execute(wd.callData, amount);
-                }
+                WithdrawHelper(wd.callTo).execute(wd.callData, amount);
             }
         }
     }
