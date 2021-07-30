@@ -57,5 +57,5 @@ export function decodeExit(_exit_: any) {
       } as ParamType,
     ],
     _exit_
-  );
+  ) as Exit;
 }
