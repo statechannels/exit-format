@@ -97,7 +97,7 @@ library ExitFormat {
      * @dev Executes an exit by paying out assets and calling external contracts
      * @param exit The exit to be paid out.
      */
-    function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
+    function executeExit(ExitFormat.SingleAssetExit[] memory exit) internal {
         for (uint256 assetIndex = 0; assetIndex < exit.length; assetIndex++) {
             executeSingleAssetExit(exit[assetIndex]);
         }
@@ -111,7 +111,7 @@ library ExitFormat {
      */
     function executeSingleAssetExit(
         ExitFormat.SingleAssetExit memory singleAssetExit
-    ) public {
+    ) internal {
         address asset = singleAssetExit.asset;
         for (uint256 j = 0; j < singleAssetExit.allocations.length; j++) {
             require(
