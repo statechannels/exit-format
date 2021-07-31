@@ -5,7 +5,8 @@ import { Allocation, AllocationType, Exit } from "../src/types";
 describe("ExitFormat (typescript)", function () {
   it("Can encode an allocation", async function () {
     const allocation: Allocation = {
-      destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+      destination:
+        "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
       amount: "0x01",
       allocationType: AllocationType.simple,
       metadata: "0x",
@@ -25,7 +26,8 @@ describe("ExitFormat (typescript)", function () {
         metadata: "0x",
         allocations: [
           {
-            destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f",
+            destination:
+              "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
             amount: "0x01",
             allocationType: AllocationType.simple,
             metadata: "0x",
