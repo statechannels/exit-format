@@ -11,6 +11,10 @@ import {
 // it should only work with a custom 'claim' operation
 // we avoid the magic value of the zero address, because that is already used by executeExit
 
+export type SimpleAllocation = Allocation & {
+  allocationType: AllocationType.simple;
+};
+
 export type GuaranteeAllocation = Allocation & {
   allocationType: AllocationType.guarantee;
 };
