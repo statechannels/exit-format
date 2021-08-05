@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-import { Wallet } from "ethers";
+import { BigNumber, Wallet } from "ethers";
 import {
   Allocation,
   AllocationType,
@@ -58,7 +58,7 @@ describe("ExitFormat (solidity)", function () {
     );
   });
 
-  it("Can execute a single asset exit", async function () {
+  it("Can execute a single asset exit and a whole exit", async function () {
     const amount = "0x01";
 
     const alice = new Wallet(
@@ -80,13 +80,19 @@ describe("ExitFormat (solidity)", function () {
 
     await testConsumer.signer.sendTransaction({
       to: testConsumer.address,
-      value: "0x01",
+      value: BigNumber.from(amount).mul(2),
     }); // send some money to testConsumer
 
     await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
 
     expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
       amount
+    );
+
+    await (await testConsumer.executeExit([singleAssetExit])).wait();
+
+    expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
+      BigNumber.from(amount).mul(2)
     );
   });
 });

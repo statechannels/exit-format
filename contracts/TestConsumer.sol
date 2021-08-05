@@ -45,4 +45,8 @@ contract TestConsumer {
     ) public {
         ExitFormat.executeSingleAssetExit(singleAssetExit);
     }
+
+    function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
+        ExitFormat.executeExit(exit);
+    }
 }
