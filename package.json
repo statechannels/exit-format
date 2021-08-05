@@ -1,6 +1,6 @@
 {
   "name": "@statechannels/exit-format",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Standard Exit Format for L2s built on EVM chains",
   "repository": "https://github.com/statechannels/exit-format.git",
   "author": "geoknee <georgeknee@googlemail.com>",
