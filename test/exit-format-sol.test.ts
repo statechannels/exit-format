@@ -1,6 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-import { Allocation, AllocationType, Exit } from "../src/types";
+import { Wallet } from "ethers";
+import {
+  Allocation,
+  AllocationType,
+  Exit,
+  SingleAssetExit,
+} from "../src/types";
 import { TestConsumer } from "../typechain/TestConsumer";
 
 describe("ExitFormat (solidity)", function () {
@@ -49,6 +55,38 @@ describe("ExitFormat (solidity)", function () {
 
     expect(encodedExit).to.eq(
       "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000096f7123e3a80c9813ef50213aded0e4511cb820f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000"
+    );
+  });
+
+  it("Can execute a single asset exit", async function () {
+    const amount = "0x01";
+
+    const alice = new Wallet(
+      "0x68d3e3134e2b3488ad249233f8fa77ea040bbb6434ea28e4acde7db082665c4c"
+    );
+
+    const singleAssetExit: SingleAssetExit = {
+      asset: "0x0000000000000000000000000000000000000000",
+      metadata: "0x",
+      allocations: [
+        {
+          destination: "0x000000000000000000000000" + alice.address.slice(2), // padded alice
+          amount,
+          allocationType: AllocationType.simple,
+          metadata: "0x",
+        },
+      ],
+    };
+
+    await testConsumer.signer.sendTransaction({
+      to: testConsumer.address,
+      value: "0x01",
+    }); // send some money to testConsumer
+
+    await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
+
+    expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
+      amount
     );
   });
 });
