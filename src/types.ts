@@ -1,4 +1,3 @@
-import { BigNumber } from "@ethersproject/bignumber";
 import { BytesLike } from "@ethersproject/bytes";
 
 export enum AllocationType {
@@ -9,8 +8,8 @@ export enum AllocationType {
 
 export interface Allocation {
   destination: string; // an Ethereum address
-  amount: BigNumber | string | number;
-  allocationType: BigNumber | string | number;
+  amount: string; // a uint256;
+  allocationType: string;
   metadata: BytesLike;
 }
 
