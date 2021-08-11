@@ -9,7 +9,7 @@ export enum AllocationType {
 export interface Allocation {
   destination: string; // an Ethereum address
   amount: string; // a uint256;
-  allocationType: string;
+  allocationType: number;
   metadata: BytesLike;
 }
 
