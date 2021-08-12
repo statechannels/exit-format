@@ -61,6 +61,9 @@ describe("ExitFormat (solidity)", function () {
   it("Can execute a single asset exit and a whole exit", async function () {
     const amount = "0x01";
 
+    // We will deposit twice the amount, because we want to test two different ways of executing the exit
+    const totalDeposit = BigNumber.from(amount).mul(2).toHexString();
+
     const alice = new Wallet(
       "0x68d3e3134e2b3488ad249233f8fa77ea040bbb6434ea28e4acde7db082665c4c"
     );
@@ -80,7 +83,7 @@ describe("ExitFormat (solidity)", function () {
 
     await testConsumer.signer.sendTransaction({
       to: testConsumer.address,
-      value: BigNumber.from(amount).mul(2),
+      value: totalDeposit,
     }); // send some money to testConsumer
 
     await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
