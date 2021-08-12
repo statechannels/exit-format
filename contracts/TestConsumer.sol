@@ -4,6 +4,10 @@ pragma solidity 0.8.4;
 import "./ExitFormat.sol";
 
 contract TestConsumer {
+    receive() external payable {
+        // contract may receive ether
+    }
+
     function encodeExit(ExitFormat.SingleAssetExit[] memory exit)
         public
         pure
@@ -34,5 +38,15 @@ contract TestConsumer {
         returns (ExitFormat.Allocation memory)
     {
         return ExitFormat.decodeAllocation(_allocation_);
+    }
+
+    function executeSingleAssetExit(
+        ExitFormat.SingleAssetExit memory singleAssetExit
+    ) public {
+        ExitFormat.executeSingleAssetExit(singleAssetExit);
+    }
+
+    function executeExit(ExitFormat.SingleAssetExit[] memory exit) public {
+        ExitFormat.executeExit(exit);
     }
 }
