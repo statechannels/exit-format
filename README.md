@@ -16,13 +16,11 @@ We have concentrated so far on a format that works for [Nitro state channels](ht
 
 The standard is extensible enough to support future token standards and even to describe cross-chain assets.
 
-As another bonus, we have also built the beginnings of a zero-knowledge proof mechanism, which will allow Nitro state channels to scale even farther beyond their current limit and bring gas costs down even further. This work-in-progress currently takes the form of some [Cairo](https://www.cairo-lang.org/) code that we successfully submitted to the Starkware [shared prover](https://www.cairo-lang.org/docs/sharp.html).
-
 ### How It's Made
 
-The main content is the definition of an exit format, with some exit-transformations implemented in Typescript, Solidity & Cairo. One notable transformation, `claim`, streamlines Nitro's virtual channel protocol.
+The main content is the definition of an exit format, with some exit-transformations implemented in Typescript and Solidity.
 
-This repo has two dependencies: `ethers-js` for BigNumber types and ABI encoding and `openzeppelin/contracts` for token interfaces. We used `hardhat` for our development environment. The zk work uses the `cairo` language.
+This repo depends on `ethers-js` for ABI encoding.
 
 **How to install this package**
 
