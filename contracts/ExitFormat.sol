@@ -107,7 +107,6 @@ library ExitFormat {
      * @notice Executes a single asset exit by paying out the asset and calling external contracts
      * @dev Executes a single asset exit by paying out the asset and calling external contracts
      * @param singleAssetExit The single asset exit to be paid out.
-     * TODO absorb into exit format repo
      */
     function executeSingleAssetExit(
         ExitFormat.SingleAssetExit memory singleAssetExit
