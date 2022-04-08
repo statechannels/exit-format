@@ -58,6 +58,49 @@ describe("ExitFormat (solidity)", function () {
     );
   });
 
+  it("Can compare exits for equality", async function () {
+    const allocations: Allocation[] = [
+      {
+        destination:
+          "0x00000000000000000000000096f7123E3A80C9813eF50213ADEd0e4511CB820f",
+        amount: "0x01",
+        allocationType: AllocationType.simple,
+        metadata: "0x",
+      },
+    ];
+    
+    const assetA = "0x0000000000000000000000000000000000000000";
+    const assetC = "0x0000000000000000000000000000000000000001";
+
+    const exitA: Exit = [
+      {
+        asset: assetA,
+        metadata: "0x",
+        allocations
+      },
+    ];
+
+    const exitB: Exit = [
+      {
+        asset: assetA,
+        metadata: "0x",
+        allocations
+      },
+    ];
+
+    const exitC: Exit = [
+      {
+        asset: assetC,
+        metadata: "0x",
+        allocations
+      },
+    ];
+    const exitsABequal = await testConsumer.exitsEqual(exitA, exitB);
+    const exitsACequal = await testConsumer.exitsEqual(exitA, exitC);
+    expect(exitsABequal).to.be.true;
+    expect(exitsACequal).to.be.false;
+  });
+
   it("Can execute a single asset exit and a whole exit", async function () {
     const amount = "0x01";
 
