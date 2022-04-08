@@ -40,6 +40,13 @@ contract TestConsumer {
         return ExitFormat.decodeAllocation(_allocation_);
     }
 
+    function exitsEqual(
+        ExitFormat.SingleAssetExit[] memory exitA,
+        ExitFormat.SingleAssetExit[] memory exitB
+    ) public pure returns (bool) {
+        return ExitFormat.exitsEqual(exitA, exitB);
+    }
+
     function executeSingleAssetExit(
         ExitFormat.SingleAssetExit memory singleAssetExit
     ) public {
