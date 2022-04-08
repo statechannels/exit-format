@@ -92,6 +92,16 @@ library ExitFormat {
         return abi.decode(_allocation_, (Allocation));
     }
 
+    function exitsEqual(
+        SingleAssetExit[] memory exitA,
+        SingleAssetExit[] memory exitB
+    ) internal pure returns (bool) {
+        return _bytesEqual(
+            encodeExit(exitA),
+            encodeExit(exitB)
+        );
+    }
+
     /**
      * @notice Executes an exit by paying out assets and calling external contracts
      * @dev Executes an exit by paying out assets and calling external contracts
@@ -165,5 +175,62 @@ library ExitFormat {
         returns (WithdrawHelperMetaData memory)
     {
         return abi.decode(metadata, (WithdrawHelperMetaData));
+    }
+
+    /**
+     * @notice Check for equality of two byte strings
+     * @dev Check for equality of two byte strings
+     * @param _preBytes One bytes string
+     * @param _postBytes The other bytes string
+     * @return true if the bytes are identical, false otherwise.
+     */
+    function _bytesEqual(bytes memory _preBytes, bytes memory _postBytes)
+        internal
+        pure
+        returns (bool)
+    {
+        // copied from https://www.npmjs.com/package/solidity-bytes-utils/v/0.1.1
+        bool success = true;
+
+        /* solhint-disable no-inline-assembly */
+        assembly {
+            let length := mload(_preBytes)
+
+            // if lengths don't match the arrays are not equal
+            switch eq(length, mload(_postBytes))
+                case 1 {
+                    // cb is a circuit breaker in the for loop since there's
+                    //  no said feature for inline assembly loops
+                    // cb = 1 - don't breaker
+                    // cb = 0 - break
+                    let cb := 1
+
+                    let mc := add(_preBytes, 0x20)
+                    let end := add(mc, length)
+
+                    for {
+                        let cc := add(_postBytes, 0x20)
+                        // the next line is the loop condition:
+                        // while(uint256(mc < end) + cb == 2)
+                    } eq(add(lt(mc, end), cb), 2) {
+                        mc := add(mc, 0x20)
+                        cc := add(cc, 0x20)
+                    } {
+                        // if any of these checks fails then arrays are not equal
+                        if iszero(eq(mload(mc), mload(cc))) {
+                            // unsuccess:
+                            success := 0
+                            cb := 0
+                        }
+                    }
+                }
+                default {
+                    // unsuccess:
+                    success := 0
+                }
+        }
+        /* solhint-disable no-inline-assembly */
+
+        return success;
     }
 }
