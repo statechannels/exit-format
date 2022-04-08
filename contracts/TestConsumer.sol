@@ -43,11 +43,7 @@ contract TestConsumer {
     function exitsEqual(
         ExitFormat.SingleAssetExit[] memory exitA,
         ExitFormat.SingleAssetExit[] memory exitB
-    )
-        public
-        pure
-        returns (bool)
-    {
+    ) public pure returns (bool) {
         return ExitFormat.exitsEqual(exitA, exitB);
     }
 

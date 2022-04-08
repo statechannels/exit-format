@@ -68,7 +68,7 @@ describe("ExitFormat (solidity)", function () {
         metadata: "0x",
       },
     ];
-    
+
     const assetA = "0x0000000000000000000000000000000000000000";
     const assetC = "0x0000000000000000000000000000000000000001";
 
@@ -76,7 +76,7 @@ describe("ExitFormat (solidity)", function () {
       {
         asset: assetA,
         metadata: "0x",
-        allocations
+        allocations,
       },
     ];
 
@@ -84,7 +84,7 @@ describe("ExitFormat (solidity)", function () {
       {
         asset: assetA,
         metadata: "0x",
-        allocations
+        allocations,
       },
     ];
 
@@ -92,7 +92,7 @@ describe("ExitFormat (solidity)", function () {
       {
         asset: assetC,
         metadata: "0x",
-        allocations
+        allocations,
       },
     ];
     const exitsABequal = await testConsumer.exitsEqual(exitA, exitB);

@@ -96,10 +96,7 @@ library ExitFormat {
         SingleAssetExit[] memory exitA,
         SingleAssetExit[] memory exitB
     ) internal pure returns (bool) {
-        return _bytesEqual(
-            encodeExit(exitA),
-            encodeExit(exitB)
-        );
+        return _bytesEqual(encodeExit(exitA), encodeExit(exitB));
     }
 
     /**
