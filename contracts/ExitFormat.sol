@@ -152,7 +152,8 @@ library ExitFormat {
                 // 1 => ERC1155 
                 else if (_metadata_[31] == bytes1(uint8(ExitMetadataType.ERC1155)) ) {
                     (,ERC1155ExitMetadata memory metadata) = abi.decode(_metadata_, (uint8, ERC1155ExitMetadata));
-                    IERC1155(asset).safeTransferFrom(address(this), destination, metadata.tokenId, amount, "");
+                    // the metadata from the allocation is passed to the safeTransferFrom call
+                    IERC1155(asset).safeTransferFrom(address(this), destination, metadata.tokenId, amount, singleAssetExit.allocations[j].metadata);
                 }
             }
             if (
