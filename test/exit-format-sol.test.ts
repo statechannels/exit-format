@@ -7,6 +7,7 @@ import {
   Exit,
   SingleAssetExit,
 } from "../src/types";
+import { makeERC1155ExitMetadata } from "../src/metadata";
 import { TestConsumer } from "../typechain/TestConsumer";
 
 describe("ExitFormat (solidity)", function () {
@@ -140,5 +141,78 @@ describe("ExitFormat (solidity)", function () {
     expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
       BigNumber.from(amount).mul(2)
     );
+  });
+
+  it("Can execute a single ERC20 asset exit", async function () {
+    const [alice] = await ethers.getSigners();
+
+    // Alice gets all of the initial minting of tokens
+    let initialSupply = ethers.utils.parseEther((1000).toString());
+    let erc20Token = await (
+      await ethers.getContractFactory("TestERC20", alice)
+    ).deploy(initialSupply);
+    await erc20Token.deployed();
+
+    // Alice transfers all tokens to the TestConsumer
+    await erc20Token.connect(alice).transfer(testConsumer.address, initialSupply);    
+    expect(await erc20Token.balanceOf(alice.address)).to.equal(0);
+    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(initialSupply);
+
+    // an exit referring to the token contract
+    const singleAssetExit: SingleAssetExit = {
+      asset: erc20Token.address,
+      metadata: "0x",
+      allocations: [
+        {
+          destination: "0x000000000000000000000000" + alice.address.slice(2), // padded alice
+          amount: initialSupply.toString(),
+          allocationType: AllocationType.simple,
+          metadata: "0x",
+        },
+      ],
+    };
+
+    // Use the exit to withdraw the tokens
+    await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
+    expect(await erc20Token.balanceOf(alice.address)).to.equal(initialSupply);
+    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(0);
+
+  });
+
+  it("Can execute a single ERC1155 asset exit", async function () {
+    const [alice] = await ethers.getSigners();
+    const tokenId = 123;
+
+    // Alice gets all of the initial minting of tokens
+    let initialSupply = ethers.utils.parseEther((1000).toString());
+    let erc1155Collection = await (
+      await ethers.getContractFactory("TestERC1155", alice)
+    ).deploy(initialSupply);
+    await erc1155Collection.deployed();
+
+    // Alice transfers all tokens to the TestConsumer
+    await erc1155Collection.safeTransferFrom(alice.address, testConsumer.address, tokenId, initialSupply, "0x")
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(0);
+    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenId)).to.equal(initialSupply);
+
+    // an exit referring to the token contract
+    const singleAssetExit: SingleAssetExit = {
+      asset: erc1155Collection.address,
+      metadata: makeERC1155ExitMetadata(tokenId),
+      allocations: [
+        {
+          destination: "0x000000000000000000000000" + alice.address.slice(2), // padded alice
+          amount: initialSupply.toString(),
+          allocationType: AllocationType.simple,
+          metadata: "0x",
+        },
+      ],
+    };
+
+    // Use the exit to withdraw the tokens
+    await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(initialSupply);
+    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenId)).to.equal(0);
+
   });
 });
