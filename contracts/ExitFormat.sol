@@ -2,14 +2,8 @@
 pragma solidity >=0.7.0;
 pragma experimental ABIEncoderV2;
 
-/**
- * @dev Interface of the ERC20 standard as defined in the EIP.
- */
-interface ERC20Interface {
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool);
-}
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
 
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
@@ -23,12 +17,24 @@ library ExitFormat {
 
     // A SingleAssetExit specifies
     // * an asset address (0 implies the native asset of the chain: on mainnet, this is ETH)
-    // * custom metadata (optional field, can be zero bytes). This might specify how to transfer this particular asset (e.g. target an "ERC20.transfer"' method)
+    // * custom metadata (optional field, can be zero bytes).
+    //   the first byte of the metadata indicates how the metadata should be 
+    //   interpreted as per the ExitMetadataType enum. 
+    //   - empty metadata or metadata[0] == 0 => ERC20
+    //   - metadata[1] == 1 => ERC1155
     // * an allocations array
     struct SingleAssetExit {
         address asset;
         bytes metadata;
         Allocation[] allocations;
+    }
+
+    // Enum of different MetaData types the SingleAssetExit can contain
+    enum ExitMetadataType { ERC20, ERC1155 }
+
+    // Metadata structure for ERC1155 exits
+    struct ERC1155ExitMetadata {
+        uint256 tokenId;
     }
 
     // allocations is an ordered array of Allocation.
@@ -137,8 +143,17 @@ library ExitFormat {
                 (bool success, ) = destination.call{value: amount}(""); //solhint-disable-line avoid-low-level-calls
                 require(success, "Could not transfer ETH");
             } else {
-                // TODO support other token types via the singleAssetExit.metadata field
-                ERC20Interface(asset).transfer(destination, amount);
+                // Inspect the metadata to see what kind of token to transfer
+                bytes memory _metadata_ = singleAssetExit.metadata;
+                // Empty metadata or 0 => ERC20
+                if( _metadata_.length == 0 || _metadata_[31] == bytes1(uint8(ExitMetadataType.ERC20)) ) {
+                    IERC20(asset).transfer(destination, amount);
+                }
+                // 1 => ERC1155 
+                else if (_metadata_[31] == bytes1(uint8(ExitMetadataType.ERC1155)) ) {
+                    (,ERC1155ExitMetadata memory metadata) = abi.decode(_metadata_, (uint8, ERC1155ExitMetadata));
+                    IERC1155(asset).safeTransferFrom(address(this), destination, metadata.tokenId, amount, "");
+                }
             }
             if (
                 singleAssetExit.allocations[j].allocationType ==
