@@ -3,6 +3,7 @@
 import {
   SingleAssetExit,
   AllocationType,
+  NullTokenMetadata,
 } from "../src/types";
 
 import { Result } from "@ethersproject/abi";
@@ -28,16 +29,21 @@ export function rehydrateExit(exitResult: Result) {
 }
 
 interface MakeSimpleExitParameters {
-  asset: string,
-  destination: string,
-  amount: number
-  metadata?: BytesLike,
+  asset: string;
+  destination: string;
+  amount: number;
+  tokenMetadata: TokenMetadata;
 }
 
-export function makeSimpleExit({ asset, destination, amount, metadata="0x" }: MakeSimpleExitParameters): SingleAssetExit {
+export function makeSimpleExit({
+  asset,
+  destination,
+  amount,
+  tokenMetadata,
+}: MakeSimpleExitParameters): SingleAssetExit {
   return {
     asset,
-    metadata,
+    tokenMetadata,
     allocations: [
       {
         destination: "0x000000000000000000000000" + destination.slice(2), // padded alice

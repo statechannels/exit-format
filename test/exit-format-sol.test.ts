@@ -5,9 +5,11 @@ import {
   Allocation,
   AllocationType,
   Exit,
+  NullTokenMetadata,
   SingleAssetExit,
+  TokenType,
 } from "../src/types";
-import { makeERC1155ExitMetadata } from "../src/metadata";
+import { makeERC1155ExitMetadata } from "../src/erc1155";
 import { TestConsumer } from "../typechain/TestConsumer";
 import { makeSimpleExit } from "./test-helpers";
 
@@ -21,7 +23,7 @@ async function deployERC20(deployer: any, initialSupply: number) {
 
 async function deployERC1155(deployer: any, initialSupply: number) {
   let erc1155Collection = await (
-      await ethers.getContractFactory("TestERC1155", deployer)
+    await ethers.getContractFactory("TestERC1155", deployer)
   ).deploy(initialSupply);
   await erc1155Collection.deployed();
   return erc1155Collection;
@@ -57,7 +59,7 @@ describe("ExitFormat (solidity)", function () {
     const exit: Exit = [
       {
         asset: "0x0000000000000000000000000000000000000000",
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations: [
           {
             destination:
@@ -72,7 +74,7 @@ describe("ExitFormat (solidity)", function () {
     const encodedExit = await testConsumer.encodeExit(exit);
 
     expect(encodedExit).to.eq(
-      "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000096f7123e3a80c9813ef50213aded0e4511cb820f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000"
+      "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000096f7123e3a80c9813ef50213aded0e4511cb820f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000"
     );
   });
 
@@ -93,7 +95,7 @@ describe("ExitFormat (solidity)", function () {
     const exitA: Exit = [
       {
         asset: assetA,
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations,
       },
     ];
@@ -101,7 +103,7 @@ describe("ExitFormat (solidity)", function () {
     const exitB: Exit = [
       {
         asset: assetA,
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations,
       },
     ];
@@ -109,7 +111,7 @@ describe("ExitFormat (solidity)", function () {
     const exitC: Exit = [
       {
         asset: assetC,
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations,
       },
     ];
@@ -131,7 +133,7 @@ describe("ExitFormat (solidity)", function () {
 
     const singleAssetExit: SingleAssetExit = {
       asset: "0x0000000000000000000000000000000000000000",
-      metadata: "0x",
+      tokenMetadata: NullTokenMetadata,
       allocations: [
         {
           destination: "0x000000000000000000000000" + alice.address.slice(2), // padded alice
@@ -168,22 +170,29 @@ describe("ExitFormat (solidity)", function () {
     let erc20Token = await deployERC20(alice, initialSupply);
 
     // Alice transfers all tokens to the TestConsumer
-    await erc20Token.connect(alice).transfer(testConsumer.address, initialSupply);    
+    await erc20Token
+      .connect(alice)
+      .transfer(testConsumer.address, initialSupply);
     expect(await erc20Token.balanceOf(alice.address)).to.equal(0);
-    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(initialSupply);
+    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(
+      initialSupply
+    );
 
     // an exit referring to the token contract
-    const singleAssetExit: SingleAssetExit =  makeSimpleExit({
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
       asset: erc20Token.address,
       destination: alice.address,
       amount: initialSupply,
+      tokenMetadata: {
+        tokenType: TokenType.ERC20,
+        metadata: "0x",
+      },
     });
 
     // Use the exit to withdraw the tokens
     await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
     expect(await erc20Token.balanceOf(alice.address)).to.equal(initialSupply);
     expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(0);
-
   });
 
   it("Can execute a single ERC1155 asset exit", async function () {
@@ -195,23 +204,39 @@ describe("ExitFormat (solidity)", function () {
     let erc1155Collection = await deployERC1155(alice, initialSupply);
 
     // Alice transfers all tokens to the TestConsumer
-    await erc1155Collection.safeTransferFrom(alice.address, testConsumer.address, tokenId, initialSupply, "0x")
-    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(0);
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenId)).to.equal(initialSupply);
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenId,
+      initialSupply,
+      "0x"
+    );
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(
+      0
+    );
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenId)
+    ).to.equal(initialSupply);
 
     // an exit referring to the token contract
     const singleAssetExit: SingleAssetExit = makeSimpleExit({
       asset: erc1155Collection.address,
       destination: alice.address,
       amount: initialSupply,
-      metadata: makeERC1155ExitMetadata(tokenId)
+      tokenMetadata: {
+        tokenType: TokenType.ERC1155,
+        metadata: makeERC1155ExitMetadata(tokenId),
+      },
     });
 
     // Use the exit to withdraw the tokens
     await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
-    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(initialSupply);
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenId)).to.equal(0);
-
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(
+      initialSupply
+    );
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenId)
+    ).to.equal(0);
   });
 
   it("Can execute a multiple token asset exits from the same collection", async function () {
@@ -223,13 +248,28 @@ describe("ExitFormat (solidity)", function () {
     let initialSupply = ethers.utils.parseEther((1000).toString());
     let erc1155Collection = await deployERC1155(alice, initialSupply);
 
-
     // Alice transfers all tokens to the TestConsumer
-    await erc1155Collection.safeTransferFrom(alice.address, testConsumer.address, tokenAId, initialSupply, "0x")
-    await erc1155Collection.safeTransferFrom(alice.address, testConsumer.address, tokenBId, initialSupply, "0x")
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenAId,
+      initialSupply,
+      "0x"
+    );
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenBId,
+      initialSupply,
+      "0x"
+    );
 
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenAId)).to.equal(initialSupply);
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenBId)).to.equal(initialSupply);
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenAId)
+    ).to.equal(initialSupply);
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenBId)
+    ).to.equal(initialSupply);
 
     // an exit referring to the token contract
     const exit: Exit = [
@@ -237,20 +277,29 @@ describe("ExitFormat (solidity)", function () {
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        metadata: makeERC1155ExitMetadata(tokenAId)
+        tokenMetadata: {
+          tokenType: TokenType.ERC1155,
+          metadata: makeERC1155ExitMetadata(tokenAId),
+        },
       }),
       makeSimpleExit({
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        metadata: makeERC1155ExitMetadata(tokenBId)
-      })
+        tokenMetadata: {
+          tokenType: TokenType.ERC1155,
+          metadata: makeERC1155ExitMetadata(tokenBId),
+        },
+      }),
     ];
 
     // Use the exit to withdraw the tokens
     await (await testConsumer.executeExit(exit)).wait();
-    expect(await erc1155Collection.balanceOf(alice.address, tokenAId)).to.equal(initialSupply);
-    expect(await erc1155Collection.balanceOf(alice.address, tokenBId)).to.equal(initialSupply);
-
+    expect(await erc1155Collection.balanceOf(alice.address, tokenAId)).to.equal(
+      initialSupply
+    );
+    expect(await erc1155Collection.balanceOf(alice.address, tokenBId)).to.equal(
+      initialSupply
+    );
   });
 });
