@@ -2,8 +2,8 @@
 pragma solidity >=0.7.0;
 pragma experimental ABIEncoderV2;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/token/ERC1155/IERC1155.sol';
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
@@ -18,8 +18,8 @@ library ExitFormat {
     // A SingleAssetExit specifies
     // * an asset address (0 implies the native asset of the chain: on mainnet, this is ETH)
     // * custom metadata (optional field, can be zero bytes).
-    //   the first byte of the metadata indicates how the metadata should be 
-    //   interpreted as per the ExitMetadataType enum. 
+    //   the first byte of the metadata indicates how the metadata should be
+    //   interpreted as per the ExitMetadataType enum.
     //   - empty metadata or metadata[0] == 0 => ERC20
     //   - metadata[1] == 1 => ERC1155
     // * an allocations array
@@ -30,7 +30,7 @@ library ExitFormat {
     }
 
     // Enum of different MetaData types the SingleAssetExit can contain
-    enum ExitMetadataType { ERC20, ERC1155 }
+    enum ExitMetadataType {ERC20, ERC1155}
 
     // Metadata structure for ERC1155 exits
     struct ERC1155ExitMetadata {
@@ -146,14 +146,26 @@ library ExitFormat {
                 // Inspect the metadata to see what kind of token to transfer
                 bytes memory _metadata_ = singleAssetExit.metadata;
                 // Empty metadata or 0 => ERC20
-                if( _metadata_.length == 0 || _metadata_[31] == bytes1(uint8(ExitMetadataType.ERC20)) ) {
+                if (
+                    _metadata_.length == 0 ||
+                    _metadata_[31] == bytes1(uint8(ExitMetadataType.ERC20))
+                ) {
                     IERC20(asset).transfer(destination, amount);
                 }
-                // 1 => ERC1155 
-                else if (_metadata_[31] == bytes1(uint8(ExitMetadataType.ERC1155)) ) {
-                    (,ERC1155ExitMetadata memory metadata) = abi.decode(_metadata_, (uint8, ERC1155ExitMetadata));
+                // 1 => ERC1155
+                else if (
+                    _metadata_[31] == bytes1(uint8(ExitMetadataType.ERC1155))
+                ) {
+                    (, ERC1155ExitMetadata memory metadata) =
+                        abi.decode(_metadata_, (uint8, ERC1155ExitMetadata));
                     // the metadata from the allocation is passed to the safeTransferFrom call
-                    IERC1155(asset).safeTransferFrom(address(this), destination, metadata.tokenId, amount, singleAssetExit.allocations[j].metadata);
+                    IERC1155(asset).safeTransferFrom(
+                        address(this),
+                        destination,
+                        metadata.tokenId,
+                        amount,
+                        singleAssetExit.allocations[j].metadata
+                    );
                 }
             }
             if (

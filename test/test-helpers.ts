@@ -1,9 +1,6 @@
 // @ts-nocheck
 // this is a hack to get around the way ethers presents the result
-import {
-  SingleAssetExit,
-  AllocationType,
-} from "../src/types";
+import { SingleAssetExit, AllocationType } from "../src/types";
 
 import { Result } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
@@ -28,13 +25,18 @@ export function rehydrateExit(exitResult: Result) {
 }
 
 interface MakeSimpleExitParameters {
-  asset: string,
-  destination: string,
-  amount: number
-  metadata?: BytesLike,
+  asset: string;
+  destination: string;
+  amount: number;
+  metadata?: BytesLike;
 }
 
-export function makeSimpleExit({ asset, destination, amount, metadata="0x" }: MakeSimpleExitParameters): SingleAssetExit {
+export function makeSimpleExit({
+  asset,
+  destination,
+  amount,
+  metadata = "0x",
+}: MakeSimpleExitParameters): SingleAssetExit {
   return {
     asset,
     metadata,

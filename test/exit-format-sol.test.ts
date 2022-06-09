@@ -21,7 +21,7 @@ async function deployERC20(deployer: any, initialSupply: number) {
 
 async function deployERC1155(deployer: any, initialSupply: number) {
   let erc1155Collection = await (
-      await ethers.getContractFactory("TestERC1155", deployer)
+    await ethers.getContractFactory("TestERC1155", deployer)
   ).deploy(initialSupply);
   await erc1155Collection.deployed();
   return erc1155Collection;
@@ -168,12 +168,16 @@ describe("ExitFormat (solidity)", function () {
     let erc20Token = await deployERC20(alice, initialSupply);
 
     // Alice transfers all tokens to the TestConsumer
-    await erc20Token.connect(alice).transfer(testConsumer.address, initialSupply);    
+    await erc20Token
+      .connect(alice)
+      .transfer(testConsumer.address, initialSupply);
     expect(await erc20Token.balanceOf(alice.address)).to.equal(0);
-    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(initialSupply);
+    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(
+      initialSupply
+    );
 
     // an exit referring to the token contract
-    const singleAssetExit: SingleAssetExit =  makeSimpleExit({
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
       asset: erc20Token.address,
       destination: alice.address,
       amount: initialSupply,
@@ -183,7 +187,6 @@ describe("ExitFormat (solidity)", function () {
     await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
     expect(await erc20Token.balanceOf(alice.address)).to.equal(initialSupply);
     expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(0);
-
   });
 
   it("Can execute a single ERC1155 asset exit", async function () {
@@ -195,23 +198,36 @@ describe("ExitFormat (solidity)", function () {
     let erc1155Collection = await deployERC1155(alice, initialSupply);
 
     // Alice transfers all tokens to the TestConsumer
-    await erc1155Collection.safeTransferFrom(alice.address, testConsumer.address, tokenId, initialSupply, "0x")
-    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(0);
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenId)).to.equal(initialSupply);
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenId,
+      initialSupply,
+      "0x"
+    );
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(
+      0
+    );
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenId)
+    ).to.equal(initialSupply);
 
     // an exit referring to the token contract
     const singleAssetExit: SingleAssetExit = makeSimpleExit({
       asset: erc1155Collection.address,
       destination: alice.address,
       amount: initialSupply,
-      metadata: makeERC1155ExitMetadata(tokenId)
+      metadata: makeERC1155ExitMetadata(tokenId),
     });
 
     // Use the exit to withdraw the tokens
     await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
-    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(initialSupply);
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenId)).to.equal(0);
-
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(
+      initialSupply
+    );
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenId)
+    ).to.equal(0);
   });
 
   it("Can execute a multiple token asset exits from the same collection", async function () {
@@ -223,13 +239,28 @@ describe("ExitFormat (solidity)", function () {
     let initialSupply = ethers.utils.parseEther((1000).toString());
     let erc1155Collection = await deployERC1155(alice, initialSupply);
 
-
     // Alice transfers all tokens to the TestConsumer
-    await erc1155Collection.safeTransferFrom(alice.address, testConsumer.address, tokenAId, initialSupply, "0x")
-    await erc1155Collection.safeTransferFrom(alice.address, testConsumer.address, tokenBId, initialSupply, "0x")
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenAId,
+      initialSupply,
+      "0x"
+    );
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenBId,
+      initialSupply,
+      "0x"
+    );
 
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenAId)).to.equal(initialSupply);
-    expect(await erc1155Collection.balanceOf(testConsumer.address, tokenBId)).to.equal(initialSupply);
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenAId)
+    ).to.equal(initialSupply);
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenBId)
+    ).to.equal(initialSupply);
 
     // an exit referring to the token contract
     const exit: Exit = [
@@ -237,20 +268,23 @@ describe("ExitFormat (solidity)", function () {
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        metadata: makeERC1155ExitMetadata(tokenAId)
+        metadata: makeERC1155ExitMetadata(tokenAId),
       }),
       makeSimpleExit({
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        metadata: makeERC1155ExitMetadata(tokenBId)
-      })
+        metadata: makeERC1155ExitMetadata(tokenBId),
+      }),
     ];
 
     // Use the exit to withdraw the tokens
     await (await testConsumer.executeExit(exit)).wait();
-    expect(await erc1155Collection.balanceOf(alice.address, tokenAId)).to.equal(initialSupply);
-    expect(await erc1155Collection.balanceOf(alice.address, tokenBId)).to.equal(initialSupply);
-
+    expect(await erc1155Collection.balanceOf(alice.address, tokenAId)).to.equal(
+      initialSupply
+    );
+    expect(await erc1155Collection.balanceOf(alice.address, tokenBId)).to.equal(
+      initialSupply
+    );
   });
 });
