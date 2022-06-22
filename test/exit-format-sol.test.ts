@@ -191,7 +191,7 @@ describe("ExitFormat (solidity)", function () {
     await erc721Collection.transferFrom(
       alice.address,
       testConsumer.address,
-      tokenId,
+      tokenId
     );
     expect(await erc721Collection.ownerOf(tokenId)).to.equal(
       testConsumer.address
@@ -210,9 +210,7 @@ describe("ExitFormat (solidity)", function () {
 
     // Use the exit to withdraw the tokens
     await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
-    expect(await erc721Collection.ownerOf(tokenId)).to.equal(
-      alice.address
-    );
+    expect(await erc721Collection.ownerOf(tokenId)).to.equal(alice.address);
   });
 
   it("ERC721 exits with amount != 1 fail", async function () {
@@ -231,7 +229,9 @@ describe("ExitFormat (solidity)", function () {
       },
     });
 
-    await expect(testConsumer.executeSingleAssetExit(singleAssetExit)).to.be.revertedWith("Amount must be 1 for an ERC721 exit");
+    await expect(
+      testConsumer.executeSingleAssetExit(singleAssetExit)
+    ).to.be.revertedWith("Amount must be 1 for an ERC721 exit");
   });
 
   it("Can execute a single ERC1155 asset exit", async function () {

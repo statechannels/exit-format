@@ -11,7 +11,6 @@ import { Result } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { BytesLike } from "@ethersproject/bytes";
 
-
 // TODO can we get at the raw data returned from the eth_call?
 export function rehydrateExit(exitResult: Result) {
   return exitResult.map((entry) => {

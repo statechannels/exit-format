@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
 interface WithdrawHelper {
@@ -32,7 +31,7 @@ library ExitFormat {
 
     // TokenMetadata allows for different token standards
     // that require additional data than just a token contract address
-    // * assetType specifies one of the supported asset types 
+    // * assetType specifies one of the supported asset types
     // * metadata is a differently encoded metadata depending on the token type.
     //   This is untyped to allow for extensions in future as different token standards emerge
     struct TokenMetadata {
