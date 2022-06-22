@@ -215,6 +215,25 @@ describe("ExitFormat (solidity)", function () {
     );
   });
 
+  it("ERC721 exits with amount != 1 fail", async function () {
+    const [alice] = await ethers.getSigners();
+    let erc721Collection = await deployERC721(alice);
+    const tokenId = 11;
+
+    // an exit referring to the token contract with an amount > 1
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc721Collection.address,
+      destination: alice.address,
+      amount: 10, // <- this needs to be 1 for ERC721 exits
+      tokenMetadata: {
+        assetType: AssetType.ERC721,
+        metadata: makeTokenIdExitMetadata(tokenId),
+      },
+    });
+
+    await expect(testConsumer.executeSingleAssetExit(singleAssetExit)).to.be.revertedWith("Amount must be 1 for an ERC721 exit");
+  });
+
   it("Can execute a single ERC1155 asset exit", async function () {
     const [alice] = await ethers.getSigners();
     const tokenId = 11;
