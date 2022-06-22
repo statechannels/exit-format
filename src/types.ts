@@ -19,19 +19,20 @@ export interface SingleAssetExit {
   allocations: Allocation[];
 }
 
-export enum TokenType {
+export enum AssetType {
   Null,
   ERC20,
+  ERC721,
   ERC1155,
 }
 
 export interface TokenMetadata {
-  tokenType: TokenType;
+  assetType: AssetType;
   metadata: BytesLike;
 }
 
 export const NullTokenMetadata: TokenMetadata = {
-  tokenType: TokenType.Null,
+  assetType: AssetType.Null,
   metadata: "0x",
 };
 

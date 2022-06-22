@@ -4,6 +4,8 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
@@ -19,7 +21,7 @@ library ExitFormat {
     // * an asset address (0 implies the native asset of the chain: on mainnet, this is ETH)
     // * custom tokenMetadata
     //   containing
-    //   - TokenType enum value
+    //   - AssetType enum value
     //   - metadata for that token
     // * an allocations array
     struct SingleAssetExit {
@@ -28,16 +30,21 @@ library ExitFormat {
         Allocation[] allocations;
     }
 
+    // TokenMetadata allows for different token standards
+    // that require additional data than just a token contract address
+    // * assetType specifies one of the supported asset types 
+    // * metadata is a differently encoded metadata depending on the token type.
+    //   This is untyped to allow for extensions in future as different token standards emerge
     struct TokenMetadata {
-        TokenType tokenType;
+        AssetType assetType;
         bytes metadata;
     }
 
     // Enum of different (non-native) token types the SingleAssetExit can contain
-    enum TokenType {Null, ERC20, ERC1155}
+    enum AssetType {Null, ERC20, ERC721, ERC1155}
 
-    // Metadata structure for ERC1155 exits
-    struct ERC1155ExitMetadata {
+    // Metadata structure for ERC721 and ERC1155 exits
+    struct TokenIdExitMetadata {
         uint256 tokenId;
     }
 
@@ -149,12 +156,12 @@ library ExitFormat {
             } else {
                 if (
                     // ERC20 Token
-                    singleAssetExit.tokenMetadata.tokenType == TokenType.ERC20
+                    singleAssetExit.tokenMetadata.assetType == AssetType.ERC20
                 ) {
                     IERC20(asset).transfer(destination, amount);
                 } else if (
-                    // ERC1155 Token
-                    singleAssetExit.tokenMetadata.tokenType == TokenType.ERC1155
+                    // ERC721 Token
+                    singleAssetExit.tokenMetadata.assetType == AssetType.ERC721
                 ) {
                     uint256 tokenId =
                         abi
@@ -162,7 +169,25 @@ library ExitFormat {
                             singleAssetExit
                                 .tokenMetadata
                                 .metadata,
-                            (ERC1155ExitMetadata)
+                            (TokenIdExitMetadata)
+                        )
+                            .tokenId;
+                    IERC721(asset).safeTransferFrom(
+                        address(this),
+                        destination,
+                        tokenId
+                    );
+                } else if (
+                    // ERC1155 Token
+                    singleAssetExit.tokenMetadata.assetType == AssetType.ERC1155
+                ) {
+                    uint256 tokenId =
+                        abi
+                            .decode(
+                            singleAssetExit
+                                .tokenMetadata
+                                .metadata,
+                            (TokenIdExitMetadata)
                         )
                             .tokenId;
                     IERC1155(asset).safeTransferFrom(

@@ -7,7 +7,7 @@ import {
   Exit,
   NullTokenMetadata,
   SingleAssetExit,
-  TokenType,
+  AssetType,
 } from "../src/types";
 import { makeERC1155ExitMetadata } from "../src/erc1155";
 import { TestConsumer } from "../typechain/TestConsumer";
@@ -184,7 +184,7 @@ describe("ExitFormat (solidity)", function () {
       destination: alice.address,
       amount: initialSupply,
       tokenMetadata: {
-        tokenType: TokenType.ERC20,
+        assetType: AssetType.ERC20,
         metadata: "0x",
       },
     });
@@ -224,7 +224,7 @@ describe("ExitFormat (solidity)", function () {
       destination: alice.address,
       amount: initialSupply,
       tokenMetadata: {
-        tokenType: TokenType.ERC1155,
+        assetType: AssetType.ERC1155,
         metadata: makeERC1155ExitMetadata(tokenId),
       },
     });
@@ -278,7 +278,7 @@ describe("ExitFormat (solidity)", function () {
         destination: alice.address,
         amount: initialSupply,
         tokenMetadata: {
-          tokenType: TokenType.ERC1155,
+          assetType: AssetType.ERC1155,
           metadata: makeERC1155ExitMetadata(tokenAId),
         },
       }),
@@ -287,7 +287,7 @@ describe("ExitFormat (solidity)", function () {
         destination: alice.address,
         amount: initialSupply,
         tokenMetadata: {
-          tokenType: TokenType.ERC1155,
+          assetType: AssetType.ERC1155,
           metadata: makeERC1155ExitMetadata(tokenBId),
         },
       }),

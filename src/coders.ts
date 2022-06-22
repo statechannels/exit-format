@@ -19,7 +19,7 @@ const exitTy = [
         name: "tokenMetadata",
         type: "tuple",
         components: [
-          { name: "tokenType", type: "uint8" },
+          { name: "assetType", type: "uint8" },
           { name: "metadata", type: "bytes" },
         ],
       },
