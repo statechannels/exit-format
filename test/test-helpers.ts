@@ -1,6 +1,10 @@
 // @ts-nocheck
 // this is a hack to get around the way ethers presents the result
-import { SingleAssetExit, AllocationType } from "../src/types";
+import {
+  SingleAssetExit,
+  AllocationType,
+  NullTokenMetadata,
+} from "../src/types";
 
 import { Result } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
@@ -28,18 +32,18 @@ interface MakeSimpleExitParameters {
   asset: string;
   destination: string;
   amount: number;
-  metadata?: BytesLike;
+  tokenMetadata: TokenMetadata;
 }
 
 export function makeSimpleExit({
   asset,
   destination,
   amount,
-  metadata = "0x",
+  tokenMetadata,
 }: MakeSimpleExitParameters): SingleAssetExit {
   return {
     asset,
-    metadata,
+    tokenMetadata,
     allocations: [
       {
         destination: "0x000000000000000000000000" + destination.slice(2), // padded alice

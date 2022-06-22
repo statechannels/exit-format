@@ -17,20 +17,24 @@ library ExitFormat {
 
     // A SingleAssetExit specifies
     // * an asset address (0 implies the native asset of the chain: on mainnet, this is ETH)
-    // * custom metadata (optional field, can be zero bytes).
-    //   the first byte of the metadata indicates how the metadata should be
-    //   interpreted as per the ExitMetadataType enum.
-    //   - empty metadata or metadata[0] == 0 => ERC20
-    //   - metadata[1] == 1 => ERC1155
+    // * custom tokenMetadata
+    //   containing
+    //   - TokenType enum value
+    //   - metadata for that token
     // * an allocations array
     struct SingleAssetExit {
         address asset;
-        bytes metadata;
+        TokenMetadata tokenMetadata;
         Allocation[] allocations;
     }
 
-    // Enum of different MetaData types the SingleAssetExit can contain
-    enum ExitMetadataType {ERC20, ERC1155}
+    struct TokenMetadata {
+        TokenType tokenType;
+        bytes metadata;
+    }
+
+    // Enum of different (non-native) token types the SingleAssetExit can contain
+    enum TokenType {Null, ERC20, ERC1155}
 
     // Metadata structure for ERC1155 exits
     struct ERC1155ExitMetadata {
@@ -143,29 +147,33 @@ library ExitFormat {
                 (bool success, ) = destination.call{value: amount}(""); //solhint-disable-line avoid-low-level-calls
                 require(success, "Could not transfer ETH");
             } else {
-                // Inspect the metadata to see what kind of token to transfer
-                bytes memory _metadata_ = singleAssetExit.metadata;
-                // Empty metadata or 0 => ERC20
                 if (
-                    _metadata_.length == 0 ||
-                    _metadata_[31] == bytes1(uint8(ExitMetadataType.ERC20))
+                    // ERC20 Token
+                    singleAssetExit.tokenMetadata.tokenType == TokenType.ERC20
                 ) {
                     IERC20(asset).transfer(destination, amount);
-                }
-                // 1 => ERC1155
-                else if (
-                    _metadata_[31] == bytes1(uint8(ExitMetadataType.ERC1155))
+                } else if (
+                    // ERC1155 Token
+                    singleAssetExit.tokenMetadata.tokenType == TokenType.ERC1155
                 ) {
-                    (, ERC1155ExitMetadata memory metadata) =
-                        abi.decode(_metadata_, (uint8, ERC1155ExitMetadata));
-                    // the metadata from the allocation is passed to the safeTransferFrom call
+                    uint256 tokenId =
+                        abi
+                            .decode(
+                            singleAssetExit
+                                .tokenMetadata
+                                .metadata,
+                            (ERC1155ExitMetadata)
+                        )
+                            .tokenId;
                     IERC1155(asset).safeTransferFrom(
                         address(this),
                         destination,
-                        metadata.tokenId,
+                        tokenId,
                         amount,
-                        singleAssetExit.allocations[j].metadata
+                        singleAssetExit.allocations[j].metadata // the metadata from the allocation is passed to the safeTransferFrom call
                     );
+                } else {
+                    revert("unsupported token");
                 }
             }
             if (

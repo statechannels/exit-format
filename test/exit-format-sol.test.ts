@@ -5,9 +5,11 @@ import {
   Allocation,
   AllocationType,
   Exit,
+  NullTokenMetadata,
   SingleAssetExit,
+  TokenType,
 } from "../src/types";
-import { makeERC1155ExitMetadata } from "../src/metadata";
+import { makeERC1155ExitMetadata } from "../src/erc1155";
 import { TestConsumer } from "../typechain/TestConsumer";
 import { makeSimpleExit } from "./test-helpers";
 
@@ -57,7 +59,7 @@ describe("ExitFormat (solidity)", function () {
     const exit: Exit = [
       {
         asset: "0x0000000000000000000000000000000000000000",
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations: [
           {
             destination:
@@ -72,7 +74,7 @@ describe("ExitFormat (solidity)", function () {
     const encodedExit = await testConsumer.encodeExit(exit);
 
     expect(encodedExit).to.eq(
-      "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000096f7123e3a80c9813ef50213aded0e4511cb820f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000"
+      "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000096f7123e3a80c9813ef50213aded0e4511cb820f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000"
     );
   });
 
@@ -93,7 +95,7 @@ describe("ExitFormat (solidity)", function () {
     const exitA: Exit = [
       {
         asset: assetA,
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations,
       },
     ];
@@ -101,7 +103,7 @@ describe("ExitFormat (solidity)", function () {
     const exitB: Exit = [
       {
         asset: assetA,
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations,
       },
     ];
@@ -109,7 +111,7 @@ describe("ExitFormat (solidity)", function () {
     const exitC: Exit = [
       {
         asset: assetC,
-        metadata: "0x",
+        tokenMetadata: NullTokenMetadata,
         allocations,
       },
     ];
@@ -131,7 +133,7 @@ describe("ExitFormat (solidity)", function () {
 
     const singleAssetExit: SingleAssetExit = {
       asset: "0x0000000000000000000000000000000000000000",
-      metadata: "0x",
+      tokenMetadata: NullTokenMetadata,
       allocations: [
         {
           destination: "0x000000000000000000000000" + alice.address.slice(2), // padded alice
@@ -181,6 +183,10 @@ describe("ExitFormat (solidity)", function () {
       asset: erc20Token.address,
       destination: alice.address,
       amount: initialSupply,
+      tokenMetadata: {
+        tokenType: TokenType.ERC20,
+        metadata: "0x",
+      },
     });
 
     // Use the exit to withdraw the tokens
@@ -217,7 +223,10 @@ describe("ExitFormat (solidity)", function () {
       asset: erc1155Collection.address,
       destination: alice.address,
       amount: initialSupply,
-      metadata: makeERC1155ExitMetadata(tokenId),
+      tokenMetadata: {
+        tokenType: TokenType.ERC1155,
+        metadata: makeERC1155ExitMetadata(tokenId),
+      },
     });
 
     // Use the exit to withdraw the tokens
@@ -268,13 +277,19 @@ describe("ExitFormat (solidity)", function () {
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        metadata: makeERC1155ExitMetadata(tokenAId),
+        tokenMetadata: {
+          tokenType: TokenType.ERC1155,
+          metadata: makeERC1155ExitMetadata(tokenAId),
+        },
       }),
       makeSimpleExit({
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        metadata: makeERC1155ExitMetadata(tokenBId),
+        tokenMetadata: {
+          tokenType: TokenType.ERC1155,
+          metadata: makeERC1155ExitMetadata(tokenBId),
+        },
       }),
     ];
 

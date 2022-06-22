@@ -1,3 +1,3 @@
 export * from "./types";
 export * from "./coders";
-export * from "./metadata";
+export * from "./erc1155";
