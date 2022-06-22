@@ -9,25 +9,10 @@ import {
   SingleAssetExit,
   AssetType,
 } from "../src/types";
-import { makeERC1155ExitMetadata } from "../src/erc1155";
+import { makeTokenIdExitMetadata } from "../src/nfts";
 import { TestConsumer } from "../typechain/TestConsumer";
 import { makeSimpleExit } from "./test-helpers";
-
-async function deployERC20(deployer: any, initialSupply: number) {
-  let erc20Token = await (
-    await ethers.getContractFactory("TestERC20", deployer)
-  ).deploy(initialSupply);
-  await erc20Token.deployed();
-  return erc20Token;
-}
-
-async function deployERC1155(deployer: any, initialSupply: number) {
-  let erc1155Collection = await (
-    await ethers.getContractFactory("TestERC1155", deployer)
-  ).deploy(initialSupply);
-  await erc1155Collection.deployed();
-  return erc1155Collection;
-}
+import { deployERC20, deployERC721, deployERC1155 } from "./test-helpers";
 
 describe("ExitFormat (solidity)", function () {
   let testConsumer: TestConsumer;
@@ -195,6 +180,41 @@ describe("ExitFormat (solidity)", function () {
     expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(0);
   });
 
+  it("Can execute a single ERC721 asset exit", async function () {
+    const [alice] = await ethers.getSigners();
+    const tokenId = 11;
+
+    // Alice gets all of the initial minting of tokens
+    let erc721Collection = await deployERC721(alice);
+
+    // Alice transfers all tokens to the TestConsumer
+    await erc721Collection.transferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenId,
+    );
+    expect(await erc721Collection.ownerOf(tokenId)).to.equal(
+      testConsumer.address
+    );
+
+    // an exit referring to the token contract
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc721Collection.address,
+      destination: alice.address,
+      amount: 1,
+      tokenMetadata: {
+        assetType: AssetType.ERC721,
+        metadata: makeTokenIdExitMetadata(tokenId),
+      },
+    });
+
+    // Use the exit to withdraw the tokens
+    await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
+    expect(await erc721Collection.ownerOf(tokenId)).to.equal(
+      alice.address
+    );
+  });
+
   it("Can execute a single ERC1155 asset exit", async function () {
     const [alice] = await ethers.getSigners();
     const tokenId = 11;
@@ -225,7 +245,7 @@ describe("ExitFormat (solidity)", function () {
       amount: initialSupply,
       tokenMetadata: {
         assetType: AssetType.ERC1155,
-        metadata: makeERC1155ExitMetadata(tokenId),
+        metadata: makeTokenIdExitMetadata(tokenId),
       },
     });
 
@@ -279,7 +299,7 @@ describe("ExitFormat (solidity)", function () {
         amount: initialSupply,
         tokenMetadata: {
           assetType: AssetType.ERC1155,
-          metadata: makeERC1155ExitMetadata(tokenAId),
+          metadata: makeTokenIdExitMetadata(tokenAId),
         },
       }),
       makeSimpleExit({
@@ -288,7 +308,7 @@ describe("ExitFormat (solidity)", function () {
         amount: initialSupply,
         tokenMetadata: {
           assetType: AssetType.ERC1155,
-          metadata: makeERC1155ExitMetadata(tokenBId),
+          metadata: makeTokenIdExitMetadata(tokenBId),
         },
       }),
     ];

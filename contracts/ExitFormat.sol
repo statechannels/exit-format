@@ -163,6 +163,7 @@ library ExitFormat {
                     // ERC721 Token
                     singleAssetExit.tokenMetadata.assetType == AssetType.ERC721
                 ) {
+                    require(amount == 1, "Amount must be 1 for an ERC721 exit");
                     uint256 tokenId =
                         abi
                             .decode(
