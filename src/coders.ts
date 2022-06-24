@@ -10,7 +10,7 @@ export function encodeAllocations(allocation: Allocation) {
   );
 }
 
-const exitTy = [
+const exitABI = [
   {
     type: "tuple[]",
     components: [
@@ -38,9 +38,9 @@ const exitTy = [
 ];
 
 export function encodeExit(exit: Exit) {
-  return defaultAbiCoder.encode(exitTy, [exit]);
+  return defaultAbiCoder.encode(exitABI, [exit]);
 }
 
 export function decodeExit(_exit_: any) {
-  return defaultAbiCoder.decode(exitTy, _exit_) as Exit;
+  return defaultAbiCoder.decode(exitABI, _exit_) as Exit;
 }
