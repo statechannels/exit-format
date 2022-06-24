@@ -18,23 +18,23 @@ library ExitFormat {
 
     // A SingleAssetExit specifies
     // * an asset address (0 implies the native asset of the chain: on mainnet, this is ETH)
-    // * custom tokenMetadata
+    // * custom assetMetadata
     //   containing
     //   - AssetType enum value
     //   - metadata for that token
     // * an allocations array
     struct SingleAssetExit {
         address asset;
-        TokenMetadata tokenMetadata;
+        AssetMetadata assetMetadata;
         Allocation[] allocations;
     }
 
-    // TokenMetadata allows for different token standards
+    // AssetMetadata allows for different token standards
     // that require additional data than just a token contract address
     // * assetType specifies one of the supported asset types
     // * metadata is a differently encoded metadata depending on the token type.
     //   This is untyped to allow for extensions in future as different token standards emerge
-    struct TokenMetadata {
+    struct AssetMetadata {
         AssetType assetType;
         bytes metadata;
     }
@@ -155,19 +155,19 @@ library ExitFormat {
             } else {
                 if (
                     // ERC20 Token
-                    singleAssetExit.tokenMetadata.assetType == AssetType.ERC20
+                    singleAssetExit.assetMetadata.assetType == AssetType.ERC20
                 ) {
                     IERC20(asset).transfer(destination, amount);
                 } else if (
                     // ERC721 Token
-                    singleAssetExit.tokenMetadata.assetType == AssetType.ERC721
+                    singleAssetExit.assetMetadata.assetType == AssetType.ERC721
                 ) {
                     require(amount == 1, "Amount must be 1 for an ERC721 exit");
                     uint256 tokenId =
                         abi
                             .decode(
                             singleAssetExit
-                                .tokenMetadata
+                                .assetMetadata
                                 .metadata,
                             (TokenIdExitMetadata)
                         )
@@ -179,13 +179,13 @@ library ExitFormat {
                     );
                 } else if (
                     // ERC1155 Token
-                    singleAssetExit.tokenMetadata.assetType == AssetType.ERC1155
+                    singleAssetExit.assetMetadata.assetType == AssetType.ERC1155
                 ) {
                     uint256 tokenId =
                         abi
                             .decode(
                             singleAssetExit
-                                .tokenMetadata
+                                .assetMetadata
                                 .metadata,
                             (TokenIdExitMetadata)
                         )

@@ -4,7 +4,7 @@ const { ethers } = require("hardhat");
 import {
   SingleAssetExit,
   AllocationType,
-  NullTokenMetadata,
+  NullAssetMetadata,
 } from "../src/types";
 
 import { Result } from "@ethersproject/abi";
@@ -33,18 +33,18 @@ interface MakeSimpleExitParameters {
   asset: string;
   destination: string;
   amount: number;
-  tokenMetadata: TokenMetadata;
+  assetMetadata: AssetMetadata;
 }
 
 export function makeSimpleExit({
   asset,
   destination,
   amount,
-  tokenMetadata,
+  assetMetadata,
 }: MakeSimpleExitParameters): SingleAssetExit {
   return {
     asset,
-    tokenMetadata,
+    assetMetadata,
     allocations: [
       {
         destination: "0x000000000000000000000000" + destination.slice(2), // padded alice

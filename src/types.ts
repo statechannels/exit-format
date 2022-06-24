@@ -15,7 +15,7 @@ export interface Allocation {
 
 export interface SingleAssetExit {
   asset: string; // an Ethereum address
-  tokenMetadata: TokenMetadata;
+  assetMetadata: AssetMetadata;
   allocations: Allocation[];
 }
 
@@ -26,12 +26,12 @@ export enum AssetType {
   ERC1155,
 }
 
-export interface TokenMetadata {
+export interface AssetMetadata {
   assetType: AssetType;
   metadata: BytesLike;
 }
 
-export const NullTokenMetadata: TokenMetadata = {
+export const NullAssetMetadata: AssetMetadata = {
   assetType: AssetType.Null,
   metadata: "0x",
 };

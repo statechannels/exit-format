@@ -4,7 +4,7 @@ import {
   Allocation,
   AllocationType,
   Exit,
-  NullTokenMetadata,
+  NullAssetMetadata,
 } from "../src/types";
 
 describe("ExitFormat (typescript)", function () {
@@ -28,7 +28,7 @@ describe("ExitFormat (typescript)", function () {
     const exit: Exit = [
       {
         asset: "0x0000000000000000000000000000000000000000",
-        tokenMetadata: NullTokenMetadata,
+        assetMetadata: NullAssetMetadata,
         allocations: [
           {
             destination:

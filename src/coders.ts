@@ -16,7 +16,7 @@ const exitTy = [
     components: [
       { name: "asset", type: "address" },
       {
-        name: "tokenMetadata",
+        name: "assetMetadata",
         type: "tuple",
         components: [
           { name: "assetType", type: "uint8" },

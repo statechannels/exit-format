@@ -5,7 +5,7 @@ import {
   Allocation,
   AllocationType,
   Exit,
-  NullTokenMetadata,
+  NullAssetMetadata,
   SingleAssetExit,
   AssetType,
 } from "../src/types";
@@ -44,7 +44,7 @@ describe("ExitFormat (solidity)", function () {
     const exit: Exit = [
       {
         asset: "0x0000000000000000000000000000000000000000",
-        tokenMetadata: NullTokenMetadata,
+        assetMetadata: NullAssetMetadata,
         allocations: [
           {
             destination:
@@ -80,7 +80,7 @@ describe("ExitFormat (solidity)", function () {
     const exitA: Exit = [
       {
         asset: assetA,
-        tokenMetadata: NullTokenMetadata,
+        assetMetadata: NullAssetMetadata,
         allocations,
       },
     ];
@@ -88,7 +88,7 @@ describe("ExitFormat (solidity)", function () {
     const exitB: Exit = [
       {
         asset: assetA,
-        tokenMetadata: NullTokenMetadata,
+        assetMetadata: NullAssetMetadata,
         allocations,
       },
     ];
@@ -96,7 +96,7 @@ describe("ExitFormat (solidity)", function () {
     const exitC: Exit = [
       {
         asset: assetC,
-        tokenMetadata: NullTokenMetadata,
+        assetMetadata: NullAssetMetadata,
         allocations,
       },
     ];
@@ -118,7 +118,7 @@ describe("ExitFormat (solidity)", function () {
 
     const singleAssetExit: SingleAssetExit = {
       asset: "0x0000000000000000000000000000000000000000",
-      tokenMetadata: NullTokenMetadata,
+      assetMetadata: NullAssetMetadata,
       allocations: [
         {
           destination: "0x000000000000000000000000" + alice.address.slice(2), // padded alice
@@ -168,7 +168,7 @@ describe("ExitFormat (solidity)", function () {
       asset: erc20Token.address,
       destination: alice.address,
       amount: initialSupply,
-      tokenMetadata: {
+      assetMetadata: {
         assetType: AssetType.ERC20,
         metadata: "0x",
       },
@@ -202,7 +202,7 @@ describe("ExitFormat (solidity)", function () {
       asset: erc721Collection.address,
       destination: alice.address,
       amount: 1,
-      tokenMetadata: {
+      assetMetadata: {
         assetType: AssetType.ERC721,
         metadata: makeTokenIdExitMetadata(tokenId),
       },
@@ -223,7 +223,7 @@ describe("ExitFormat (solidity)", function () {
       asset: erc721Collection.address,
       destination: alice.address,
       amount: 10, // <- this needs to be 1 for ERC721 exits
-      tokenMetadata: {
+      assetMetadata: {
         assetType: AssetType.ERC721,
         metadata: makeTokenIdExitMetadata(tokenId),
       },
@@ -262,7 +262,7 @@ describe("ExitFormat (solidity)", function () {
       asset: erc1155Collection.address,
       destination: alice.address,
       amount: initialSupply,
-      tokenMetadata: {
+      assetMetadata: {
         assetType: AssetType.ERC1155,
         metadata: makeTokenIdExitMetadata(tokenId),
       },
@@ -316,7 +316,7 @@ describe("ExitFormat (solidity)", function () {
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        tokenMetadata: {
+        assetMetadata: {
           assetType: AssetType.ERC1155,
           metadata: makeTokenIdExitMetadata(tokenAId),
         },
@@ -325,7 +325,7 @@ describe("ExitFormat (solidity)", function () {
         asset: erc1155Collection.address,
         destination: alice.address,
         amount: initialSupply,
-        tokenMetadata: {
+        assetMetadata: {
           assetType: AssetType.ERC1155,
           metadata: makeTokenIdExitMetadata(tokenBId),
         },
