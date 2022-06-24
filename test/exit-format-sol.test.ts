@@ -9,7 +9,7 @@ import {
   SingleAssetExit,
   AssetType,
 } from "../src/types";
-import { makeTokenIdExitMetadata } from "../src/nfts";
+import { makeTokenIdExitMetadata } from "../src/token-id-metadata";
 import { TestConsumer } from "../typechain/TestConsumer";
 import { makeSimpleExit } from "./test-helpers";
 import { deployERC20, deployERC721, deployERC1155 } from "./test-helpers";
@@ -232,6 +232,27 @@ describe("ExitFormat (solidity)", function () {
     await expect(
       testConsumer.executeSingleAssetExit(singleAssetExit)
     ).to.be.revertedWith("Amount must be 1 for an ERC721 exit");
+  });
+
+  it("ERC721 exits with invalid tokenId", async function () {
+    const [alice] = await ethers.getSigners();
+    let erc721Collection = await deployERC721(alice);
+    const invalidTokenId = 999;
+
+    // an exit referring to the invalid token ID
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc721Collection.address,
+      destination: alice.address,
+      amount: 1,
+      assetMetadata: {
+        assetType: AssetType.ERC721,
+        metadata: makeTokenIdExitMetadata(invalidTokenId),
+      },
+    });
+
+    await expect(
+      testConsumer.executeSingleAssetExit(singleAssetExit)
+    ).to.be.revertedWith("operator query for nonexistent token");
   });
 
   it("Can execute a single ERC1155 asset exit", async function () {
