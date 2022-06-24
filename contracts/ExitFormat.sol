@@ -40,7 +40,15 @@ library ExitFormat {
     }
 
     // Enum of different (non-native) token types the SingleAssetExit can contain
-    enum AssetType {Null, ERC20, ERC721, ERC1155}
+    // Native - The chains native asset (e.g. the one payable functions can receive).
+    //          This Asset type isn't technically required as native assets are also indicated by using the
+    //          zero address in the `asset` field of `SingleAssetExit`.
+    // ERC20 - Assets managed by a contract implementing IERC20
+    // ERC721 - NFT assets managed by a contract implementing IERC721.
+    //          This requires the metadata to be an encoded `TokenIdExitMetadata`
+    // ERC1155 - Fungible or non-fungible assets managed by a contract implementing IERC1155.
+    //          This requires the metadata to be an encoded `TokenIdExitMetadata`
+    enum AssetType {Native, ERC20, ERC721, ERC1155}
 
     // Metadata structure for ERC721 and ERC1155 exits
     struct TokenIdExitMetadata {
@@ -198,7 +206,7 @@ library ExitFormat {
                         singleAssetExit.allocations[j].metadata // the metadata from the allocation is passed to the safeTransferFrom call
                     );
                 } else {
-                    revert("unsupported token");
+                    revert("unsupported asset");
                 }
             }
             if (
