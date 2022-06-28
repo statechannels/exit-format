@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "./ExitFormat.sol";
 
-contract TestConsumer {
+contract TestConsumer is ERC1155Holder {
     receive() external payable {
         // contract may receive ether
     }

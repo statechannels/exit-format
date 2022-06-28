@@ -5,9 +5,14 @@ import {
   Allocation,
   AllocationType,
   Exit,
+  NullAssetMetadata,
   SingleAssetExit,
+  AssetType,
 } from "../src/types";
+import { makeTokenIdExitMetadata } from "../src/token-id-metadata";
 import { TestConsumer } from "../typechain/TestConsumer";
+import { makeSimpleExit } from "./test-helpers";
+import { deployERC20, deployERC721, deployERC1155 } from "./test-helpers";
 
 describe("ExitFormat (solidity)", function () {
   let testConsumer: TestConsumer;
@@ -39,7 +44,7 @@ describe("ExitFormat (solidity)", function () {
     const exit: Exit = [
       {
         asset: "0x0000000000000000000000000000000000000000",
-        metadata: "0x",
+        assetMetadata: NullAssetMetadata,
         allocations: [
           {
             destination:
@@ -54,7 +59,7 @@ describe("ExitFormat (solidity)", function () {
     const encodedExit = await testConsumer.encodeExit(exit);
 
     expect(encodedExit).to.eq(
-      "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000096f7123e3a80c9813ef50213aded0e4511cb820f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000"
+      "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000096f7123e3a80c9813ef50213aded0e4511cb820f0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000"
     );
   });
 
@@ -75,7 +80,7 @@ describe("ExitFormat (solidity)", function () {
     const exitA: Exit = [
       {
         asset: assetA,
-        metadata: "0x",
+        assetMetadata: NullAssetMetadata,
         allocations,
       },
     ];
@@ -83,7 +88,7 @@ describe("ExitFormat (solidity)", function () {
     const exitB: Exit = [
       {
         asset: assetA,
-        metadata: "0x",
+        assetMetadata: NullAssetMetadata,
         allocations,
       },
     ];
@@ -91,7 +96,7 @@ describe("ExitFormat (solidity)", function () {
     const exitC: Exit = [
       {
         asset: assetC,
-        metadata: "0x",
+        assetMetadata: NullAssetMetadata,
         allocations,
       },
     ];
@@ -113,7 +118,7 @@ describe("ExitFormat (solidity)", function () {
 
     const singleAssetExit: SingleAssetExit = {
       asset: "0x0000000000000000000000000000000000000000",
-      metadata: "0x",
+      assetMetadata: NullAssetMetadata,
       allocations: [
         {
           destination: "0x000000000000000000000000" + alice.address.slice(2), // padded alice
@@ -139,6 +144,222 @@ describe("ExitFormat (solidity)", function () {
 
     expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
       BigNumber.from(amount).mul(2)
+    );
+  });
+
+  it("Can execute a single ERC20 asset exit", async function () {
+    const [alice] = await ethers.getSigners();
+
+    // Alice gets all of the initial minting of tokens
+    let initialSupply = ethers.utils.parseEther((1000).toString());
+    let erc20Token = await deployERC20(alice, initialSupply);
+
+    // Alice transfers all tokens to the TestConsumer
+    await erc20Token
+      .connect(alice)
+      .transfer(testConsumer.address, initialSupply);
+    expect(await erc20Token.balanceOf(alice.address)).to.equal(0);
+    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(
+      initialSupply
+    );
+
+    // an exit referring to the token contract
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc20Token.address,
+      destination: alice.address,
+      amount: initialSupply,
+      assetMetadata: {
+        assetType: AssetType.ERC20,
+        metadata: "0x",
+      },
+    });
+
+    // Use the exit to withdraw the tokens
+    await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
+    expect(await erc20Token.balanceOf(alice.address)).to.equal(initialSupply);
+    expect(await erc20Token.balanceOf(testConsumer.address)).to.equal(0);
+  });
+
+  it("Can execute a single ERC721 asset exit", async function () {
+    const [alice] = await ethers.getSigners();
+    const tokenId = 11;
+
+    // Alice gets all of the initial minting of tokens
+    let erc721Collection = await deployERC721(alice);
+
+    // Alice transfers all tokens to the TestConsumer
+    await erc721Collection.transferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenId
+    );
+    expect(await erc721Collection.ownerOf(tokenId)).to.equal(
+      testConsumer.address
+    );
+
+    // an exit referring to the token contract
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc721Collection.address,
+      destination: alice.address,
+      amount: 1,
+      assetMetadata: {
+        assetType: AssetType.ERC721,
+        metadata: makeTokenIdExitMetadata(tokenId),
+      },
+    });
+
+    // Use the exit to withdraw the tokens
+    await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
+    expect(await erc721Collection.ownerOf(tokenId)).to.equal(alice.address);
+  });
+
+  it("ERC721 exits with amount != 1 fail", async function () {
+    const [alice] = await ethers.getSigners();
+    let erc721Collection = await deployERC721(alice);
+    const tokenId = 11;
+
+    // an exit referring to the token contract with an amount > 1
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc721Collection.address,
+      destination: alice.address,
+      amount: 10, // <- this needs to be 1 for ERC721 exits
+      assetMetadata: {
+        assetType: AssetType.ERC721,
+        metadata: makeTokenIdExitMetadata(tokenId),
+      },
+    });
+
+    await expect(
+      testConsumer.executeSingleAssetExit(singleAssetExit)
+    ).to.be.revertedWith("Amount must be 1 for an ERC721 exit");
+  });
+
+  it("ERC721 exits with invalid tokenId", async function () {
+    const [alice] = await ethers.getSigners();
+    let erc721Collection = await deployERC721(alice);
+    const invalidTokenId = 999;
+
+    // an exit referring to the invalid token ID
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc721Collection.address,
+      destination: alice.address,
+      amount: 1,
+      assetMetadata: {
+        assetType: AssetType.ERC721,
+        metadata: makeTokenIdExitMetadata(invalidTokenId),
+      },
+    });
+
+    await expect(
+      testConsumer.executeSingleAssetExit(singleAssetExit)
+    ).to.be.revertedWith("operator query for nonexistent token");
+  });
+
+  it("Can execute a single ERC1155 asset exit", async function () {
+    const [alice] = await ethers.getSigners();
+    const tokenId = 11;
+
+    // Alice gets all of the initial minting of tokens
+    let initialSupply = ethers.utils.parseEther((1000).toString());
+    let erc1155Collection = await deployERC1155(alice, initialSupply);
+
+    // Alice transfers all tokens to the TestConsumer
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenId,
+      initialSupply,
+      "0x"
+    );
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(
+      0
+    );
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenId)
+    ).to.equal(initialSupply);
+
+    // an exit referring to the token contract
+    const singleAssetExit: SingleAssetExit = makeSimpleExit({
+      asset: erc1155Collection.address,
+      destination: alice.address,
+      amount: initialSupply,
+      assetMetadata: {
+        assetType: AssetType.ERC1155,
+        metadata: makeTokenIdExitMetadata(tokenId),
+      },
+    });
+
+    // Use the exit to withdraw the tokens
+    await (await testConsumer.executeSingleAssetExit(singleAssetExit)).wait();
+    expect(await erc1155Collection.balanceOf(alice.address, tokenId)).to.equal(
+      initialSupply
+    );
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenId)
+    ).to.equal(0);
+  });
+
+  it("Can execute a multiple token asset exits from the same collection", async function () {
+    const [alice] = await ethers.getSigners();
+    const tokenAId = 11;
+    const tokenBId = 22;
+
+    // Alice gets all of the initial minting of tokens
+    let initialSupply = ethers.utils.parseEther((1000).toString());
+    let erc1155Collection = await deployERC1155(alice, initialSupply);
+
+    // Alice transfers all tokens to the TestConsumer
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenAId,
+      initialSupply,
+      "0x"
+    );
+    await erc1155Collection.safeTransferFrom(
+      alice.address,
+      testConsumer.address,
+      tokenBId,
+      initialSupply,
+      "0x"
+    );
+
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenAId)
+    ).to.equal(initialSupply);
+    expect(
+      await erc1155Collection.balanceOf(testConsumer.address, tokenBId)
+    ).to.equal(initialSupply);
+
+    // an exit referring to the token contract
+    const exit: Exit = [
+      makeSimpleExit({
+        asset: erc1155Collection.address,
+        destination: alice.address,
+        amount: initialSupply,
+        assetMetadata: {
+          assetType: AssetType.ERC1155,
+          metadata: makeTokenIdExitMetadata(tokenAId),
+        },
+      }),
+      makeSimpleExit({
+        asset: erc1155Collection.address,
+        destination: alice.address,
+        amount: initialSupply,
+        assetMetadata: {
+          assetType: AssetType.ERC1155,
+          metadata: makeTokenIdExitMetadata(tokenBId),
+        },
+      }),
+    ];
+
+    // Use the exit to withdraw the tokens
+    await (await testConsumer.executeExit(exit)).wait();
+    expect(await erc1155Collection.balanceOf(alice.address, tokenAId)).to.equal(
+      initialSupply
+    );
+    expect(await erc1155Collection.balanceOf(alice.address, tokenBId)).to.equal(
+      initialSupply
     );
   });
 });

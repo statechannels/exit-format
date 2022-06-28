@@ -1,6 +1,6 @@
 {
   "name": "@statechannels/exit-format",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Standard Exit Format for L2s built on EVM chains",
   "repository": "https://github.com/statechannels/exit-format.git",
   "author": "geoknee <georgeknee@googlemail.com>",
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "ethers": "^5.1.4",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@openzeppelin/contracts": "4.6.0"
   }
 }

@@ -10,52 +10,37 @@ export function encodeAllocations(allocation: Allocation) {
   );
 }
 
-export function encodeExit(exit: Exit) {
-  return defaultAbiCoder.encode(
-    [
+const exitABI = [
+  {
+    type: "tuple[]",
+    components: [
+      { name: "asset", type: "address" },
+      {
+        name: "assetMetadata",
+        type: "tuple",
+        components: [
+          { name: "assetType", type: "uint8" },
+          { name: "metadata", type: "bytes" },
+        ],
+      },
       {
         type: "tuple[]",
+        name: "allocations",
         components: [
-          { name: "asset", type: "address" },
+          { name: "destination", type: "bytes32" },
+          { name: "amount", type: "uint256" },
+          { name: "allocationType", type: "uint8" },
           { name: "metadata", type: "bytes" },
-          {
-            type: "tuple[]",
-            name: "allocations",
-            components: [
-              { name: "destination", type: "bytes32" },
-              { name: "amount", type: "uint256" },
-              { name: "allocationType", type: "uint8" },
-              { name: "metadata", type: "bytes" },
-            ],
-          } as ParamType,
         ],
       } as ParamType,
     ],
-    [exit]
-  );
+  } as ParamType,
+];
+
+export function encodeExit(exit: Exit) {
+  return defaultAbiCoder.encode(exitABI, [exit]);
 }
 
 export function decodeExit(_exit_: any) {
-  return defaultAbiCoder.decode(
-    [
-      {
-        type: "tuple[]",
-        components: [
-          { name: "asset", type: "address" },
-          { name: "metadata", type: "bytes" },
-          {
-            type: "tuple[]",
-            name: "allocations",
-            components: [
-              { name: "destination", type: "bytes32" },
-              { name: "amount", type: "uint256" },
-              { name: "allocationType", type: "uint8" },
-              { name: "metadata", type: "bytes" },
-            ],
-          } as ParamType,
-        ],
-      } as ParamType,
-    ],
-    _exit_
-  ) as Exit;
+  return defaultAbiCoder.decode(exitABI, _exit_) as Exit;
 }

@@ -2,14 +2,9 @@
 pragma solidity >=0.7.0;
 pragma experimental ABIEncoderV2;
 
-/**
- * @dev Interface of the ERC20 standard as defined in the EIP.
- */
-interface ERC20Interface {
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool);
-}
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 // Ideally this would be imported from @connect/vector-withdraw-helpers
 // And the interface would match this one (note WithdrawData calldata wd has become bytes calldata cD)
@@ -23,12 +18,41 @@ library ExitFormat {
 
     // A SingleAssetExit specifies
     // * an asset address (0 implies the native asset of the chain: on mainnet, this is ETH)
-    // * custom metadata (optional field, can be zero bytes). This might specify how to transfer this particular asset (e.g. target an "ERC20.transfer"' method)
+    // * custom assetMetadata
+    //   containing
+    //   - AssetType enum value
+    //   - metadata for that token
     // * an allocations array
     struct SingleAssetExit {
         address asset;
-        bytes metadata;
+        AssetMetadata assetMetadata;
         Allocation[] allocations;
+    }
+
+    // AssetMetadata allows for different token standards
+    // that require additional data than just a token contract address
+    // * assetType specifies one of the supported asset types
+    // * metadata is a differently encoded metadata depending on the token type.
+    //   This is untyped to allow for extensions in future as different token standards emerge
+    struct AssetMetadata {
+        AssetType assetType;
+        bytes metadata;
+    }
+
+    // Enum of different (non-native) token types the SingleAssetExit can contain
+    // Native - The chains native asset (e.g. the one payable functions can receive).
+    //          This Asset type isn't technically required as native assets are also indicated by using the
+    //          zero address in the `asset` field of `SingleAssetExit`.
+    // ERC20 - Assets managed by a contract implementing IERC20
+    // ERC721 - NFT assets managed by a contract implementing IERC721.
+    //          This requires the metadata to be an encoded `TokenIdExitMetadata`
+    // ERC1155 - Fungible or non-fungible assets managed by a contract implementing IERC1155.
+    //          This requires the metadata to be an encoded `TokenIdExitMetadata`
+    enum AssetType {Native, ERC20, ERC721, ERC1155}
+
+    // Metadata structure for ERC721 and ERC1155 exits
+    struct TokenIdExitMetadata {
+        uint256 tokenId;
     }
 
     // allocations is an ordered array of Allocation.
@@ -137,8 +161,53 @@ library ExitFormat {
                 (bool success, ) = destination.call{value: amount}(""); //solhint-disable-line avoid-low-level-calls
                 require(success, "Could not transfer ETH");
             } else {
-                // TODO support other token types via the singleAssetExit.metadata field
-                ERC20Interface(asset).transfer(destination, amount);
+                if (
+                    // ERC20 Token
+                    singleAssetExit.assetMetadata.assetType == AssetType.ERC20
+                ) {
+                    IERC20(asset).transfer(destination, amount);
+                } else if (
+                    // ERC721 Token
+                    singleAssetExit.assetMetadata.assetType == AssetType.ERC721
+                ) {
+                    require(amount == 1, "Amount must be 1 for an ERC721 exit");
+                    uint256 tokenId =
+                        abi
+                            .decode(
+                            singleAssetExit
+                                .assetMetadata
+                                .metadata,
+                            (TokenIdExitMetadata)
+                        )
+                            .tokenId;
+                    IERC721(asset).safeTransferFrom(
+                        address(this),
+                        destination,
+                        tokenId
+                    );
+                } else if (
+                    // ERC1155 Token
+                    singleAssetExit.assetMetadata.assetType == AssetType.ERC1155
+                ) {
+                    uint256 tokenId =
+                        abi
+                            .decode(
+                            singleAssetExit
+                                .assetMetadata
+                                .metadata,
+                            (TokenIdExitMetadata)
+                        )
+                            .tokenId;
+                    IERC1155(asset).safeTransferFrom(
+                        address(this),
+                        destination,
+                        tokenId,
+                        amount,
+                        singleAssetExit.allocations[j].metadata // the metadata from the allocation is passed to the safeTransferFrom call
+                    );
+                } else {
+                    revert("unsupported asset");
+                }
             }
             if (
                 singleAssetExit.allocations[j].allocationType ==
