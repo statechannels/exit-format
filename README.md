@@ -55,11 +55,15 @@ contract MyLayer2 {
 ```
 
 ```typescript
-import { Exit, SingleAssetExit } from "@statechannels/exit-format";
+import {
+  Exit,
+  SingleAssetExit,
+  NullAssetMetadata,
+} from "@statechannels/exit-format";
 
 const ethExit: SingleAssetExit = {
   asset: "0x0000000000000000000000000000000000000000", // this implies the native token (e.g. ETH)
-  metadata: "0x",
+  assetMetadata: NullAssetMetadata,
   allocations: [
     {
       destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f", // Alice
@@ -78,7 +82,10 @@ const ethExit: SingleAssetExit = {
 
 const daiExit: SingleAssetExit = {
   asset: "0x6b175474e89094c44da98b954eedeac495271d0f", // this implies DAI (an ERC20 token)
-  metadata: "0x",
+  assetMetadata: {
+    assetType: AssetType.ERC20, // The format supports Native, ERC20, ERC721 and ERC1155 tokens and can be extended to others.
+    metadata: "0x",
+  },
   allocations: [
     {
       destination: "0x96f7123E3A80C9813eF50213ADEd0e4511CB820f", // Alice
