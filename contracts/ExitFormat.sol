@@ -68,7 +68,11 @@ library ExitFormat {
     // (which would make a material difference to the final state in the case of running out of gas or funds)
     // Allocations = Allocation[]
 
-    enum AllocationType {simple, withdrawHelper, guarantee}
+    enum AllocationType {
+        simple,
+        withdrawHelper,
+        guarantee
+    }
 
     // An Allocation specifies
     // * a destination, referring either to an ethereum address or an application-specific identifier
@@ -168,14 +172,11 @@ library ExitFormat {
                 _isAddress(singleAssetExit.allocations[j].destination),
                 "Destination is not a zero-padded address"
             );
-            address payable destination =
-                payable(
-                    address(
-                        uint160(
-                            uint256(singleAssetExit.allocations[j].destination)
-                        )
-                    )
-                );
+            address payable destination = payable(
+                address(
+                    uint160(uint256(singleAssetExit.allocations[j].destination))
+                )
+            );
             uint256 amount = singleAssetExit.allocations[j].amount;
             if (asset == address(0)) {
                 (bool success, ) = destination.call{value: amount}(""); //solhint-disable-line avoid-low-level-calls
@@ -191,15 +192,12 @@ library ExitFormat {
                     singleAssetExit.assetMetadata.assetType == AssetType.ERC721
                 ) {
                     require(amount == 1, "Amount must be 1 for an ERC721 exit");
-                    uint256 tokenId =
-                        abi
-                            .decode(
-                            singleAssetExit
-                                .assetMetadata
-                                .metadata,
+                    uint256 tokenId = abi
+                        .decode(
+                            singleAssetExit.assetMetadata.metadata,
                             (TokenIdExitMetadata)
                         )
-                            .tokenId;
+                        .tokenId;
                     IERC721(asset).safeTransferFrom(
                         address(this),
                         destination,
@@ -209,15 +207,12 @@ library ExitFormat {
                     // ERC1155 Token
                     singleAssetExit.assetMetadata.assetType == AssetType.ERC1155
                 ) {
-                    uint256 tokenId =
-                        abi
-                            .decode(
-                            singleAssetExit
-                                .assetMetadata
-                                .metadata,
+                    uint256 tokenId = abi
+                        .decode(
+                            singleAssetExit.assetMetadata.metadata,
                             (TokenIdExitMetadata)
                         )
-                            .tokenId;
+                        .tokenId;
                     IERC1155(asset).safeTransferFrom(
                         address(this),
                         destination,
@@ -233,10 +228,9 @@ library ExitFormat {
                 singleAssetExit.allocations[j].allocationType ==
                 uint8(AllocationType.withdrawHelper)
             ) {
-                WithdrawHelperMetaData memory wd =
-                    _parseWithdrawHelper(
-                        singleAssetExit.allocations[j].metadata
-                    );
+                WithdrawHelperMetaData memory wd = _parseWithdrawHelper(
+                    singleAssetExit.allocations[j].metadata
+                );
                 WithdrawHelper(wd.callTo).execute(wd.callData, amount);
             }
         }
@@ -311,36 +305,36 @@ library ExitFormat {
 
             // if lengths don't match the arrays are not equal
             switch eq(length, mload(_postBytes))
-                case 1 {
-                    // cb is a circuit breaker in the for loop since there's
-                    //  no said feature for inline assembly loops
-                    // cb = 1 - don't breaker
-                    // cb = 0 - break
-                    let cb := 1
+            case 1 {
+                // cb is a circuit breaker in the for loop since there's
+                //  no said feature for inline assembly loops
+                // cb = 1 - don't breaker
+                // cb = 0 - break
+                let cb := 1
 
-                    let mc := add(_preBytes, 0x20)
-                    let end := add(mc, length)
+                let mc := add(_preBytes, 0x20)
+                let end := add(mc, length)
 
-                    for {
-                        let cc := add(_postBytes, 0x20)
-                        // the next line is the loop condition:
-                        // while(uint256(mc < end) + cb == 2)
-                    } eq(add(lt(mc, end), cb), 2) {
-                        mc := add(mc, 0x20)
-                        cc := add(cc, 0x20)
-                    } {
-                        // if any of these checks fails then arrays are not equal
-                        if iszero(eq(mload(mc), mload(cc))) {
-                            // unsuccess:
-                            success := 0
-                            cb := 0
-                        }
+                for {
+                    let cc := add(_postBytes, 0x20)
+                    // the next line is the loop condition:
+                    // while(uint256(mc < end) + cb == 2)
+                } eq(add(lt(mc, end), cb), 2) {
+                    mc := add(mc, 0x20)
+                    cc := add(cc, 0x20)
+                } {
+                    // if any of these checks fails then arrays are not equal
+                    if iszero(eq(mload(mc), mload(cc))) {
+                        // unsuccess:
+                        success := 0
+                        cb := 0
                     }
                 }
-                default {
-                    // unsuccess:
-                    success := 0
-                }
+            }
+            default {
+                // unsuccess:
+                success := 0
+            }
         }
         /* solhint-disable no-inline-assembly */
 
