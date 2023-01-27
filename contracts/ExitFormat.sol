@@ -48,7 +48,15 @@ library ExitFormat {
     //          This requires the metadata to be an encoded `TokenIdExitMetadata`
     // ERC1155 - Fungible or non-fungible assets managed by a contract implementing IERC1155.
     //          This requires the metadata to be an encoded `TokenIdExitMetadata`
-    enum AssetType {Native, ERC20, ERC721, ERC1155}
+    // Qualified - Assets that are fully qualified and pinned to a specific chain and assetHolder.
+    //             This requires the metadata to be an encoded `QualifiedAssetMetaData`
+    enum AssetType {
+        Native,
+        ERC20,
+        ERC721,
+        ERC1155,
+        Qualified
+    }
 
     // Metadata structure for ERC721 and ERC1155 exits
     struct TokenIdExitMetadata {
@@ -81,6 +89,15 @@ library ExitFormat {
     struct WithdrawHelperMetaData {
         address callTo;
         bytes callData;
+    }
+
+    /**
+     * specifies the decoding format for metadata bytes fields
+     * received with the Qualified flag
+     */
+    struct QualifiedAssetMetaData {
+        uint256 chainID;
+        address assetHolder;
     }
 
     // We use underscore parentheses to denote an _encodedVariable_
@@ -143,6 +160,9 @@ library ExitFormat {
         ExitFormat.SingleAssetExit memory singleAssetExit
     ) internal {
         address asset = singleAssetExit.asset;
+
+        _requireLocalAsset(singleAssetExit);
+
         for (uint256 j = 0; j < singleAssetExit.allocations.length; j++) {
             require(
                 _isAddress(singleAssetExit.allocations[j].destination),
@@ -219,6 +239,33 @@ library ExitFormat {
                     );
                 WithdrawHelper(wd.callTo).execute(wd.callData, amount);
             }
+        }
+    }
+
+    /**
+     * @notice Inspects a single asset exit to ensure it is local to this assetHolder.
+     * @dev Inspects a single asset exit to ensure  to this assetHolder.
+     * @param singleAssetExit The single asset exit under inspection.
+     */
+    function _requireLocalAsset(SingleAssetExit memory singleAssetExit)
+        internal
+        view
+    {
+        // All unqualified assets are local by assumption.
+        if (singleAssetExit.assetMetadata.assetType == AssetType.Qualified) {
+            QualifiedAssetMetaData memory pin = abi.decode(
+                singleAssetExit.assetMetadata.metadata,
+                (QualifiedAssetMetaData)
+            );
+
+            require(
+                pin.chainID == block.chainid,
+                "Qualified asset must be on this chain"
+            );
+            require(
+                pin.assetHolder == address(this),
+                "Qualified asset must be held by this contract"
+            );
         }
     }
 

@@ -24,11 +24,17 @@ export enum AssetType {
   ERC20,
   ERC721,
   ERC1155,
+  Qualified,
 }
 
 export interface AssetMetadata {
   assetType: AssetType;
   metadata: BytesLike;
+}
+
+export interface QualifiedAssetMetaData {
+  chainID: string; // a uint256
+  assetHolder: string; // an Ethereum address
 }
 
 export const NullAssetMetadata: AssetMetadata = {
