@@ -40,17 +40,15 @@ library ExitFormat {
     }
 
     // Enum of different (non-native) token types the SingleAssetExit can contain
-    // Native - The chain's native asset (e.g. the one payable functions can receive).
-    //          This Asset type isn't technically required as native assets are also indicated by using the
-    //          zero address in the `asset` field of `SingleAssetExit`.
-    // ERC20 - Assets managed by a contract implementing IERC20
+    // Default - Either an ERC20 token or the chain's native asset, specified by
+    //           the oken address 0x00. Requires no metadata.
     // ERC721 - NFT assets managed by a contract implementing IERC721.
     //          This requires the metadata to be an encoded `TokenIdExitMetadata`
     // ERC1155 - Fungible or non-fungible assets managed by a contract implementing IERC1155.
     //          This requires the metadata to be an encoded `TokenIdExitMetadata`
     // Qualified - Assets that are fully qualified and pinned to a specific chain and assetHolder.
     //             This requires the metadata to be an encoded `QualifiedAssetMetaData`
-    enum AssetType {Native, ERC20, ERC721, ERC1155, Qualified}
+    enum AssetType {Default, ERC721, ERC1155, Qualified}
 
     // Metadata structure for ERC721 and ERC1155 exits
     struct TokenIdExitMetadata {
@@ -179,7 +177,7 @@ library ExitFormat {
             } else {
                 if (
                     // ERC20 Token
-                    singleAssetExit.assetMetadata.assetType == AssetType.ERC20
+                    singleAssetExit.assetMetadata.assetType == AssetType.Default
                 ) {
                     IERC20(asset).transfer(destination, amount);
                 } else if (

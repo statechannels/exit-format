@@ -175,7 +175,7 @@ describe("ExitFormat (solidity)", function () {
       destination: alice.address,
       amount: initialSupply,
       assetMetadata: {
-        assetType: AssetType.ERC20,
+        assetType: AssetType.Default,
         metadata: "0x",
       },
     });

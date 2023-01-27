@@ -20,8 +20,7 @@ export interface SingleAssetExit {
 }
 
 export enum AssetType {
-  Native,
-  ERC20,
+  Default,
   ERC721,
   ERC1155,
   Qualified,
@@ -38,7 +37,7 @@ export interface QualifiedAssetMetaData {
 }
 
 export const NullAssetMetadata: AssetMetadata = {
-  assetType: AssetType.Native,
+  assetType: AssetType.Default,
   metadata: "0x",
 };
 
