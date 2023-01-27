@@ -40,7 +40,7 @@ library ExitFormat {
     }
 
     // Enum of different (non-native) token types the SingleAssetExit can contain
-    // Native - The chains native asset (e.g. the one payable functions can receive).
+    // Native - The chain's native asset (e.g. the one payable functions can receive).
     //          This Asset type isn't technically required as native assets are also indicated by using the
     //          zero address in the `asset` field of `SingleAssetExit`.
     // ERC20 - Assets managed by a contract implementing IERC20
