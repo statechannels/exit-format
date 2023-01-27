@@ -371,6 +371,7 @@ describe("ExitFormat (solidity)", function () {
 
   it("Correctly interprets qualified assets", async function () {
     const amount = "0x01";
+    const zero = "0x00";
 
     // deposit some native asset into the test consumer
     await testConsumer.signer.sendTransaction({
@@ -385,32 +386,33 @@ describe("ExitFormat (solidity)", function () {
     // Note: correct chainID is 31337 (default hardhat chainID)
     //       correct asset holder address is testConsumer.address
 
+    // failure case
     const badChainID = getQualifiedSAE(
       1, // eth mainnet
       testConsumer.address,
       alice.address,
       amount
     );
-    await expect(
-      testConsumer.executeSingleAssetExit(badChainID)
-    ).to.be.revertedWith("Qualified asset must be on this chain");
+    await (await testConsumer.executeSingleAssetExit(badChainID)).wait();
     expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
-      "0x00"
+      zero
     );
 
+    // failure case
     const badAssetHolderAddress = getQualifiedSAE(
       31337,
       alice.address, // alice's address is not the asset holder's address
       alice.address,
       amount
     );
-    await expect(
-      testConsumer.executeSingleAssetExit(badAssetHolderAddress)
-    ).to.be.revertedWith("Qualified asset must be held by this contract");
+    await (
+      await testConsumer.executeSingleAssetExit(badAssetHolderAddress)
+    ).wait();
     expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
-      "0x00"
+      zero
     );
 
+    // success case
     const correctlyQualifiedLocalAsset = getQualifiedSAE(
       31337,
       testConsumer.address,

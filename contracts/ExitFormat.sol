@@ -155,7 +155,9 @@ library ExitFormat {
     ) internal {
         address asset = singleAssetExit.asset;
 
-        _requireLocalAsset(singleAssetExit);
+        if (_isForeignAsset(singleAssetExit)) {
+            return;
+        }
 
         for (uint256 j = 0; j < singleAssetExit.allocations.length; j++) {
             require(
@@ -237,15 +239,15 @@ library ExitFormat {
     }
 
     /**
-     * @notice Inspects a single asset exit to ensure it is local to this assetHolder.
-     * @dev Inspects a single asset exit to ensure  to this assetHolder.
+     * @notice Inspects a single asset exit to detect if it is foreign to this assetHolder.
+     * @dev Inspects a single asset exit to detect if it is foreign to this assetHolder.
      * @param singleAssetExit The single asset exit under inspection.
      */
-    function _requireLocalAsset(SingleAssetExit memory singleAssetExit)
+    function _isForeignAsset(SingleAssetExit memory singleAssetExit)
         internal
         view
+        returns (bool)
     {
-        // All unqualified assets are local by assumption.
         if (singleAssetExit.assetMetadata.assetType == AssetType.Qualified) {
             QualifiedAssetMetaData memory pin =
                 abi.decode(
@@ -253,14 +255,12 @@ library ExitFormat {
                     (QualifiedAssetMetaData)
                 );
 
-            require(
-                pin.chainID == block.chainid,
-                "Qualified asset must be on this chain"
-            );
-            require(
-                pin.assetHolder == address(this),
-                "Qualified asset must be held by this contract"
-            );
+            return
+                pin.chainID != block.chainid ||
+                pin.assetHolder != address(this);
+        } else {
+            // All unqualified assets are local by assumption.
+            return false;
         }
     }
 
