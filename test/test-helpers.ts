@@ -87,14 +87,14 @@ export async function deployERC1155(deployer: any, initialSupply: number) {
  *
  * @param chainId The qualified asset's chain ID
  * @param assetHolder the qualified asset's asset holder contract address
- * @param destination the recipient of the asset
+ * @param address the recipient of the asset
  * @param amount the amount of the asset to transfer
  * @returns
  */
 export function getQualifiedSAE(
   chainId: number,
   assetHolder: string,
-  destination: string,
+  address: string,
   amount: string
 ): SingleAssetExit {
   return {
@@ -108,7 +108,7 @@ export function getQualifiedSAE(
     },
     allocations: [
       {
-        destination: "0x000000000000000000000000" + destination.slice(2),
+        destination: "0x000000000000000000000000" + address.slice(2),
         amount,
         allocationType: AllocationType.simple,
         metadata: "0x",
