@@ -249,15 +249,15 @@ library ExitFormat {
         returns (bool)
     {
         if (singleAssetExit.assetMetadata.assetType == AssetType.Qualified) {
-            QualifiedAssetMetaData memory pin =
+            QualifiedAssetMetaData memory expectedLocation =
                 abi.decode(
                     singleAssetExit.assetMetadata.metadata,
                     (QualifiedAssetMetaData)
                 );
 
             return
-                pin.chainID != block.chainid ||
-                pin.assetHolder != address(this);
+                expectedLocation.chainID != block.chainid ||
+                expectedLocation.assetHolder != address(this);
         } else {
             // All unqualified assets are local by assumption.
             return false;
