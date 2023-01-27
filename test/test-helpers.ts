@@ -5,9 +5,10 @@ import {
   SingleAssetExit,
   AllocationType,
   NullAssetMetadata,
+  AssetType,
 } from "../src/types";
 
-import { Result } from "@ethersproject/abi";
+import { defaultAbiCoder, Result } from "@ethersproject/abi";
 import { BigNumber } from "@ethersproject/bignumber";
 import { BytesLike } from "@ethersproject/bytes";
 
@@ -78,4 +79,40 @@ export async function deployERC1155(deployer: any, initialSupply: number) {
   ).deploy(initialSupply);
   await erc1155Collection.deployed();
   return erc1155Collection;
+}
+
+/**
+ * Constructs a single asset exit pinned to the given chainID and assetHolder address.
+ * The asset is the native asset of the chain.
+ *
+ * @param chainId The qualified asset's chain ID
+ * @param assetHolder the qualified asset's asset holder contract address
+ * @param address the recipient of the asset
+ * @param amount the amount of the asset to transfer
+ * @returns
+ */
+export function getQualifiedSAE(
+  chainId: number,
+  assetHolder: string,
+  address: string,
+  amount: string
+): SingleAssetExit {
+  return {
+    asset: "0x0000000000000000000000000000000000000000",
+    assetMetadata: {
+      assetType: AssetType.Qualified,
+      metadata: defaultAbiCoder.encode(
+        ["uint chainID", "address assetHolder"],
+        [chainId, assetHolder]
+      ),
+    },
+    allocations: [
+      {
+        destination: "0x000000000000000000000000" + address.slice(2),
+        amount,
+        allocationType: AllocationType.simple,
+        metadata: "0x",
+      },
+    ],
+  };
 }

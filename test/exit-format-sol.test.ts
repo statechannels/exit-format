@@ -12,7 +12,13 @@ import {
 import { makeTokenIdExitMetadata } from "../src/token-id-metadata";
 import { TestConsumer } from "../typechain/TestConsumer";
 import { makeSimpleExit } from "./test-helpers";
-import { deployERC20, deployERC721, deployERC1155 } from "./test-helpers";
+import {
+  deployERC20,
+  deployERC721,
+  deployERC1155,
+  getQualifiedSAE,
+} from "./test-helpers";
+import { AbiCoder, defaultAbiCoder } from "ethers/lib/utils";
 
 describe("ExitFormat (solidity)", function () {
   let testConsumer: TestConsumer;
@@ -169,7 +175,7 @@ describe("ExitFormat (solidity)", function () {
       destination: alice.address,
       amount: initialSupply,
       assetMetadata: {
-        assetType: AssetType.ERC20,
+        assetType: AssetType.Default,
         metadata: "0x",
       },
     });
@@ -360,6 +366,65 @@ describe("ExitFormat (solidity)", function () {
     );
     expect(await erc1155Collection.balanceOf(alice.address, tokenBId)).to.equal(
       initialSupply
+    );
+  });
+
+  it("Correctly interprets qualified assets", async function () {
+    const amount = "0x01";
+    const zero = "0x00";
+
+    // deposit some native asset into the test consumer
+    await testConsumer.signer.sendTransaction({
+      to: testConsumer.address,
+      value: BigNumber.from(amount).toHexString(),
+    });
+
+    const alice = new Wallet(
+      "0x68d3e3134e2b3488ad249233f8fa77ea040bbb6434ea28e4acde7db08200000a"
+    );
+
+    // Note: correct chainID is 31337 (default hardhat chainID)
+    //       correct asset holder address is testConsumer.address
+
+    // failure case
+    const badChainID = getQualifiedSAE(
+      1, // eth mainnet
+      testConsumer.address,
+      alice.address,
+      amount
+    );
+    await (await testConsumer.executeSingleAssetExit(badChainID)).wait();
+    expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
+      zero
+    );
+
+    // failure case
+    const badAssetHolderAddress = getQualifiedSAE(
+      31337,
+      alice.address, // alice's address is not the asset holder's address
+      alice.address,
+      amount
+    );
+    await (
+      await testConsumer.executeSingleAssetExit(badAssetHolderAddress)
+    ).wait();
+    expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
+      zero
+    );
+
+    // success case
+    const correctlyQualifiedLocalAsset = getQualifiedSAE(
+      31337,
+      testConsumer.address,
+      alice.address,
+      amount
+    );
+
+    await (
+      await testConsumer.executeSingleAssetExit(correctlyQualifiedLocalAsset)
+    ).wait();
+    expect(await testConsumer.provider.getBalance(alice.address)).to.equal(
+      amount
     );
   });
 });

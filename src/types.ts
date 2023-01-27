@@ -20,10 +20,10 @@ export interface SingleAssetExit {
 }
 
 export enum AssetType {
-  Native,
-  ERC20,
+  Default,
   ERC721,
   ERC1155,
+  Qualified,
 }
 
 export interface AssetMetadata {
@@ -31,8 +31,13 @@ export interface AssetMetadata {
   metadata: BytesLike;
 }
 
+export interface QualifiedAssetMetaData {
+  chainID: string; // a uint256
+  assetHolder: string; // an Ethereum address
+}
+
 export const NullAssetMetadata: AssetMetadata = {
-  assetType: AssetType.Native,
+  assetType: AssetType.Default,
   metadata: "0x",
 };
 
